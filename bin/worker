@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Usage:
+# $1 - the identifier of the worker instance, starting in 0.
+# $2 - the identifier of the queue from which it should consume.
+
+mvn clean compile exec:java \
+    -Dexec.args="-id $1 -queue ${2:-message_queue}"

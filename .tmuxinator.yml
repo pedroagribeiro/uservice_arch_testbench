@@ -1,0 +1,36 @@
+name: uservice_architectures_testbench
+root: <%= ENV["PWD"] %>
+
+startup_window: producer
+
+windows:
+  - producer:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd producer
+            - ../bin/producer
+  - broker:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd broker
+            - ../bin/broker
+  - worker_id_0:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd worker
+            - ../bin/worker 0
+  - worker_id_1:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd worker
+            - ../bin/worker 1
+  - worker_id_2:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd worker
+            - ../bin/worker 2

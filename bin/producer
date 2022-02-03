@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Usage:
+# $1 - the number of different origins that the message can have.
+# $2 - the total number of messages that must be generated.
+# $3 - the identifier of the queue that it should produce to.
+# $4 - the host in which the queue is running.
+# $5 - the port of the host in which the queue is exposed.
+
+mvn clean compile exec:java \
+    -Dexec.args="-olts ${1:-100} -messages ${2:-10000} -queue ${3:-message_queue} -queue_host ${4:-localhost} -queue_port ${5:-5675}" \

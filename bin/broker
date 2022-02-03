@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Usage:
+# $1 - the identifier of the queue that it should consume.
+# $2 - the number of workers it must feed.
+# $3 - the host of the redis database.
+# $4 - the port in which the redis database is exposed.
+# $5 - the port in which the workers queues start.
+# $6 - the host of the queue that is consumes from.
+# $7 - the port in which the queue is exposed.
+
+mvn clean compile exec:java \
+    -Dexec.args="-queue ${1:-message_queue} -workers ${2:-3} -redis_host ${3:-localhost} -redis_port ${4:-6379} -workers_base_port ${5:-5672} -queue_host ${6:-localhost} -queue_port ${7:-5675}"
