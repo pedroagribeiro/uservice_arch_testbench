@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  worker_queue:
+    image: rabbitmq:latest
+    container_name: queue_1
+    ports:
+      - "5672:5672"
+      - "15672:15672"
