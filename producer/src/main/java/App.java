@@ -1,5 +1,6 @@
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -26,6 +27,8 @@ public class App {
     @Parameter(names = { "-queue_port"}, description = "The port in which the queue is exposed in the host")
     private static int queue_port;
 
+    private static Gson converter = new Gson();
+
     public static void main(String[] args) throws Exception {
         App application = new App();
         JCommander commands = JCommander.newBuilder().addObject(application).build();
@@ -40,6 +43,8 @@ public class App {
     }
 
     public void start() throws IOException, TimeoutException, InterruptedException {
+        // JSON Converter
+        Gson converter = new Gson();
         // Create a connection to the RabbitMQ server
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(queue_host);
@@ -52,8 +57,8 @@ public class App {
                 Message m = message_generator();
                 // Sleep Time: 100 < t < 1000
                 int sleep_time = (rand.nextInt(10) + 1) * 100;
-                channel.basicPublish("", queue_name, null, m.get_olt().getBytes(StandardCharsets.UTF_8));
-                System.out.println("Published '" + m.get_olt() + "' to the broker");
+                channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                System.out.println("Published '" + converter.toJson(m) + "' to the broker");
                 Thread.sleep(sleep_time);
             }
         }

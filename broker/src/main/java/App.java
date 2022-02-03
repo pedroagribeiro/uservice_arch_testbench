@@ -1,5 +1,6 @@
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -10,6 +11,7 @@ import redis.clients.jedis.JedisPool;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,6 +38,8 @@ public class App {
 
     @Parameter(names = { "-queue_port"}, description = "Consumer queue port")
     private static int queue_port;
+
+    private Gson converter = new Gson();
 
     public static void main(String[] args) throws IOException, TimeoutException {
         App application = new App();
@@ -76,17 +80,20 @@ public class App {
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            Message m = converter.fromJson(jsonString, Message.class);
             try (Jedis jedis = pool.getResource()) {
-                if(jedis.exists(message)) {
-                    int worker = Integer.parseInt(jedis.get(message));
-                    producing_channels.get(worker).basicPublish("", queue_name, null, message.getBytes(StandardCharsets.UTF_8));
-                    System.out.println("Forwarded '" + message + "' to worker no. " + worker);
+                if(jedis.exists(m.get_olt())) {
+                    int worker = Integer.parseInt(jedis.get(m.get_olt()));
+                    m.set_forwarded_by_broker(new Date());
+                    producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                    System.out.println("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 } else {
                     int worker = (last_chosen_worker.get() + 1) % upstream_workers_count;
+                    m.set_forwarded_by_broker(new Date());
                     last_chosen_worker.set(worker);
-                    producing_channels.get(worker).basicPublish("", queue_name, null, message.getBytes(StandardCharsets.UTF_8));
-                    System.out.println("Forwarded '" + message + "' to worker no. " + worker);
+                    producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                    System.out.println("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 }
             }
         };

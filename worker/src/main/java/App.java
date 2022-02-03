@@ -1,5 +1,6 @@
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -7,6 +8,7 @@ import com.rabbitmq.client.DeliverCallback;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 public class App {
@@ -16,6 +18,8 @@ public class App {
 
     @Parameter(names = { "-id", "--worker-id" }, description = "The identifier of the current worker")
     private static int worker_id;
+
+    private static Gson converter = new Gson();
 
     public static void main(String[] args) throws IOException, TimeoutException {
         App application = new App();
@@ -38,8 +42,10 @@ public class App {
         channel.queueDeclare(queue_name, false, false, false, null);
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            System.out.println(" [x] Received: '" + message + "'");
+            String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            Message m = converter.fromJson(jsonString, Message.class);
+            m.set_handled_by_worker(new Date());
+            System.out.println(" [x] Received: '" + converter.toJson(m) + "'");
         };
 
         channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});
