@@ -29,3 +29,8 @@ services:
     container_name: redis_db
     ports:
       - "6379:6379"
+  results_db:
+    image: redis:latest
+    container_name: results
+    ports:
+      - "6380:6379"

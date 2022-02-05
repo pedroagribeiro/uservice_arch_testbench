@@ -5,6 +5,10 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -40,6 +44,8 @@ public class App {
     private static int queue_port;
 
     private Gson converter = new Gson();
+
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     public static void main(String[] args) throws IOException, TimeoutException {
         App application = new App();
@@ -77,7 +83,6 @@ public class App {
         }
 
         channel.queueDeclare(queue_name, false, false, false, null);
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -85,15 +90,15 @@ public class App {
             try (Jedis jedis = pool.getResource()) {
                 if(jedis.exists(m.get_olt())) {
                     int worker = Integer.parseInt(jedis.get(m.get_olt()));
-                    m.set_forwarded_by_broker(new Date());
+                    m.set_forwarded_by_broker(new Date().getTime());
                     producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                    System.out.println("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
+                    log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 } else {
                     int worker = (last_chosen_worker.get() + 1) % upstream_workers_count;
-                    m.set_forwarded_by_broker(new Date());
+                    m.set_forwarded_by_broker(new Date().getTime());
                     last_chosen_worker.set(worker);
                     producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                    System.out.println("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
+                    log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 }
             }
         };

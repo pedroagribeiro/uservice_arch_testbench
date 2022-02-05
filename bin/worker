@@ -5,4 +5,4 @@
 # $2 - the identifier of the queue from which it should consume.
 
 mvn clean compile exec:java \
-    -Dexec.args="-id $1 -queue ${2:-message_queue}"
+    -Dexec.args="-id $1 -queue ${2:-message_queue} -redis_host ${3:-localhost} -redis_port ${4:-6379}"

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Purging all RabbitMQ queues..."
+./bin/purge_all_queues
+
+echo "Flushing all Redis databases..."
+./bin/purge_redis

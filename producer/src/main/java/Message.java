@@ -1,21 +1,30 @@
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Objects;
 
 public class Message implements Serializable {
 
+    private int id;
     private String olt;
     private int processing_time;
-    private Date forwarded_by_broker;
-    private Date handled_by_worker;
+    private long forwarded_by_broker;
+    private long handled_by_worker;
 
-    public Message(final String olt, final int processing_time) {
+    public Message(final int id, final String olt, final int processing_time) {
+        this.id = id;
         this.olt = olt;
         this.processing_time = processing_time;
-        this.forwarded_by_broker = null;
-        this.handled_by_worker = null;
+        this.forwarded_by_broker = -1;
+        this.handled_by_worker = -1;
     }
 
+    public void set_id(final int id) {
+        this.id = id;
+    }
+
+    public int get_id() { 
+        return this.id;
+    }
+    
     public void set_olt(final String olt) {
         this.olt = olt;
     }
@@ -32,26 +41,27 @@ public class Message implements Serializable {
         return this.processing_time;
     }
 
-    public void set_forwarded_by_broker(final Date forwarded) {
+    public void set_forwarded_by_broker(final long forwarded) {
         this.forwarded_by_broker = forwarded;
     }
 
-    public Date get_forwarded_by_broker() {
+    public long get_forwarded_by_broker() {
         return this.forwarded_by_broker;
     }
 
-    public void set_handled_by_worker(final Date handled) {
+    public void set_handled_by_worker(final long handled) {
         this.handled_by_worker = handled;
     }
 
-    public Date get_handled_by_worker() {
+    public long get_handled_by_worker() {
         return this.handled_by_worker;
     }
 
     @Override
     public String toString() {
         return "utils.Message{" +
-                "olt='" + olt + '\'' +
+                "id=" + id +
+                ", olt='" + olt + '\'' +
                 ", processing_time=" + processing_time +
                 ", forwarded_by_broker=" + forwarded_by_broker +
                 ", handled_by_worker=" + handled_by_worker +
@@ -63,11 +73,11 @@ public class Message implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return processing_time == message.processing_time && Objects.equals(olt, message.olt) && Objects.equals(forwarded_by_broker, message.forwarded_by_broker) && Objects.equals(handled_by_worker, message.handled_by_worker);
+        return id == message.id && processing_time == message.processing_time && Objects.equals(olt, message.olt) && Objects.equals(forwarded_by_broker, message.forwarded_by_broker) && Objects.equals(handled_by_worker, message.handled_by_worker);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(olt, processing_time, forwarded_by_broker, handled_by_worker);
+        return Objects.hash(id, olt, processing_time, forwarded_by_broker, handled_by_worker);
     }
 }

@@ -5,6 +5,9 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -28,6 +31,10 @@ public class App {
     private static int queue_port;
 
     private static Gson converter = new Gson();
+
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
+
+    private int message_id = 0;
 
     public static void main(String[] args) throws Exception {
         App application = new App();
@@ -54,22 +61,23 @@ public class App {
             channel.queueDeclare(queue_name, false, false, false, null);
             for(int i = 0; i < messages_to_generate; i++) {
                 Random rand = new Random();
-                Message m = message_generator();
-                // Sleep Time: 100 < t < 1000
-                int sleep_time = (rand.nextInt(10) + 1) * 100;
+                Message m = message_generator(message_id++);
+                // Sleep Time: 500 < t < 5000
+                int sleep_time = (rand.nextInt(10) + 5) * 100;
                 channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                System.out.println("Published '" + converter.toJson(m) + "' to the broker");
+                // System.out.println("Published '" + converter.toJson(m) + "' to the broker");
+                log.info("Published '" + converter.toJson(m) + "' to the broker");
                 Thread.sleep(sleep_time);
             }
         }
     }
 
-    private static Message message_generator() {
+    private static Message message_generator(final int message_id) {
         Random random = new Random();
         int olt_identifier = random.nextInt(olt_number + 1);
         int message_processing_time = random.nextInt(4) * 1000 + 1000; // 1000 < t < 4000
         String olt_name = "OLT" + olt_identifier;
-        Message m = new Message(olt_name, message_processing_time);
+        Message m = new Message(message_id, olt_name, message_processing_time);
         return m;
     }
 }
