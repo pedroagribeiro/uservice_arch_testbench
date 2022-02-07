@@ -45,14 +45,18 @@ public class App {
 
     private class RequestReport {
 
-        private String request_id;
+        private long request_id;
         private String olt;
-        private long transit_time;
+        private long total_time;
+        private long time_broker_queue;
+        private long time_worker_queue;
 
-        private RequestReport(final String request_id, final String olt, final long transit_time) {
+        private RequestReport(final long request_id, final String olt, final long total_time, final long time_broker_queue, final long time_worker_queue) {
             this.request_id = request_id;
             this.olt = olt;
-            this.transit_time = transit_time;
+            this.total_time = total_time;
+            this.time_broker_queue = time_broker_queue;
+            this.time_worker_queue = time_worker_queue;
         }
 
         @Override
@@ -60,7 +64,9 @@ public class App {
             return "RequestReport{" +
                     "request_id='" + request_id + '\'' +
                     ", olt='" + olt + '\'' +
-                    ", transit_time=" + transit_time +
+                    ", total_time=" + total_time +
+                    ", time_broker_queue=" + time_broker_queue +
+                    ", time_worker_queue=" + time_worker_queue +
                     '}';
         }
     }
@@ -81,8 +87,8 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
-            log.info("Received: '" + converter.toJson(m) + "'");
             m.set_handled_by_worker(new Date().getTime());
+            log.info("Received: '" + converter.toJson(m) + "'");
             try(Jedis jedis = pool.getResource()) {
                 jedis.set(m.get_olt(), String.valueOf(worker_id));
                 Thread.sleep(m.get_processing_time());
@@ -90,8 +96,8 @@ public class App {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            RequestReport report = new RequestReport(m.get_olt(), m.get_olt(), m.get_handled_by_worker() - m.get_forwarded_by_broker());
-            results_jedis.set(report.request_id, converter.toJson(report));
+            RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_handled_by_worker() - m.get_issued_at(), m.get_forwarded_by_broker() - m.get_issued_at(), m.get_handled_by_worker() - m.get_forwarded_by_broker());
+            results_jedis.set(String.valueOf(report.request_id), converter.toJson(report));
         };
 
         channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});

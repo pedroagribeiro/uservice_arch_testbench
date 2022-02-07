@@ -8,9 +8,17 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeoutException;
 
 public class App {
@@ -48,8 +56,77 @@ public class App {
         application.start();
 
     }
+    private class RequestReport {
+
+        private long request_id;
+        private String olt;
+        private long total_time;
+        private long time_broker_queue;
+        private long time_worker_queue;
+
+        private RequestReport(final long request_id, final String olt, final long total_time, final long time_broker_queue, final long time_worker_queue) {
+            this.request_id = request_id;
+            this.olt = olt;
+            this.total_time = total_time;
+            this.time_broker_queue = time_broker_queue;
+            this.time_worker_queue = time_worker_queue;
+        }
+        
+        public long get_request_id() { 
+            return this.request_id;
+        }
+
+        public void set_request_id(final long request_id) {
+            this.request_id = request_id;
+        }
+
+        public String get_olt() {
+            return this.olt;
+        }
+
+        public void set_olt(final String olt) {
+            this.olt = olt;
+        }
+
+        public long get_total_time() {
+            return this.total_time;
+        }
+
+        public void set_total_time(final long total_time) {
+            this.total_time = total_time;
+        }
+
+        public long get_time_broker_queue() {
+            return this.time_broker_queue;
+        }
+
+        public void set_time_broker_queue(final long time_broker_queue) {
+            this.time_broker_queue = time_broker_queue;
+        }
+
+        public long get_time_worker_queue() {
+            return this.time_worker_queue;
+        }
+
+        public void set_time_worker_queue(final long time_worker_queue) {
+            this.time_worker_queue = time_worker_queue;
+        }
+
+        @Override
+        public String toString() {
+            return "RequestReport{" +
+                    "request_id='" + request_id + '\'' +
+                    ", olt='" + olt + '\'' +
+                    ", total_time=" + total_time +
+                    ", time_broker_queue=" + time_broker_queue +
+                    ", time_worker_queue=" + time_worker_queue +
+                    '}';
+        }
+    }
 
     public void start() throws IOException, TimeoutException, InterruptedException {
+        // Redis database of the results connections
+        JedisPool pool = new JedisPool("localhost", 6380);
         // JSON Converter
         Gson converter = new Gson();
         // Create a connection to the RabbitMQ server
@@ -70,6 +147,24 @@ public class App {
                 Thread.sleep(sleep_time);
             }
         }
+        try(Jedis jedis = pool.getResource()) {
+            List<RequestReport> reports = new ArrayList<>();
+            long key_count = jedis.dbSize();
+            // Enquanto não existirem 100 resultados espera
+            while(key_count < 100) {
+                Thread.sleep(2000);
+                key_count = jedis.dbSize();
+            }
+            Set<byte[]> keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
+            for(byte[] key : keys) {
+                RequestReport report = converter.fromJson(jedis.get(new String(key)), RequestReport.class);
+                reports.add(report);
+            }
+            System.out.println(metrics_calculator(reports));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static Message message_generator(final int message_id) {
@@ -78,6 +173,22 @@ public class App {
         int message_processing_time = random.nextInt(4) * 1000 + 1000; // 1000 < t < 4000
         String olt_name = "OLT" + olt_identifier;
         Message m = new Message(message_id, olt_name, message_processing_time);
+        m.set_issued_at(new Date().getTime());
         return m;
+    }
+
+    private static String metrics_calculator(List<RequestReport> results) {
+        long total_time_total = 0;
+        long time_broker_queue_total = 0;
+        long time_worker_queue_total = 0;
+        for(RequestReport r : results) {
+            total_time_total += r.get_total_time();
+            time_broker_queue_total += r.get_time_broker_queue();
+            time_worker_queue_total += r.get_time_worker_queue();
+        }
+        double avg_time_total = total_time_total / results.size();
+        double avg_time_broker_queue = time_broker_queue_total / results.size();
+        double avg_time_worker_queue = time_worker_queue_total / results.size();
+        return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue;
     }
 }
