@@ -8,4 +8,4 @@
 # $5 - the port of the host in which the queue is exposed.
 
 mvn clean compile exec:java \
-    -Dexec.args="-olts ${1:-10} -messages ${2:-100} -queue ${3:-message_queue} -queue_host ${4:-localhost} -queue_port ${5:-5675} -directly_from_broker_queue ${6:-1}" 
+    -Dexec.args="-olts ${1:-10} -messages ${2:-1000} -queue ${3:-message_queue} -queue_host ${4:-localhost} -queue_port ${5:-5675} -directly_from_broker_queue ${6:-1}" 

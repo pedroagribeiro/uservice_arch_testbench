@@ -104,17 +104,18 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
+            m.set_dequeued_at_broker(new Date().getTime());
             try (Jedis jedis = pool.getResource()) {
                 if(jedis.exists(m.get_olt())) {
                     int worker = Integer.parseInt(jedis.get(m.get_olt()));
-                    m.set_forwarded_by_broker(new Date().getTime());
                     producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                    m.set_enqueued_at_worker(new Date().getTime());
                     log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 } else {
                     int worker = (last_chosen_worker.get() + 1) % upstream_workers_count;
-                    m.set_forwarded_by_broker(new Date().getTime());
                     last_chosen_worker.set(worker);
                     producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                    m.set_enqueued_at_worker(new Date().getTime());
                     log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 }
             }
@@ -153,8 +154,8 @@ public class App {
             if(worker < 0 || worker > 2) {
                 worker = new Random().nextInt(3);
             }
-            m.set_forwarded_by_broker(new Date().getTime());
             producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+            m.set_enqueued_at_worker(new Date().getTime());
             log.info("Forwared '" + converter.toJson(m) + "' to worker no. " + worker);
         };
         channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});

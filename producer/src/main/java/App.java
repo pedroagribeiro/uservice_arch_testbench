@@ -143,6 +143,7 @@ public class App {
                 Message m = message_generator(message_id++);
                 // Sleep Time: 500 < t < 5000
                 int sleep_time = (rand.nextInt(10) + 5) * 100;
+                m.set_enqueued_at_broker(new Date().getTime());
                 channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
                 log.info("Published '" + converter.toJson(m) + "' to the broker");
                 Thread.sleep(sleep_time);
@@ -152,7 +153,7 @@ public class App {
             List<RequestReport> reports = new ArrayList<>();
             long key_count = jedis.dbSize();
             // Enquanto não existirem 100 resultados espera
-            while(key_count < 100) {
+            while(key_count < messages_to_generate) {
                 log.info("I got " + key_count + " results already.");
                 Thread.sleep(2000);
                 key_count = jedis.dbSize();
@@ -175,7 +176,6 @@ public class App {
         int message_processing_time = random.nextInt(4) * 1000 + 1000; // 1000 < t < 4000
         String olt_name = "OLT" + olt_identifier;
         Message m = new Message(message_id, olt_name, message_processing_time);
-        m.set_issued_at(new Date().getTime());
         return m;
     }
 
@@ -192,9 +192,9 @@ public class App {
         double avg_time_broker_queue = time_broker_queue_total / results.size();
         double avg_time_worker_queue = time_worker_queue_total / results.size();
         if(directly_from_broker == 1) {
-            return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue;
-        } else {
             return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue;
+        } else {
+            return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue;
         }
     }
 }

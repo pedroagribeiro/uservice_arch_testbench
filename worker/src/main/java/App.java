@@ -101,16 +101,17 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
-            m.set_handled_by_worker(new Date().getTime());
+            m.set_dequeued_at_worker(new Date().getTime());
             log.info("Received: '" + converter.toJson(m) + "'");
             try(Jedis jedis = pool.getResource()) {
                 jedis.set(m.get_olt(), String.valueOf(worker_id));
                 Thread.sleep(m.get_processing_time());
+                m.set_completed(new Date().getTime());
                 jedis.del(m.get_olt());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_handled_by_worker() - m.get_issued_at(), m.get_forwarded_by_broker() - m.get_issued_at(), m.get_handled_by_worker() - m.get_forwarded_by_broker());
+            RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_completed() - m.get_issued_at(), m.get_dequeued_at_broker() - m.get_enqueued_at_broker(), m.get_dequeued_at_worker() - m.get_enqueued_at_worker());
             results_jedis.set(String.valueOf(report.request_id), converter.toJson(report));
         };
 
@@ -157,9 +158,9 @@ public class App {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                m.set_handled_by_worker(new Date().getTime());
+                m.set_completed(new Date().getTime());
                 jedis.del(m.get_olt());
-                RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_handled_by_worker() - m.get_issued_at(), m.get_forwarded_by_broker() - m.get_issued_at(), m.get_handled_by_worker() - m.get_forwarded_by_broker()); 
+                RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_completed() - m.get_issued_at(), m.get_dequeued_at_broker() - m.get_enqueued_at_broker(), m.get_dequeued_at_worker() - m.get_enqueued_at_worker()); 
                 results_jedis.set(String.valueOf(report.request_id), converter.toJson(report));
             }
         };
