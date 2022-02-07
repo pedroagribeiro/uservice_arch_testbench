@@ -69,10 +69,11 @@ public class App {
             case 2:
                 application.start_logic_2();
                 break;
+            case 3:
+                application.start_logic_3();
             default:
                 break;
         }
-        application.start_logic_2();
     }
 
     public void start_logic_1() throws IOException, TimeoutException {
@@ -158,5 +159,9 @@ public class App {
         };
         channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});
 
+    }
+
+    public void start_logic_3() {
+        log.info("👀 I ain't doing anything. Just seeing what's up!");
     }
 }

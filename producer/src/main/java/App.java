@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeoutException;
 
 public class App {
@@ -37,6 +36,9 @@ public class App {
 
     @Parameter(names = { "-queue_port"}, description = "The port in which the queue is exposed in the host")
     private static int queue_port;
+
+    @Parameter(names = { "-directly_from_broker_queue"}, description = "When active the worker consume the broker queue directly")
+    private static int directly_from_broker;
 
     private static Gson converter = new Gson();
 
@@ -142,7 +144,6 @@ public class App {
                 // Sleep Time: 500 < t < 5000
                 int sleep_time = (rand.nextInt(10) + 5) * 100;
                 channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                // System.out.println("Published '" + converter.toJson(m) + "' to the broker");
                 log.info("Published '" + converter.toJson(m) + "' to the broker");
                 Thread.sleep(sleep_time);
             }
@@ -152,6 +153,7 @@ public class App {
             long key_count = jedis.dbSize();
             // Enquanto não existirem 100 resultados espera
             while(key_count < 100) {
+                log.info("I got " + key_count + " results already.");
                 Thread.sleep(2000);
                 key_count = jedis.dbSize();
             }
@@ -160,7 +162,7 @@ public class App {
                 RequestReport report = converter.fromJson(jedis.get(new String(key)), RequestReport.class);
                 reports.add(report);
             }
-            System.out.println(metrics_calculator(reports));
+            System.out.println(metrics_calculator(reports, directly_from_broker));
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,7 +179,7 @@ public class App {
         return m;
     }
 
-    private static String metrics_calculator(List<RequestReport> results) {
+    private static String metrics_calculator(List<RequestReport> results, int directly_from_broker) {
         long total_time_total = 0;
         long time_broker_queue_total = 0;
         long time_worker_queue_total = 0;
@@ -189,6 +191,10 @@ public class App {
         double avg_time_total = total_time_total / results.size();
         double avg_time_broker_queue = time_broker_queue_total / results.size();
         double avg_time_worker_queue = time_worker_queue_total / results.size();
-        return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue;
+        if(directly_from_broker == 1) {
+            return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue;
+        } else {
+            return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue;
+        }
     }
 }
