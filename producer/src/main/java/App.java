@@ -12,6 +12,8 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +57,10 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
+        InetAddress address = InetAddress.getByName(queue_host);
+        System.out.println(address.getAddress());
+        boolean reachable = address.isReachable(10000);
+        System.out.println("Is network reachable: " + reachable);
         application.start();
 
     }
