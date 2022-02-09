@@ -19,5 +19,4 @@ COPY target/producer-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 WORKDIR /app
 
 # Run the application
-# CMD ["java", "-cp", "producer-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-olts", "10", "-messages", "100", "-queue", "message_queue", "-queue_host", "broker_queue", "-queue_port", "5672", "-directly_from_broker_queue", "0"]
-CMD ["tail", "-f", "/dev/null"]
+CMD ["java", "-cp", "producer-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-olts", "10", "-messages", "100", "-queue_host", "broker_queue", "-queue_port", "5672", "-directly_from_broker_queue", "0"]

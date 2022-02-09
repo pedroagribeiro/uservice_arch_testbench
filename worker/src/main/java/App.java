@@ -16,9 +16,6 @@ import java.util.concurrent.TimeoutException;
 
 public class App {
 
-    @Parameter(names = { "-queue", "--queue_name" }, description = "The identifier queue from which the program is going to consume")
-    private static String queue_name;
-
     @Parameter(names = { "-id", "--worker-id" }, description = "The identifier of the current worker")
     private static int worker_id;
 
@@ -48,6 +45,11 @@ public class App {
         } catch (Exception e) {
             commands.usage();
             System.exit(-1);
+        }
+        try {
+        Thread.sleep(10000);
+        } catch(InterruptedException e) {
+            e.printStackTrace();
         }
         if(poler == 1) {
             application.start_poler_logic();
@@ -96,7 +98,7 @@ public class App {
         factory.setPort(5672 + worker_id);
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-        channel.queueDeclare(queue_name, false, false, false, null);
+        channel.queueDeclare("message_queue", false, false, false, null);
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -115,7 +117,7 @@ public class App {
             results_jedis.set(String.valueOf(report.request_id), converter.toJson(report));
         };
 
-        channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});
+        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
     }
 
     public void start_poler_logic() throws IOException, TimeoutException {
@@ -131,7 +133,7 @@ public class App {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.queueDeclare(queue_name, false, false, false, null);
+        channel.queueDeclare("message_queue", false, false, false, null);
 
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
@@ -165,7 +167,7 @@ public class App {
             }
         };
 
-        channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});
+        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
 
     }
 }

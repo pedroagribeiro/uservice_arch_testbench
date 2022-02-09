@@ -19,4 +19,4 @@ COPY target/broker-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 WORKDIR /app
 
 # Run the application
-CMD ["java", "-cp", "broker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-queue message_queue -workers 3 -redis_host localhost -redis_port 6379 -workers_base_port 5672 -queue_host localhost -queue_port 5675 -algorithm 1"]
+CMD ["java", "-cp", "broker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-workers", "['worker0', 'worker1', 'worker2']", "-redis_host", "redis_db", "-redis_port", "6379", "-worker_port", "5672", "-consuming_queue_host", "broker_queue", "-consuming_queue_port", "5672", "-algorithm", "1"]

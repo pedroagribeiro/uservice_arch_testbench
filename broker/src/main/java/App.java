@@ -26,11 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
 
-    @Parameter(names = { "-queue", "--queue_name"}, description = "The identifier of the queue from which the broker should consume")
-    private static String queue_name;
-
-    @Parameter(names = { "-workers", "--workers_count"}, description = "Number of workers that are running")
-    private static int upstream_workers_count;
+    @Parameter(names = { "-workers", "--workers_adresses"}, description = "Adresses of the running workers")
+    private static List<String> workers;
 
     @Parameter(names = { "-redis_host" }, description = "Host of the Redis database")
     private static String redis_host;
@@ -38,13 +35,13 @@ public class App {
     @Parameter(names = { "-redis_port" }, description = "Port in which the database is exposed on the host")
     private static int redis_port;
 
-    @Parameter(names = { "-workers_base_port" }, description = "Base port of the workers message queues")
-    private static int base_workers_port;
+    @Parameter(names = { "-worker_port" }, description = "Port exposed by the workers")
+    private static int worker_port;
 
-    @Parameter(names = { "-queue_host" }, description = "Consumer queue host")
+    @Parameter(names = { "-consuming_queue_host" }, description = "Consumer queue host")
     private static String queue_host;
 
-    @Parameter(names = { "-queue_port"}, description = "Consumer queue port")
+    @Parameter(names = { "-consuming_queue_port"}, description = "Consumer queue port")
     private static int queue_port;
 
     @Parameter(names = { "-algorithm" }, description = "Algorithm to implement")
@@ -62,6 +59,11 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
+        try {
+        Thread.sleep(10000);
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
         switch(algorithm) {
             case 1:
                 application.start_logic_1();
@@ -78,7 +80,7 @@ public class App {
 
     public void start_logic_1() throws IOException, TimeoutException {
         // Round-robin setup
-        AtomicInteger last_chosen_worker = new AtomicInteger(upstream_workers_count - 1);
+        AtomicInteger last_chosen_worker = new AtomicInteger(workers.size() - 1);
         // Setup Redis connection
         JedisPool pool = new JedisPool(redis_host, redis_port);
         // Setup RabbitMQ connection to the queue to be consumed
@@ -89,17 +91,17 @@ public class App {
         Channel channel = connection.createChannel();
         // Setup all the connections to the workers queues
         List<Channel> producing_channels = new ArrayList<>();
-        for(int i = 0; i < upstream_workers_count; i++) {
+        for(int i = 0; i < workers.size(); i++) {
             ConnectionFactory fac = new ConnectionFactory();
-            fac.setHost("localhost");
-            fac.setPort(base_workers_port + i);
+            fac.setHost(workers.get(i));
+            fac.setPort(worker_port);
             Connection prod_connection = fac.newConnection();
             Channel prod_channel = prod_connection.createChannel();
-            channel.queueDeclare(queue_name, false, false, false, null);
+            channel.queueDeclare("message_queue", false, false, false, null);
             producing_channels.add(prod_channel);
         }
 
-        channel.queueDeclare(queue_name, false, false, false, null);
+        channel.queueDeclare("message_queue", false, false, false, null);
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -108,19 +110,19 @@ public class App {
             try (Jedis jedis = pool.getResource()) {
                 if(jedis.exists(m.get_olt())) {
                     int worker = Integer.parseInt(jedis.get(m.get_olt()));
-                    producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                    producing_channels.get(worker).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
                     m.set_enqueued_at_worker(new Date().getTime());
                     log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 } else {
-                    int worker = (last_chosen_worker.get() + 1) % upstream_workers_count;
+                    int worker = (last_chosen_worker.get() + 1) % workers.size();
                     last_chosen_worker.set(worker);
-                    producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                    producing_channels.get(worker).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
                     m.set_enqueued_at_worker(new Date().getTime());
                     log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
                 }
             }
         };
-        channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});
+        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
     }
 
     public void start_logic_2() throws NoSuchAlgorithmException, IOException, TimeoutException {
@@ -134,31 +136,31 @@ public class App {
         Channel channel = connection.createChannel();
         // Setup all the connections to the workers queues
         List<Channel> producing_channels = new ArrayList<>();
-        for(int i = 0; i < upstream_workers_count; i++) {
+        for(int i = 0; i < workers.size(); i++) {
             ConnectionFactory fac = new ConnectionFactory();
-            fac.setHost("localhost");
-            fac.setPort(base_workers_port + i);
+            fac.setHost(workers.get(i));
+            fac.setPort(worker_port);
             Connection prod_connection = fac.newConnection();
             Channel prod_channel = prod_connection.createChannel();
-            channel.queueDeclare(queue_name, false, false, false, null);
+            channel.queueDeclare("message_queue", false, false, false, null);
             producing_channels.add(prod_channel);
         }
 
-        channel.queueDeclare(queue_name, false, false, false, null);
+        channel.queueDeclare("message_queue", false, false, false, null);
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
             byte[] diggested_message = digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
-            int worker = ByteBuffer.wrap(diggested_message).getInt() % upstream_workers_count;
+            int worker = ByteBuffer.wrap(diggested_message).getInt() % workers.size();
             if(worker < 0 || worker > 2) {
                 worker = new Random().nextInt(3);
             }
-            producing_channels.get(worker).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+            producing_channels.get(worker).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
             m.set_enqueued_at_worker(new Date().getTime());
             log.info("Forwared '" + converter.toJson(m) + "' to worker no. " + worker);
         };
-        channel.basicConsume(queue_name, true, deliverCallback, consumerTag -> {});
+        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
 
     }
 

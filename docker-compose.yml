@@ -8,75 +8,72 @@ services:
       - "5675:5672"
     networks:
       - private_network
-  # producer:
-  #   build: ./producer/
-  #   container_name: producer
-  #   environment:
-  #     EXECUTABLE: producer-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     OLT_COUNT: 10
-  #     MESSAGE_COUNT: 100
-  #     MESSAGE_QUEUE_NAME: message_queue
-  #     BROKER_QUEUE_HOST: broker_queue
-  #     BROKER_QUEUE_PORT: 5672
-  #     DIRECTLY_FROM_BROKER_QUEUE: 0
-  #   networks:
-  #     - private_network
-  # broker:
-  #   build: ./broker/
-  #   container_name: broker
-  #   environment:
-  #     EXECUTABLE: broker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     MESSAGE_QUEUE_NAME: message_queue
-  #     WORKERS: 3
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     QUEUE_HOST: broker_queue
-  #     QUEUE_PORT: 5672
-  #     ALGORITHM: 3
-  #   networks:
-  #     - private_network
-  # worker0:
-  #   build: ./worker/
-  #   container_name: worker0
-  #   environment:
-  #     EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     ID: 0
-  #     MESSAGE_QUEUE_NAME: message_queue
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     POLER: 0
-  #     PRODUCER_QUEUE_HOST: broker_queue
-  #     PRODUCER_QUEUE_PORT: 5672
-  #   networks:
-  #     - private_network
-  # worker1:
-  #   build: ./worker/
-  #   container_name: worker1
-  #   environment:
-  #     EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     ID: 1
-  #     MESSAGE_QUEUE_NAME: message_queue
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     POLER: 0
-  #     PRODUCER_QUEUE_HOST: broker_queue
-  #     PRODUCER_QUEUE_PORT: 5672
-  #   networks:
-  #     - private_network
-  # worker2:
-  #   build: ./worker/
-  #   container_name: worker2
-  #   environment:
-  #     EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     ID: 2
-  #     MESSAGE_QUEUE_NAME: message_queue
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     POLER: 0
-  #     PRODUCER_QUEUE_HOST: broker_queue
-  #     PRODUCER_QUEUE_PORT: 5672
-  #   networks:
-  #     - private_network
+  producer:
+    build: ./producer/
+    container_name: producer
+    environment:
+      EXECUTABLE: producer-1.0-SNAPSHOT-jar-with-dependencies.jar
+      OLT_COUNT: 10
+      MESSAGE_COUNT: 100
+      BROKER_QUEUE_HOST: broker_queue
+      BROKER_QUEUE_PORT: 5672
+      DIRECTLY_FROM_BROKER_QUEUE: 0
+      RESULTS_DB_HOST: results
+      RESULTS_DB_PORT: 6379
+    networks:
+      - private_network
+  broker:
+    build: ./broker/
+    container_name: broker
+    environment:
+      EXECUTABLE: broker-1.0-SNAPSHOT-jar-with-dependencies.jar
+      WORKERS: "['worker0', 'worker1', 'worker2']"
+      REDIS_HOST: redis_db
+      REDIS_PORT: 6379
+      CONSUMING_QUEUE_HOST: broker_queue
+      CONSUMING_QUEUE_PORT: 5672
+      ALGORITHM: 3
+    networks:
+      - private_network
+  worker0:
+    build: ./worker/
+    container_name: worker0
+    environment:
+      EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
+      ID: 0
+      REDIS_HOST: redis_db
+      REDIS_PORT: 6379
+      POLER: 0
+      PRODUCER_QUEUE_HOST: broker_queue
+      PRODUCER_QUEUE_PORT: 5672
+    networks:
+      - private_network
+  worker1:
+    build: ./worker/
+    container_name: worker1
+    environment:
+      EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
+      ID: 1
+      REDIS_HOST: redis_db
+      REDIS_PORT: 6379
+      POLER: 0
+      PRODUCER_QUEUE_HOST: broker_queue
+      PRODUCER_QUEUE_PORT: 5672
+    networks:
+      - private_network
+  worker2:
+    build: ./worker/
+    container_name: worker2
+    environment:
+      EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
+      ID: 2
+      REDIS_HOST: redis_db
+      REDIS_PORT: 6379
+      POLER: 0
+      PRODUCER_QUEUE_HOST: broker_queue
+      PRODUCER_QUEUE_PORT: 5672
+    networks:
+      - private_network
   worker0_queue:
     image: rabbitmq:latest
     container_name: worker_queue0

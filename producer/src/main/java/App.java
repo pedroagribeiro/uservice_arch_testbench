@@ -12,7 +12,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,9 +28,6 @@ public class App {
 
     @Parameter(names = { "-messages", "--message-count"}, description = "Number of consecutive messages to be generated")
     private static int messages_to_generate;
-
-    @Parameter(names = { "-queue", "--queue-name" }, description = "Name of the queue to which the messages should be produced")
-    private static String queue_name;
 
     @Parameter(names = { "-queue_host" }, description = "Where the queue is hosted")
     private static String queue_host;
@@ -57,6 +53,7 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
+        Thread.sleep(10000);
         InetAddress address = InetAddress.getByName(queue_host);
         System.out.println(address.getAddress());
         boolean reachable = address.isReachable(10000);
@@ -134,7 +131,7 @@ public class App {
 
     public void start() throws IOException, TimeoutException, InterruptedException {
         // Redis database of the results connections
-        JedisPool pool = new JedisPool("localhost", 6380);
+        JedisPool pool = new JedisPool("results", 6379);
         // JSON Converter
         Gson converter = new Gson();
         // Create a connection to the RabbitMQ server
@@ -143,14 +140,14 @@ public class App {
         factory.setPort(queue_port);
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
-            channel.queueDeclare(queue_name, false, false, false, null);
+            channel.queueDeclare("message_queue", false, false, false, null);
             for(int i = 0; i < messages_to_generate; i++) {
                 Random rand = new Random();
                 Message m = message_generator(message_id++);
                 // Sleep Time: 500 < t < 5000
                 int sleep_time = (rand.nextInt(10) + 5) * 100;
                 m.set_enqueued_at_broker(new Date().getTime());
-                channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                channel.basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
                 log.info("Published '" + converter.toJson(m) + "' to the broker");
                 Thread.sleep(sleep_time);
             }
