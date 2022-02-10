@@ -12,7 +12,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,20 +22,20 @@ import java.util.concurrent.TimeoutException;
 
 public class App {
 
-    @Parameter(names = { "-olts" , "--olt-count" }, description = "Number of different OLT's from which the messages may appear")
+    @Parameter(names = { "-olts" }, description = "Number of different OLT's from which the messages may appear")
     private static int olt_number;
 
-    @Parameter(names = { "-messages", "--message-count"}, description = "Number of consecutive messages to be generated")
+    @Parameter(names = { "-messages" }, description = "Number of consecutive messages to be generated")
     private static int messages_to_generate;
 
-    @Parameter(names = { "-queue_host" }, description = "Where the queue is hosted")
-    private static String queue_host;
+    @Parameter(names = { "-no_broker" }, description = "Describes if the broker process is being used")
+    private static boolean no_broker;
 
-    @Parameter(names = { "-queue_port"}, description = "The port in which the queue is exposed in the host")
-    private static int queue_port;
+    @Parameter(names = { "-containerized" }, description = "Describes if the running environment if fully containerized")
+    private static boolean containerized;
 
-    @Parameter(names = { "-directly_from_broker_queue"}, description = "When active the worker consume the broker queue directly")
-    private static int directly_from_broker;
+    private String queue_host;
+    private int queue_port;
 
     private static Gson converter = new Gson();
 
@@ -53,136 +52,89 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
-        Thread.sleep(10000);
-        InetAddress address = InetAddress.getByName(queue_host);
-        System.out.println(address.getAddress());
-        boolean reachable = address.isReachable(10000);
-        System.out.println("Is network reachable: " + reachable);
-        application.start();
-
+        application.establish_environment_variables();
+        application.run();
     }
-    private class RequestReport {
 
-        private long request_id;
-        private String olt;
-        private long total_time;
-        private long time_broker_queue;
-        private long time_worker_queue;
-
-        private RequestReport(final long request_id, final String olt, final long total_time, final long time_broker_queue, final long time_worker_queue) {
-            this.request_id = request_id;
-            this.olt = olt;
-            this.total_time = total_time;
-            this.time_broker_queue = time_broker_queue;
-            this.time_worker_queue = time_worker_queue;
-        }
-        
-        public long get_request_id() { 
-            return this.request_id;
-        }
-
-        public void set_request_id(final long request_id) {
-            this.request_id = request_id;
-        }
-
-        public String get_olt() {
-            return this.olt;
-        }
-
-        public void set_olt(final String olt) {
-            this.olt = olt;
-        }
-
-        public long get_total_time() {
-            return this.total_time;
-        }
-
-        public void set_total_time(final long total_time) {
-            this.total_time = total_time;
-        }
-
-        public long get_time_broker_queue() {
-            return this.time_broker_queue;
-        }
-
-        public void set_time_broker_queue(final long time_broker_queue) {
-            this.time_broker_queue = time_broker_queue;
-        }
-
-        public long get_time_worker_queue() {
-            return this.time_worker_queue;
-        }
-
-        public void set_time_worker_queue(final long time_worker_queue) {
-            this.time_worker_queue = time_worker_queue;
-        }
-
-        @Override
-        public String toString() {
-            return "RequestReport{" +
-                    "request_id='" + request_id + '\'' +
-                    ", olt='" + olt + '\'' +
-                    ", total_time=" + total_time +
-                    ", time_broker_queue=" + time_broker_queue +
-                    ", time_worker_queue=" + time_worker_queue +
-                    '}';
+    private void establish_environment_variables() {
+        if(containerized) {
+            this.queue_host = "broker_queue";
+            this.queue_port = 5672;
+        } else {
+            this.queue_host = "localhost";
+            this.queue_port = 5675;
         }
     }
 
-    public void start() throws IOException, TimeoutException, InterruptedException {
-        // Redis database of the results connections
-        JedisPool pool = new JedisPool("results", 6379);
-        // JSON Converter
-        Gson converter = new Gson();
-        // Create a connection to the RabbitMQ server
+    private JedisPool establish_connection_with_results_database() {
+        JedisPool pool = null;
+        if(containerized) {
+            pool = new JedisPool("results", 6379);
+        } else {
+            pool = new JedisPool("localhost", 6380);
+        }
+        return pool;
+    }
+
+    private Connection establish_connection_with_broker_queue() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(queue_host);
-        factory.setPort(queue_port);
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.queueDeclare("message_queue", false, false, false, null);
-            for(int i = 0; i < messages_to_generate; i++) {
-                Random rand = new Random();
-                Message m = message_generator(message_id++);
-                // Sleep Time: 500 < t < 5000
-                int sleep_time = (rand.nextInt(10) + 5) * 100;
-                m.set_enqueued_at_broker(new Date().getTime());
-                channel.basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                log.info("Published '" + converter.toJson(m) + "' to the broker");
-                Thread.sleep(sleep_time);
-            }
-        }
-        try(Jedis jedis = pool.getResource()) {
-            List<RequestReport> reports = new ArrayList<>();
-            long key_count = jedis.dbSize();
-            // Enquanto não existirem 100 resultados espera
-            while(key_count < messages_to_generate) {
-                log.info("I got " + key_count + " results already.");
-                Thread.sleep(2000);
-                key_count = jedis.dbSize();
-            }
-            Set<byte[]> keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
-            for(byte[] key : keys) {
-                RequestReport report = converter.fromJson(jedis.get(new String(key)), RequestReport.class);
-                reports.add(report);
-            }
-            System.out.println(metrics_calculator(reports, directly_from_broker));
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        factory.setPort(queue_port); 
+        Connection connection = factory.newConnection();
+        return connection;
     }
 
-    private static Message message_generator(final int message_id) {
-        Random random = new Random();
-        int olt_identifier = random.nextInt(olt_number + 1);
+    private Channel declare_queue(Connection connection, final String queue_name) throws IOException {
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(queue_name, false, false, false, null);
+        return channel;
+    }
+
+    private static Message message_generator(final int message_id, Random random, int olt_count) {
+        int olt_identifier = random.nextInt(olt_count);
         int message_processing_time = random.nextInt(4) * 1000 + 1000; // 1000 < t < 4000
-        String olt_name = "OLT" + olt_identifier;
+        String olt_name = String.valueOf(olt_identifier);
         Message m = new Message(message_id, olt_name, message_processing_time);
         return m;
     }
 
-    private static String metrics_calculator(List<RequestReport> results, int directly_from_broker) {
+    private void generate_and_send_messages(Channel channel, int messages_to_generate, String queue_name) throws IOException, InterruptedException {
+        Random r = new Random(42);
+        for(int i = 0; i < messages_to_generate; i++) {
+            Message m =  message_generator(message_id++, r, olt_number);
+            m.set_enqueued_at_broker(new Date().getTime());
+            channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+            log.info("Published '" + converter.toJson(m) + "' to the broker.");
+            int sleep_time = (r.nextInt(10) + 5) * 100;
+            Thread.sleep(sleep_time);
+        }
+    }
+
+    public List<RequestReport> generate_run_results(JedisPool results_database_pool, long messages_to_generate) throws InterruptedException {
+        List<RequestReport> reports = new ArrayList<>();
+        try(Jedis jedis = results_database_pool.getResource()) {
+            long key_count = jedis.dbSize();
+            boolean not_all_request_reports_are_ready = (key_count < messages_to_generate);
+            if(not_all_request_reports_are_ready) {
+                log.info("Waiting for all request reports to be ready in order to calculate this runs' results...");
+            }
+            while(not_all_request_reports_are_ready) {
+                Thread.sleep(2000);
+                key_count = jedis.dbSize();
+                not_all_request_reports_are_ready = (key_count < messages_to_generate);
+            }
+            Set<byte[]> result_keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
+            for(byte[] key : result_keys) {
+                RequestReport report = converter.fromJson(jedis.get(new String(key)), RequestReport.class);
+                reports.add(report);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return reports;
+    }
+
+    private static String metrics_calculator(List<RequestReport> results) {
         long total_time_total = 0;
         long time_broker_queue_total = 0;
         long time_worker_queue_total = 0;
@@ -194,10 +146,21 @@ public class App {
         double avg_time_total = total_time_total / results.size();
         double avg_time_broker_queue = time_broker_queue_total / results.size();
         double avg_time_worker_queue = time_worker_queue_total / results.size();
-        if(directly_from_broker == 1) {
+        if(no_broker) {
             return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue;
         } else {
             return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue;
         }
     }
+
+    public void run() throws IOException, TimeoutException, InterruptedException {
+        JedisPool results_database_pool = establish_connection_with_results_database();
+        Connection broker_queue_connection = establish_connection_with_broker_queue();
+        Channel broker_queue_channel = declare_queue(broker_queue_connection, "message_queue");
+        generate_and_send_messages(broker_queue_channel, messages_to_generate, "message_queue");
+        List<RequestReport> reports = generate_run_results(results_database_pool, messages_to_generate);
+        String results_string = metrics_calculator(reports);
+        log.info(results_string);
+    }
+
 }

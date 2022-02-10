@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 public class App {
 
-    @Parameter(names = { "-id", "--worker-id" }, description = "The identifier of the current worker")
+    @Parameter(names = { "-id" }, description = "The identifier of the current worker")
     private static int worker_id;
 
     @Parameter(names = { "-redis_host"}, description = "Host of the redis database")
@@ -87,6 +87,15 @@ public class App {
         }
     }
 
+    /**
+     * A `worker` needs to establish 2 conceptual connections: 
+     * 
+     * 1. Needs a connection to the redis database that stores which worker is processing each OLT's request. 
+     * 2. Needs a connection to it's own incoming queue to read the incoming requests. 
+     * 3. Needs a connection to the OLT to which it has to forward the request.
+     *    - one connection per OLT
+     */
+
     public void start_not_poler_logic() throws IOException, TimeoutException {
         // Establish Redis connection - Quem esta a tratar o que
         JedisPool pool = new JedisPool(redis_host, redis_port);
@@ -105,6 +114,22 @@ public class App {
             Message m = converter.fromJson(jsonString, Message.class);
             m.set_dequeued_at_worker(new Date().getTime());
             log.info("Received: '" + converter.toJson(m) + "'");
+            // Initialize connection with the corresponding OLT
+            ConnectionFactory olt_factory = new ConnectionFactory();
+            olt_factory.setHost("localhost");
+            log.info("OLT: " + Integer.parseInt(m.get_olt()));
+            olt_factory.setPort(5676 + Integer.parseInt(m.get_olt())); 
+            try {
+                Connection olt_connection = olt_factory.newConnection();
+                Channel olt_channel = olt_connection.createChannel();
+                olt_channel.queueDeclare("requests", false, false, false, null);
+                olt_channel.basicPublish("", "requests", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                // wait at most 'Timeout' time for the response
+                olt_channel.close();
+                olt_connection.close();
+            } catch(TimeoutException e) {
+                e.printStackTrace();
+            }
             try(Jedis jedis = pool.getResource()) {
                 jedis.set(m.get_olt(), String.valueOf(worker_id));
                 Thread.sleep(m.get_processing_time());

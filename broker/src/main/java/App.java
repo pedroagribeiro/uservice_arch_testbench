@@ -47,6 +47,9 @@ public class App {
     @Parameter(names = { "-algorithm" }, description = "Algorithm to implement")
     private static int algorithm;
 
+    @Parameter(names = { "-containerized"}, description = "Indicates wether the setup is containerized or not")
+    private static int containerized;
+
     private Gson converter = new Gson();
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
@@ -93,8 +96,13 @@ public class App {
         List<Channel> producing_channels = new ArrayList<>();
         for(int i = 0; i < workers.size(); i++) {
             ConnectionFactory fac = new ConnectionFactory();
-            fac.setHost(workers.get(i));
-            fac.setPort(worker_port);
+            if(containerized == 1) {
+                fac.setHost(workers.get(i));
+                fac.setPort(worker_port);
+            } else {
+                fac.setHost("localhost");
+                fac.setPort(worker_port + i);
+            }
             Connection prod_connection = fac.newConnection();
             Channel prod_channel = prod_connection.createChannel();
             channel.queueDeclare("message_queue", false, false, false, null);
@@ -138,8 +146,13 @@ public class App {
         List<Channel> producing_channels = new ArrayList<>();
         for(int i = 0; i < workers.size(); i++) {
             ConnectionFactory fac = new ConnectionFactory();
-            fac.setHost(workers.get(i));
-            fac.setPort(worker_port);
+            if(containerized == 1) {
+                fac.setHost(workers.get(i));
+                fac.setPort(worker_port);
+            } else {
+                fac.setPort(worker_port);
+                fac.setPort(worker_port + i);
+            }
             Connection prod_connection = fac.newConnection();
             Channel prod_channel = prod_connection.createChannel();
             channel.queueDeclare("message_queue", false, false, false, null);

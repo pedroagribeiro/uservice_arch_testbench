@@ -4,3 +4,6 @@ sudo docker exec -it broker_queue rabbitmqctl purge_queue message_queue
 sudo docker exec -it worker_queue0 rabbitmqctl purge_queue message_queue
 sudo docker exec -it worker_queue1 rabbitmqctl purge_queue message_queue
 sudo docker exec -it worker_queue2 rabbitmqctl purge_queue message_queue
+sudo docker exec -it olt0_queue rabbitmqctl purge_queue message_queue
+sudo docker exec -it olt1_queue rabbitmqctl purge_queue message_queue
+sudo docker exec -it olt2_queue rabbitmqctl purge_queue message_queue

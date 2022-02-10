@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Usage:
+# $1 - OLT id 
+# $2 - the host of the OLT queue
+# $3 - the port in which the OLT queue is running
+
+mvn clean compile exec:java \
+    -Dexec.args="-id ${1:-0} -queue_host ${2:-localhost} -queue_port ${3:-5676}"

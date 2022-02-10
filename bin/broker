@@ -10,4 +10,4 @@
 # $7 - the port in which the queue is exposed.
 
 mvn clean compile exec:java \
-    -Dexec.args="-queue ${1:-message_queue} -workers ${2:-3} -redis_host ${3:-localhost} -redis_port ${4:-6379} -workers_base_port ${5:-5672} -consuming_queue_host ${6:-localhost} -consuming_queue_port ${7:-5675} -algorithm ${8:-3}"
+    -Dexec.args="-workers ${1:-worker0} -workers ${2:-worker1} -workers ${3:-worker2} -worker_port ${4:-5672}  -redis_host ${5:-localhost} -redis_port ${6:-6379} -consuming_queue_host ${7:-localhost} -consuming_queue_port ${8:-5675} -algorithm ${9:-1} -containerized ${10:-0}"

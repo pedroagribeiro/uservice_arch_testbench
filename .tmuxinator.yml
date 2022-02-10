@@ -34,3 +34,21 @@ windows:
         - app:
             - cd worker
             - ../bin/worker 2
+  - olt_0:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd olt
+            - ../bin/olt 0
+  - olt_1:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd olt
+            - ../bin/olt 1
+  - olt_2:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd olt
+            - ../bin/olt 2
