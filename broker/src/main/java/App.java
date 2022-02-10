@@ -26,29 +26,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
 
-    @Parameter(names = { "-workers", "--workers_adresses"}, description = "Adresses of the running workers")
-    private static List<String> workers;
-
-    @Parameter(names = { "-redis_host" }, description = "Host of the Redis database")
-    private static String redis_host;
-
-    @Parameter(names = { "-redis_port" }, description = "Port in which the database is exposed on the host")
-    private static int redis_port;
-
-    @Parameter(names = { "-worker_port" }, description = "Port exposed by the workers")
-    private static int worker_port;
-
-    @Parameter(names = { "-consuming_queue_host" }, description = "Consumer queue host")
-    private static String queue_host;
-
-    @Parameter(names = { "-consuming_queue_port"}, description = "Consumer queue port")
-    private static int queue_port;
+    @Parameter(names = { "-workers" }, description = "Adresses of the running workers")
+    private static int workers;
 
     @Parameter(names = { "-algorithm" }, description = "Algorithm to implement")
     private static int algorithm;
 
     @Parameter(names = { "-containerized"}, description = "Indicates wether the setup is containerized or not")
-    private static int containerized;
+    private static boolean containerized;
+
+    private String consuming_queue_host;
+    private int consuming_queue_port;
+    private String redis_database_host;
+    private int redis_database_port;
 
     private Gson converter = new Gson();
 
@@ -62,11 +52,7 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
-        try {
-        Thread.sleep(10000);
-        } catch(InterruptedException e) {
-            e.printStackTrace();
-        }
+        application.establish_environment_variables();
         switch(algorithm) {
             case 1:
                 application.start_logic_1();
@@ -81,100 +67,123 @@ public class App {
         }
     }
 
-    public void start_logic_1() throws IOException, TimeoutException {
-        // Round-robin setup
-        AtomicInteger last_chosen_worker = new AtomicInteger(workers.size() - 1);
-        // Setup Redis connection
-        JedisPool pool = new JedisPool(redis_host, redis_port);
-        // Setup RabbitMQ connection to the queue to be consumed
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(queue_host);
-        factory.setPort(queue_port);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-        // Setup all the connections to the workers queues
-        List<Channel> producing_channels = new ArrayList<>();
-        for(int i = 0; i < workers.size(); i++) {
-            ConnectionFactory fac = new ConnectionFactory();
-            if(containerized == 1) {
-                fac.setHost(workers.get(i));
-                fac.setPort(worker_port);
-            } else {
-                fac.setHost("localhost");
-                fac.setPort(worker_port + i);
-            }
-            Connection prod_connection = fac.newConnection();
-            Channel prod_channel = prod_connection.createChannel();
-            channel.queueDeclare("message_queue", false, false, false, null);
-            producing_channels.add(prod_channel);
+    private void establish_environment_variables() {
+        if(containerized) {
+            this.consuming_queue_host = "broker_queue";
+            this.consuming_queue_port = 5672;
+            this.redis_database_host = "redis_db";
+            this.redis_database_port = 6379;
+        } else {
+            this.consuming_queue_host = "localhost";
+            this.consuming_queue_port = 5675;
+            this.redis_database_host = "localhost";
+            this.redis_database_port = 6379;
         }
+    }
 
-        channel.queueDeclare("message_queue", false, false, false, null);
+    private JedisPool establish_connection_with_redis_database() {
+        return new JedisPool(redis_database_host, redis_database_port);
+    }
 
+    private Connection establish_connection_with_broker_queue() throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(consuming_queue_host);
+        factory.setPort(consuming_queue_port);
+        Connection connection = factory.newConnection();
+        return connection;
+    }
+
+    private List<Connection> establish_connection_with_workers_queues() throws IOException, TimeoutException {
+        List<Connection> connections = new ArrayList<>();
+        for(int i = 0; i < workers; i++) {
+            ConnectionFactory factory = new ConnectionFactory();
+            if(containerized) {
+                factory.setHost("worker" + i + "_queue");
+                factory.setPort(5672);
+            } else {
+                factory.setHost("localhost");
+                factory.setPort(5672 + i);
+            }
+            Connection connection = factory.newConnection();
+            connections.add(connection);
+        }
+        return connections;
+    }
+
+    private Channel declare_queue(Connection connection, final String queue_name) throws IOException {
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(queue_name, false, false, false, null);
+        return channel;
+    }
+
+    private List<Channel> declare_queues(List<Connection> connections, final String queue_name) throws IOException {
+        List<Channel> channels = new ArrayList<>();
+        for(Connection connection : connections) {
+            Channel channel = connection.createChannel();
+            channel.queueDeclare(queue_name, false, false, false, null);
+            channels.add(channel);
+        }
+        return channels;
+    }
+
+    private void process_message_logic_one(Message m, JedisPool redis_database_pool, List<Channel> workers_queues_channels, String queue_name, AtomicInteger last_chosen_worker) throws IOException {
+        m.set_dequeued_at_broker(new Date().getTime());
+        try(Jedis jedis = redis_database_pool.getResource()) {
+            if(jedis.exists(m.get_olt())) {
+                int worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
+                m.set_enqueued_at_worker(new Date().getTime());
+                workers_queues_channels.get(worker_to_forward).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+            } else {
+                int worker_to_forward = (last_chosen_worker.get() + 1) % workers;
+                last_chosen_worker.set(worker_to_forward);
+                m.set_enqueued_at_worker(new Date().getTime()); 
+                workers_queues_channels.get(worker_to_forward).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+            }
+        }
+    }
+
+    private void process_manage_logic_two(Message m, JedisPool redis_database_pool, List<Channel> workers_queues_channels, String queue_name, MessageDigest digester) throws IOException {
+        m.set_dequeued_at_broker(new Date().getTime());
+        byte[] diggested_message = digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
+        int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % workers;
+        if(worker_to_forward < 0 || worker_to_forward > 2) {
+            worker_to_forward = new Random().nextInt(3);
+        }
+        m.set_enqueued_at_worker(new Date().getTime());
+        workers_queues_channels.get(worker_to_forward).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+        log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+    }
+
+    public void start_logic_1() throws IOException, TimeoutException {
+        AtomicInteger last_chosen_worker = new AtomicInteger(workers - 1);
+        JedisPool redis_database_pool = establish_connection_with_redis_database();
+        Connection broker_queue_connection = establish_connection_with_broker_queue();
+        List<Connection> workers_queues_connections = establish_connection_with_workers_queues();
+        Channel broker_queue_channel = declare_queue(broker_queue_connection, "message_queue");
+        List<Channel> workers_queues_channels = declare_queues(workers_queues_connections, "message_queue");
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
-            m.set_dequeued_at_broker(new Date().getTime());
-            try (Jedis jedis = pool.getResource()) {
-                if(jedis.exists(m.get_olt())) {
-                    int worker = Integer.parseInt(jedis.get(m.get_olt()));
-                    producing_channels.get(worker).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                    m.set_enqueued_at_worker(new Date().getTime());
-                    log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
-                } else {
-                    int worker = (last_chosen_worker.get() + 1) % workers.size();
-                    last_chosen_worker.set(worker);
-                    producing_channels.get(worker).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                    m.set_enqueued_at_worker(new Date().getTime());
-                    log.info("Forwarded '" + converter.toJson(m) + "' to worker no. " + worker);
-                }
-            }
+            process_message_logic_one(m, redis_database_pool, workers_queues_channels, "message_queue", last_chosen_worker);
         };
-        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
+        broker_queue_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
     }
 
     public void start_logic_2() throws NoSuchAlgorithmException, IOException, TimeoutException {
-        // Create MessageDigester
+        JedisPool redis_database_pool = establish_connection_with_redis_database();
+        Connection broker_queue_connection = establish_connection_with_broker_queue();
+        List<Connection> workers_queues_connections = establish_connection_with_workers_queues();
+        Channel broker_queue_channel = declare_queue(broker_queue_connection, "message_queue");
+        List<Channel> workers_queues_channels = declare_queues(workers_queues_connections, "message_queue");
         MessageDigest digester = MessageDigest.getInstance("SHA-256");
-        // Setup RabbitMQ connection to the queue to be consumed
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(queue_host);
-        factory.setPort(queue_port);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-        // Setup all the connections to the workers queues
-        List<Channel> producing_channels = new ArrayList<>();
-        for(int i = 0; i < workers.size(); i++) {
-            ConnectionFactory fac = new ConnectionFactory();
-            if(containerized == 1) {
-                fac.setHost(workers.get(i));
-                fac.setPort(worker_port);
-            } else {
-                fac.setPort(worker_port);
-                fac.setPort(worker_port + i);
-            }
-            Connection prod_connection = fac.newConnection();
-            Channel prod_channel = prod_connection.createChannel();
-            channel.queueDeclare("message_queue", false, false, false, null);
-            producing_channels.add(prod_channel);
-        }
-
-        channel.queueDeclare("message_queue", false, false, false, null);
-
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
-            byte[] diggested_message = digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
-            int worker = ByteBuffer.wrap(diggested_message).getInt() % workers.size();
-            if(worker < 0 || worker > 2) {
-                worker = new Random().nextInt(3);
-            }
-            producing_channels.get(worker).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-            m.set_enqueued_at_worker(new Date().getTime());
-            log.info("Forwared '" + converter.toJson(m) + "' to worker no. " + worker);
+            process_manage_logic_two(m, redis_database_pool, workers_queues_channels, "message_queue", digester);
         };
-        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
-
+        broker_queue_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
     }
 
     public void start_logic_3() {
