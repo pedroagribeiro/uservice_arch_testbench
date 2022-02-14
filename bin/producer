@@ -7,5 +7,7 @@
 # $4 - the host in which the queue is running.
 # $5 - the port of the host in which the queue is exposed.
 
+# -no_broker
+
 mvn clean compile exec:java \
-    -Dexec.args="-olts ${1:-3} -messages ${2:-100}" 
+    -Dexec.args="-olts ${1:-3} -messages ${2:-1000} -no_broker" 

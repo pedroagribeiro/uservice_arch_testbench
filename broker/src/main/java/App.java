@@ -127,25 +127,21 @@ public class App {
     }
 
     private void process_message_logic_one(Message m, JedisPool redis_database_pool, List<Channel> workers_queues_channels, String queue_name, AtomicInteger last_chosen_worker) throws IOException {
-        m.set_dequeued_at_broker(new Date().getTime());
-        try(Jedis jedis = redis_database_pool.getResource()) {
+        try(Jedis jedis = redis_database_pool.getResource()) {; 
+            int worker_to_forward = 0;
             if(jedis.exists(m.get_olt())) {
-                int worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
-                m.set_enqueued_at_worker(new Date().getTime());
-                workers_queues_channels.get(worker_to_forward).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+                worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
             } else {
-                int worker_to_forward = (last_chosen_worker.get() + 1) % workers;
+                worker_to_forward = (last_chosen_worker.get() + 1) % workers;
                 last_chosen_worker.set(worker_to_forward);
-                m.set_enqueued_at_worker(new Date().getTime()); 
-                workers_queues_channels.get(worker_to_forward).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
             }
+            m.set_enqueued_at_worker(new Date().getTime());
+            workers_queues_channels.get(worker_to_forward).basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+            log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
         }
     }
 
     private void process_manage_logic_two(Message m, JedisPool redis_database_pool, List<Channel> workers_queues_channels, String queue_name, MessageDigest digester) throws IOException {
-        m.set_dequeued_at_broker(new Date().getTime());
         byte[] diggested_message = digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
         int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % workers;
         if(worker_to_forward < 0 || worker_to_forward > 2) {
@@ -166,6 +162,7 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
+            m.set_dequeued_at_broker(new Date().getTime());
             process_message_logic_one(m, redis_database_pool, workers_queues_channels, "message_queue", last_chosen_worker);
         };
         broker_queue_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
@@ -181,6 +178,7 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
+            m.set_dequeued_at_broker(new Date().getTime());
             process_manage_logic_two(m, redis_database_pool, workers_queues_channels, "message_queue", digester);
         };
         broker_queue_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});

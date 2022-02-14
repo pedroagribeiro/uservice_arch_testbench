@@ -6,23 +6,29 @@ public class Message implements Serializable {
 
     private int id;
     private String olt;
-    private int processing_time;
+    private long processing_time;
+    private long timeout;
     private long issued_at;
     private long enqueued_at_broker;
     private long dequeued_at_broker;
     private long enqueued_at_worker;
     private long dequeued_at_worker;
+    private long enqueued_at_olt;
+    private long dequeued_at_olt;
     private long completed;
 
-    public Message(final int id, final String olt, final int processing_time) {
+    public Message(final int id, final String olt, final long processing_time, final long timeout) {
         this.id = id;
         this.olt = olt;
         this.processing_time = processing_time;
+        this.timeout = timeout;
         this.issued_at = new Date().getTime();
         this.enqueued_at_broker = -1;
         this.dequeued_at_broker = -1;
         this.enqueued_at_worker = -1;
         this.dequeued_at_worker = -1;
+        this.enqueued_at_olt = -1;
+        this.dequeued_at_olt = -1;
         this.completed = -1;
     }
 
@@ -50,12 +56,20 @@ public class Message implements Serializable {
         return this.issued_at;
     }
 
-    public void set_processing_time(final int processing_time) {
+    public void set_processing_time(final long processing_time) {
         this.processing_time = processing_time;
     }
 
-    public int get_processing_time() {
+    public long get_processing_time() {
         return this.processing_time;
+    }
+
+    public void set_timeout(final long timeout) {
+        this.timeout = timeout;
+    }
+
+    public long get_timeout() {
+        return this.timeout;
     }
 
     public void set_enqueued_at_broker(final long enqueued_at_broker) {
@@ -90,6 +104,22 @@ public class Message implements Serializable {
         return this.dequeued_at_worker;
     }
 
+    public void set_enqueued_at_olt(final long enqueued_at_olt) {
+        this.enqueued_at_olt = enqueued_at_olt;
+    }
+
+    public long get_enqueued_at_olt() {
+        return this.enqueued_at_olt;
+    }
+
+    public void set_dequeued_at_olt(final long dequeued_at_olt) {
+        this.dequeued_at_olt = dequeued_at_olt;
+    }
+
+    public long get_dequeued_at_olt() {
+        return this.dequeued_at_olt;
+    }
+
     public void set_completed(final long completed) {
         this.completed = completed;
     }
@@ -104,11 +134,14 @@ public class Message implements Serializable {
                 "id=" + id +
                 ", olt='" + olt + '\'' +
                 ", processing_time=" + processing_time +
+                ", timeout=" + timeout +
                 ", issued_at=" + issued_at + 
                 ", enqueued_at_broker=" + enqueued_at_broker +
                 ", dequeued_at_broker=" + dequeued_at_broker +
                 ", enqueued_at_worker=" + enqueued_at_worker +
                 ", dequeued_at_worker=" + dequeued_at_worker +
+                ", enqueued_at_olt=" + enqueued_at_olt +
+                ", dequeued_at_olt=" + dequeued_at_olt +
                 '}';
     }
 
@@ -118,12 +151,14 @@ public class Message implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
         return 
-            id == message.id && processing_time == message.processing_time && 
+            id == message.id && processing_time == message.processing_time && timeout == message.timeout && 
             Objects.equals(olt, message.olt) && Objects.equals(issued_at, message.issued_at) && 
             Objects.equals(enqueued_at_broker, message.enqueued_at_broker) && 
             Objects.equals(dequeued_at_broker, message.dequeued_at_broker) &&
             Objects.equals(enqueued_at_worker, message.enqueued_at_worker) &&
-            Objects.equals(dequeued_at_worker, message.dequeued_at_worker);
+            Objects.equals(dequeued_at_worker, message.dequeued_at_worker) &&
+            Objects.equals(enqueued_at_olt, message.enqueued_at_olt) &&
+            Objects.equals(dequeued_at_olt, message.dequeued_at_olt);
     }
 
     @Override
@@ -132,11 +167,15 @@ public class Message implements Serializable {
             id,
             olt,
             processing_time,
+            timeout,
             issued_at,
             enqueued_at_broker,
             dequeued_at_broker,
             enqueued_at_worker,
-            dequeued_at_worker
+            dequeued_at_worker,
+            enqueued_at_olt,
+            dequeued_at_olt,
+            completed
         );
     }
 }

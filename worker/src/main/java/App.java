@@ -11,7 +11,9 @@ import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public class App {
@@ -19,25 +21,26 @@ public class App {
     @Parameter(names = { "-id" }, description = "The identifier of the current worker")
     private static int worker_id;
 
-    @Parameter(names = { "-redis_host"}, description = "Host of the redis database")
-    private static String redis_host;
+    @Parameter(names = { "-no_broker" }, description = "Describes if the broker process is being used")
+    private static boolean no_broker; 
 
-    @Parameter(names = { "-redis_port" }, description = "Port in which the database is exposed on the redis database host")
-    private static int redis_port;
+    @Parameter(names = { "-containerized" }, description = "Describes if the running environment is fully containerized")  
+    private static boolean containerized;
 
-    @Parameter(names = { "-poler"}, description = "Let us define wether the worker gets the message directly from the producers queue")
-    private static int poler; 
+    @Parameter(names = { "-olts" }, description = "The number of working OLT's")
+    private static int olts;
 
-    @Parameter(names = { "-producer_queue_host"}, description = "Host of the producers queue")
-    private static String producer_queue_host;
-
-    @Parameter(names = { "-producer_queue_port" }, description = "Port of the producers queue")
-    private static int producer_queue_port;
+    private String consuming_queue_host;
+    private int consuming_queue_port;
+    private String redis_database_host;
+    private int redis_database_port;
+    private String redis_results_database_host;
+    private int redis_results_database_port;
 
     private static Gson converter = new Gson();
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
-    public static void main(String[] args) throws IOException, TimeoutException {
+    public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
         App application = new App();
         JCommander commands = JCommander.newBuilder().addObject(application).build();
         try {
@@ -46,153 +49,158 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
+        application.establish_environment_variables();
+        application.start_logic();
+    }
+
+    private void establish_environment_variables() {
+        if(containerized) {
+            if(no_broker) {
+                this.consuming_queue_host = "broker_queue" + worker_id;
+                this.consuming_queue_port = 5672;
+                
+            } else {
+                this.consuming_queue_host = "worker_queue" + worker_id;
+                this.consuming_queue_port = 5672;
+            }
+            this.redis_database_host = "redis_db";
+            this.redis_database_port = 6379;
+            this.redis_results_database_host = "results";
+            this.redis_results_database_port = 6379;
+        } else {
+            this.consuming_queue_host = "localhost";
+            if(no_broker) {
+                this.consuming_queue_port = 5675;
+            } else {
+                this.consuming_queue_port = 5672 + worker_id;
+            }
+            this.redis_database_host = "localhost";
+            this.redis_database_port = 6379;
+            this.redis_results_database_host = "localhost";
+            this.redis_results_database_port = 6380;
+        }
+    }
+
+    public JedisPool establish_connection_with_redis_database() {
+        return new JedisPool(redis_database_host, redis_database_port);
+    }
+
+    public JedisPool establish_connection_with_redis_results_database() {
+        return new JedisPool(redis_results_database_host, redis_results_database_port);
+    }
+
+    public Connection establish_connection_with_worker_queue() throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(consuming_queue_host);
+        factory.setPort(consuming_queue_port);
+        Connection connection = factory.newConnection();
+        return connection;
+    }
+
+    public List<Connection> establish_connection_with_olts_queues() throws IOException, TimeoutException {
+        List<Connection> olts_queues_connections = new ArrayList<>();
+        for(int i = 0; i < olts; i++) {
+            ConnectionFactory factory = new ConnectionFactory();
+            if(containerized) {
+                factory.setHost("olt" + worker_id + "_queue");
+                factory.setPort(5672);
+            } else {
+                factory.setHost("localhost");
+                factory.setPort(5676 + worker_id);
+            }
+            Connection connection = factory.newConnection();
+            olts_queues_connections.add(connection);
+        }
+        return olts_queues_connections;
+    }
+
+    public List<Channel> declare_queues(List<Connection> connections, final String queue_name) throws IOException {
+        List<Channel> channels = new ArrayList<>();
+        for(Connection connection : connections) {
+            Channel channel = connection.createChannel();
+            channel.queueDeclare(queue_name, false, false, false, null);
+            channels.add(channel);
+        }
+        return channels;
+    }
+
+    public Channel declare_queue(Connection connection, String queue_name) throws IOException {
+        Channel channel = connection.createChannel();
+        channel.queueDeclare(queue_name, false, false, false, null);
+        return channel;
+    }
+
+    public void process_message(Message m, JedisPool redis_database_pool, List<Channel> olts_queues_channels, boolean no_broker) throws IOException {
+        int target_olt = Integer.parseInt(m.get_olt());
+        log.info("Received: '" + converter.toJson(m) + "'");
+        if(no_broker) {
+            try(Jedis jedis = redis_database_pool.getResource()) {
+                boolean handling_request_for_same_olt = jedis.exists(m.get_olt());
+                while(handling_request_for_same_olt) {
+                    try {
+                        Thread.sleep(100);
+                    } catch(InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    handling_request_for_same_olt = jedis.exists(m.get_olt());
+                }
+                jedis.set(m.get_olt(), String.valueOf(worker_id));
+            }
+        }
+        m.set_enqueued_at_olt(new Date().getTime());
+        olts_queues_channels.get(target_olt).basicPublish("", "requests", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+        long sleep_time = (m.get_processing_time() > m.get_timeout()) ? m.get_timeout() : m.get_processing_time();
         try {
-        Thread.sleep(10000);
+            Thread.sleep(sleep_time);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
-        if(poler == 1) {
-            application.start_poler_logic();
-        } else {
-            application.start_not_poler_logic();
+        try(Jedis jedis = redis_database_pool.getResource()) {
+            jedis.del(m.get_olt());
+        }
 
+    }
+ 
+    public void start_olts_responses_consuming_logic(List<Connection> olts_queues_connections, JedisPool redis_results_database_pool) throws IOException {
+        List<Channel> olts_queues_response_channels = declare_queues(olts_queues_connections, "responses");
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            Response res = converter.fromJson(jsonString, Response.class);
+            Message origin_message = res.get_origin_message();
+            origin_message.set_completed(new Date().getTime());
+            res.set_origin_message(origin_message);
+            long roundtrip_time = res.get_origin_message().get_completed() - res.get_origin_message().get_enqueued_at_olt();
+            log.info("Roundtrip Time: " + roundtrip_time);
+            if(roundtrip_time > res.get_origin_message().get_timeout()) {
+                res.set_timedout(true);
+            } else {
+                res.set_timedout(false);
+            }
+            log.info("Received response'" + converter.toJson(res) + " from OLT" + res.get_origin_message().get_olt());
+            try(Jedis jedis = redis_results_database_pool.getResource()) {
+                jedis.set(String.valueOf(res.get_origin_message().get_id()), converter.toJson(res));
+            }
+        };
+        for(Channel olts_queue_response_channel : olts_queues_response_channels) {
+            olts_queue_response_channel.basicConsume("responses", true, deliverCallback, consumerTag -> {});
         }
     }
 
-    private class RequestReport {
-
-        private long request_id;
-        private String olt;
-        private long total_time;
-        private long time_broker_queue;
-        private long time_worker_queue;
-
-        private RequestReport(final long request_id, final String olt, final long total_time, final long time_broker_queue, final long time_worker_queue) {
-            this.request_id = request_id;
-            this.olt = olt;
-            this.total_time = total_time;
-            this.time_broker_queue = time_broker_queue;
-            this.time_worker_queue = time_worker_queue;
-        }
-
-        @Override
-        public String toString() {
-            return "RequestReport{" +
-                    "request_id='" + request_id + '\'' +
-                    ", olt='" + olt + '\'' +
-                    ", total_time=" + total_time +
-                    ", time_broker_queue=" + time_broker_queue +
-                    ", time_worker_queue=" + time_worker_queue +
-                    '}';
-        }
-    }
-
-    /**
-     * A `worker` needs to establish 2 conceptual connections: 
-     * 
-     * 1. Needs a connection to the redis database that stores which worker is processing each OLT's request. 
-     * 2. Needs a connection to it's own incoming queue to read the incoming requests. 
-     * 3. Needs a connection to the OLT to which it has to forward the request.
-     *    - one connection per OLT
-     */
-
-    public void start_not_poler_logic() throws IOException, TimeoutException {
-        // Establish Redis connection - Quem esta a tratar o que
-        JedisPool pool = new JedisPool(redis_host, redis_port);
-        // Establish Redis connection - Results
-        JedisPool results_pool = new JedisPool("localhost", 6380);
-        Jedis results_jedis = results_pool.getResource();
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        factory.setPort(5672 + worker_id);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-        channel.queueDeclare("message_queue", false, false, false, null);
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+    public void start_logic() throws IOException, TimeoutException, InterruptedException {
+        JedisPool redis_database_pool = establish_connection_with_redis_database();
+        JedisPool redis_results_database_pool = establish_connection_with_redis_results_database();
+        Connection worker_queue_connection = establish_connection_with_worker_queue();
+        Channel worker_queue_channel = declare_queue(worker_queue_connection, "message_queue");
+        List<Connection> olts_queues_connections = establish_connection_with_olts_queues();
+        List<Channel> olts_queues_channels_requests = declare_queues(olts_queues_connections, "requests");
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
             m.set_dequeued_at_worker(new Date().getTime());
-            log.info("Received: '" + converter.toJson(m) + "'");
-            // Initialize connection with the corresponding OLT
-            ConnectionFactory olt_factory = new ConnectionFactory();
-            olt_factory.setHost("localhost");
-            log.info("OLT: " + Integer.parseInt(m.get_olt()));
-            olt_factory.setPort(5676 + Integer.parseInt(m.get_olt())); 
-            try {
-                Connection olt_connection = olt_factory.newConnection();
-                Channel olt_channel = olt_connection.createChannel();
-                olt_channel.queueDeclare("requests", false, false, false, null);
-                olt_channel.basicPublish("", "requests", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-                // wait at most 'Timeout' time for the response
-                olt_channel.close();
-                olt_connection.close();
-            } catch(TimeoutException e) {
-                e.printStackTrace();
-            }
-            try(Jedis jedis = pool.getResource()) {
-                jedis.set(m.get_olt(), String.valueOf(worker_id));
-                Thread.sleep(m.get_processing_time());
-                m.set_completed(new Date().getTime());
-                jedis.del(m.get_olt());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_completed() - m.get_issued_at(), m.get_dequeued_at_broker() - m.get_enqueued_at_broker(), m.get_dequeued_at_worker() - m.get_enqueued_at_worker());
-            results_jedis.set(String.valueOf(report.request_id), converter.toJson(report));
+            process_message(m, redis_database_pool, olts_queues_channels_requests, no_broker);
         };
-
-        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
+        worker_queue_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
+        start_olts_responses_consuming_logic(olts_queues_connections, redis_results_database_pool);
     }
-
-    public void start_poler_logic() throws IOException, TimeoutException {
-        // Redis results database
-        JedisPool results_pool = new JedisPool("localhost", 6380);
-        Jedis results_jedis = results_pool.getResource();
-        // Setup redis connection
-        JedisPool pool = new JedisPool(redis_host, redis_port);
-        // Conncet to the producer's queue
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(producer_queue_host);
-        factory.setPort(producer_queue_port);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueDeclare("message_queue", false, false, false, null);
-
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            Message m = converter.fromJson(jsonString, Message.class);
-            log.info(converter.toJson(m));
-            try (Jedis jedis = pool.getResource()) {
-                if(jedis.exists(m.get_olt())) {
-                    boolean r = true;
-                    while(r == true) {
-                        try {
-                            Thread.sleep(1000);
-                            log.info("Waited 1 second.");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        r = jedis.exists(m.get_olt());
-                    }
-                }
-                jedis.set(m.get_olt(), String.valueOf(worker_id));
-                log.info("Received '" + converter.toJson(m) + "'");
-                try {
-                    Thread.sleep(m.get_processing_time());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                m.set_completed(new Date().getTime());
-                jedis.del(m.get_olt());
-                RequestReport report = new RequestReport(m.get_id(), m.get_olt(), m.get_completed() - m.get_issued_at(), m.get_dequeued_at_broker() - m.get_enqueued_at_broker(), m.get_dequeued_at_worker() - m.get_enqueued_at_worker()); 
-                results_jedis.set(String.valueOf(report.request_id), converter.toJson(report));
-            }
-        };
-
-        channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
-
-    }
+    
 }

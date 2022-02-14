@@ -19,11 +19,11 @@ public class App {
     @Parameter(names = { "-id" }, description = "Identifier of the OLT")
     private static int id; 
 
-    @Parameter(names = { "-queue_host"}, description = "Host of the queue from which the process reads and writes")
-    private static String queue_host;
+    @Parameter(names = { "-containerized" }, description = "Describes if the running environment is fully containerized")
+    private static boolean containerized;
 
-    @Parameter(names = { "-queue_port" }, description = "Port of the queue from which the process reads and writes")
-    private static int queue_port;
+    private String consuming_queue_host;
+    private int consuming_queue_port;
 
     private Gson converter = new Gson();
 
@@ -38,43 +38,57 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
-        try {
-        Thread.sleep(10000);
-        } catch(InterruptedException e) {
-            e.printStackTrace();
-        }
+        application.establish_environment_variables();
         application.start();
     }
 
-    public void start() throws IOException, TimeoutException {
-        // Connection to it's own queue to consume the incoming requests 
+    public void establish_environment_variables() {
+        if(containerized) {
+            this.consuming_queue_host = "olt" + id + "_queue";
+            this.consuming_queue_port = 5672;
+        } else {
+            this.consuming_queue_host = "localhost";
+            this.consuming_queue_port = 5676 + id;
+        }
+    }
+
+    public Connection establish_connection_with_consuming_queue() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(queue_host);
-        factory.setPort(5676 + id);
+        factory.setHost(this.consuming_queue_host);
+        factory.setPort(this.consuming_queue_port);
         Connection connection = factory.newConnection();
+        return connection;
+    }
+
+    public Channel declare_queue(Connection connection, final String queue_name) throws IOException {
         Channel channel = connection.createChannel();
-        channel.queueDeclare("requests", false, false, false, null);
-        channel.queueDeclare("responses", false, false, false, null);
+        channel.queueDeclare(queue_name, false, false, false, null);
+        return channel;
+    }
+
+    public void process_message(Message m, Channel producing_queue_channel) throws IOException {
+        log.info("Received '" + converter.toJson(m) + "'"); 
+        Response res = new Response(200, new Date().getTime(), -1, m);
+        try {
+            Thread.sleep(m.get_processing_time());
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+        res.set_ended_handling(new Date().getTime());
+        res.set_origin_message(m);
+        producing_queue_channel.basicPublish("", "responses", null, converter.toJson(res).getBytes(StandardCharsets.UTF_8));
+    }
+
+    public void start() throws IOException, TimeoutException {
+        Connection olt_queue_connection = establish_connection_with_consuming_queue();
+        Channel consuming_queue_channel = declare_queue(olt_queue_connection, "requests");
+        Channel producing_queue_channel = declare_queue(olt_queue_connection, "responses");
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
-            log.info("Received: '" + converter.toJson(m) + "'");
-            try {
-                Thread.sleep(m.get_processing_time());
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-            }
-            Response response = new Response();
-            response.set_started_handling(new Date().getTime());
-            try {
-                Thread.sleep(m.get_processing_time());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            response.set_status(200);
-            response.set_ended_handling(new Date().getTime());
-            channel.basicPublish("", "responses", null, converter.toJson(response).getBytes(StandardCharsets.UTF_8));
+            m.set_dequeued_at_olt(new Date().getTime());
+            process_message(m, producing_queue_channel);
         };
-        channel.basicConsume("requests", true, deliverCallback, consumerTag -> {});
+        consuming_queue_channel.basicConsume("requests", true, deliverCallback, consumerTag -> {});
     }
 }

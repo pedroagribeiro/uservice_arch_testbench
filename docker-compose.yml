@@ -95,27 +95,27 @@ services:
       - "5674:5672"
     networks:
       - private_network
-  # olt0_queue:
-  #   image: rabbitmq:latest
-  #   container_name: olt0_queue
-  #   ports:
-  #     - "5676:5672"
-  #   networks:
-  #     - private_network
-  # olt1_queue:
-  #   image: rabbitmq:latest
-  #   container_name: olt1_queue
-  #   ports:
-  #     - "5677:5672"
-  #   networks:
-  #     - private_network
-  # olt2_queue:
-  #   image: rabbitmq:latest
-  #   container_name: olt2_queue
-  #   ports:
-  #     - "5678:5672"
-  #   networks:
-  #     - private_network
+  olt0_queue:
+    image: rabbitmq:latest
+    container_name: olt0_queue
+    ports:
+      - "5676:5672"
+    networks:
+      - private_network
+  olt1_queue:
+    image: rabbitmq:latest
+    container_name: olt1_queue
+    ports:
+      - "5677:5672"
+    networks:
+      - private_network
+  olt2_queue:
+    image: rabbitmq:latest
+    container_name: olt2_queue
+    ports:
+      - "5678:5672"
+    networks:
+      - private_network
   redis_database:
     image: redis:latest
     container_name: redis_db

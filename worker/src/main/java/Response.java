@@ -7,10 +7,11 @@ public class Response implements Serializable {
     private long started_handling;
     private long ended_handling;
     private Message origin_message;
+    private boolean timedout;
 
     public Response() {}
 
-    public Response(final int status, final long started_handling, final long ended_handling, final Message origin_message) {
+    public Response(final int request_id, final int status, final long started_handling, final long ended_handling, final Message origin_message) {
         this.status = status;
         this.started_handling = started_handling;
         this.ended_handling = ended_handling;
@@ -42,7 +43,19 @@ public class Response implements Serializable {
     }
 
     public void set_origin_message(final Message message) {
-        this.origin_message = message;
+        this.origin_message = message;        
+    }
+
+    public Message get_origin_message() {
+        return this.origin_message;
+    }
+
+    public void set_timedout(final boolean timedout) {
+        this.timedout = timedout;
+    }
+
+    public boolean get_timedout() {
+        return this.timedout;
     }
 
     @Override
@@ -52,6 +65,7 @@ public class Response implements Serializable {
                 ", started_handling='" + started_handling + '\'' +
                 ", ended_handling=" + ended_handling +
                 ", origin_message=" + origin_message.toString() +
+                ", timedout=" + timedout +
                 '}';
     }
 
@@ -64,7 +78,8 @@ public class Response implements Serializable {
             status == response.status &&
             started_handling == response.started_handling &&
             ended_handling == response.ended_handling &&
-            origin_message.equals(response.origin_message); 
+            origin_message == response.origin_message &&
+            timedout == response.timedout; 
     }
 
     @Override
@@ -73,7 +88,8 @@ public class Response implements Serializable {
                 status,
                 started_handling,
                 ended_handling,
-                origin_message
+                origin_message,
+                timedout
         );
     }
 }

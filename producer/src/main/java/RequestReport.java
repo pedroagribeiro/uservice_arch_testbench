@@ -5,13 +5,17 @@ public class RequestReport {
     private long total_time;
     private long time_broker_queue;
     private long time_worker_queue;
+    private long time_olt_queue;
+    private boolean timedout;
 
-    private RequestReport(final long request_id, final String olt, final long total_time, final long time_broker_queue, final long time_worker_queue) {
+    public RequestReport(final long request_id, final String olt, final long total_time, final long time_broker_queue, final long time_worker_queue, final long time_olt_queue, final boolean timedout) {
         this.request_id = request_id;
         this.olt = olt;
         this.total_time = total_time;
         this.time_broker_queue = time_broker_queue;
         this.time_worker_queue = time_worker_queue;
+        this.time_olt_queue = time_olt_queue;
+        this.timedout = timedout;
     }
         
     public long get_request_id() { 
@@ -54,6 +58,22 @@ public class RequestReport {
         this.time_worker_queue = time_worker_queue;
     }
 
+    public long get_time_olt_queue() {
+        return this.time_olt_queue;
+    }
+
+    public void set_time_olt_queue(final long time_olt_queue) {
+        this.time_olt_queue = time_olt_queue;
+    }
+
+    public boolean get_timedout() {
+        return this.timedout;
+    }
+
+    public void set_timedout(final boolean timedout) {
+        this.timedout = timedout;
+    }
+
     @Override
     public String toString() {
         return "RequestReport{" +
@@ -62,6 +82,8 @@ public class RequestReport {
                 ", total_time=" + total_time +
                 ", time_broker_queue=" + time_broker_queue +
                 ", time_worker_queue=" + time_worker_queue +
+                ", time_olt_queue=" + time_olt_queue +
+                ", timedout=" + timedout +
                 '}';
     }
     
