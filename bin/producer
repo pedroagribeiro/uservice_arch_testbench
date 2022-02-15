@@ -10,4 +10,4 @@
 # -no_broker
 
 mvn clean compile exec:java \
-    -Dexec.args="-olts ${1:-3} -messages ${2:-1000} -no_broker" 
+    -Dexec.args="" 

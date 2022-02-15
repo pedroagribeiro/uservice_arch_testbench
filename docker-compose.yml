@@ -2,24 +2,22 @@ version: "3.9"
 
 services:
   broker_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: broker_queue
+    hostname: broker_queue
+    # environment:
+    #   RABBITMQ_DEFAULT_USER: broker
+    #   RABBITMQ_DEFAULT_PASSWORD: broker
     ports:
       - "5675:5672"
+      - "15675:15672"
     networks:
       - private_network
   # producer:
   #   build: ./producer/
   #   container_name: producer
-  #   environment:
-  #     EXECUTABLE: producer-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     OLT_COUNT: 10
-  #     MESSAGE_COUNT: 100
-  #     BROKER_QUEUE_HOST: broker_queue
-  #     BROKER_QUEUE_PORT: 5672
-  #     DIRECTLY_FROM_BROKER_QUEUE: 0
-  #     RESULTS_DB_HOST: results
-  #     RESULTS_DB_PORT: 6379
+  #   links:
+  #     - broker_queue
   #   networks:
   #     - private_network
   # broker:
@@ -75,45 +73,51 @@ services:
   #   networks:
   #     - private_network
   worker0_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: worker_queue0
     ports:
       - "5672:5672"
+      - "15672:15672"
     networks:
       - private_network
   worker1_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: worker_queue1
     ports:
       - "5673:5672"
+      - "15673:15672"
     networks:
       - private_network
   worker2_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: worker_queue2
     ports:
       - "5674:5672"
+      - "15674:15672"
     networks:
       - private_network
   olt0_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: olt0_queue
     ports:
       - "5676:5672"
+      - "15676:15672"
     networks:
       - private_network
   olt1_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: olt1_queue
     ports:
       - "5677:5672"
+      - "15677:15672"
     networks:
       - private_network
   olt2_queue:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.13-management
     container_name: olt2_queue
     ports:
       - "5678:5672"
+      - "15678:15672"
     networks:
       - private_network
   redis_database:
@@ -128,6 +132,14 @@ services:
     container_name: results
     ports:
       - "6380:6379"
+    networks:
+      - private_network
+  producer_orchestration_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: producer_orchestration
+    ports:
+      - "5679:5672"
+      - "15679:15672"
     networks:
       - private_network
 networks:

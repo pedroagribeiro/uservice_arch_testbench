@@ -19,4 +19,5 @@ COPY target/worker-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 WORKDIR /app
 
 # Run the application
-CMD ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-id", "1", "-redis_host", "redis_db", "-redis_port", "6379", "-poler", "0", "-producer_queue_host", "broker_queue", "-producer_queue_port", "5672"]
+# If the algoritm is 3 use ´-no_broker´
+CMD ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-id", "0", "-olts", "3"]

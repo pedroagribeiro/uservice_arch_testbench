@@ -4,6 +4,12 @@ root: <%= ENV["PWD"] %>
 startup_window: producer
 
 windows:
+  - orchestrator:
+      layout: main-vertical
+      panes:
+        - app:
+            - cd run_orchestrator
+            - python3 app.py
   - producer:
       layout: main-vertical
       panes:

@@ -2,3 +2,5 @@ RequestReport.class
 App.class
 Message.class
 Response.class
+Orchestration.class
+SecureConnection.class

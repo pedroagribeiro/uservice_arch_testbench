@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Producer
+cd producer
+mvn compile && mvn package
+cd ..
+
+# Broker
+cd broker
+mvn compile && mvn package
+cd ..
+
+# Worker
+cd worker
+mvn compile && mvn package
+cd ..
+
+# Olt
+cd olt
+mvn compile && mvn package
+cd ..

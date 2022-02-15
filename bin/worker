@@ -7,4 +7,4 @@
 # -no_broker
 
 mvn clean compile exec:java \
-    -Dexec.args="-id $1 -olts ${2:-3} -no_broker"
+    -Dexec.args="-id $1"
