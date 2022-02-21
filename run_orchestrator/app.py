@@ -27,7 +27,7 @@ app, channel = create_app_and_queue_connection()
 
 @app.route('/ping', methods = ['GET'])
 def ping():
-    return make_response("👍 I'm alive!", 200)
+    return make_response("I'm alive!", 200)
 
 @app.route("/orchestration", methods = ['POST'])
 def new_orchestration():
@@ -37,6 +37,6 @@ def new_orchestration():
     except ValidationError as err:
         return make_response(err.messages, 400)
     channel.basic_publish(exchange="", routing_key="orchestration", body=json.dumps(data))
-    return make_response("✅ Your orchestration request was published to the job queue", 201)
+    return make_response("Your orchestration request was published to the job queue", 201)
 
 app.run(debug = True, port = 8000)

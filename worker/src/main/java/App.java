@@ -129,11 +129,18 @@ public class App {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(worker_queue_host);
         factory.setPort(worker_queue_port);
+        while(this.worker_queue_connection == null) {
         try {
-            this.worker_queue_connection = factory.newConnection();
-            log.info("✅ Successfuly connected to the \"WORKER QUEUE\"!");
-        } catch(IOException | TimeoutException e) {
-            log.info("❌ Could not connect to the \"WORKER QUEUE\"!");
+                this.worker_queue_connection = factory.newConnection();
+                log.info("✅ Successfuly connected to the \"WORKER QUEUE\"!");
+            } catch(IOException | TimeoutException e) {
+                log.info("❌ Could not connect to the \"WORKER QUEUE\"!. Retrying...");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -142,11 +149,18 @@ public class App {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(broker_queue_host);
         factory.setPort(broker_queue_port);
-        try {
-            this.broker_queue_connection = factory.newConnection();
-            log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
-        } catch(IOException | TimeoutException e) {
-            log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
+        while(this.broker_queue_connection == null) {
+            try {
+                this.broker_queue_connection = factory.newConnection();
+                log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+            } catch(IOException | TimeoutException e) {
+                log.info("❌ Could not connect to the \"BROKER QUEUE\"!. Retrying...");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -176,11 +190,19 @@ public class App {
                 factory.setHost("localhost");
                 factory.setPort(5676 + i);
             }
-            try {
-                Connection connection = factory.newConnection();
-                this.olts_connections.add(connection);
-            } catch(IOException | TimeoutException e) {
-                log.info("❌ Something went wrong while connecting to \"OLT " + i + "\"!");
+            Connection connection = null;
+            while(connection == null) {
+                try {
+                    connection = factory.newConnection();
+                    this.olts_connections.add(connection);
+                } catch(IOException | TimeoutException e) {
+                    log.info("❌ Something went wrong while connecting to \"OLT " + i + "\"!. Retrying...");
+                    try {
+                        Thread.sleep(3000);
+                    } catch(InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         }
         log.info("✅ Successfuly connected to the \"OLT QUEUE\"s!");

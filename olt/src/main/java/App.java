@@ -74,11 +74,18 @@ public class App {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(this.olt_queue_host);
         factory.setPort(this.olt_queue_port); 
-        try {
-            this.olt_queue_connection = factory.newConnection();
-            log.info("✅ Successfuly connected to the \"OLT QUEUE\"!");
-        } catch(IOException | TimeoutException e) {
-            log.info("❌ Could not connect to the \"OLT QUEUE\"!");
+        while(this.olt_queue_connection == null) {
+            try {
+                this.olt_queue_connection = factory.newConnection();
+                log.info("✅ Successfuly connected to the \"OLT QUEUE\"!");
+            } catch(IOException | TimeoutException e) {
+                log.info("❌ Could not connect to the \"OLT QUEUE\"!");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 

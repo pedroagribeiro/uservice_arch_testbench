@@ -1,4 +1,5 @@
 FROM ubuntu:18.04
+ARG ID
 
 # Install the necessary packages
 RUN apt update && apt -y upgrade
@@ -19,5 +20,4 @@ COPY target/olt-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 WORKDIR /app
 
 # Run the application
-# If the algoritm is 3 use ´-no_broker´
-CMD ["java", "-cp", "olt-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-id", "0", "-containerized"]
+ENTRYPOINT ["java", "-cp", "olt-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized", "-id"]

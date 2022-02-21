@@ -139,8 +139,12 @@ public class App {
                 this.broker_queue_connection = factory.newConnection();
                 log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
             } catch(IOException | TimeoutException e) {
-                e.printStackTrace();
                 log.info("❌ Could not connect to the \"BROKER QUEUE\"!. Retrying....");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
     }

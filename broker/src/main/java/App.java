@@ -107,12 +107,18 @@ public class App {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(this.broker_queue_host);
         factory.setPort(this.broker_queue_port);
-        try {
-            this.broker_queue_connection = factory.newConnection();
-            log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
-        } catch(IOException | TimeoutException e) {
-            e.printStackTrace();
-            log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
+        while(this.broker_queue_connection == null) {
+            try {
+                this.broker_queue_connection = factory.newConnection();
+                log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+            } catch(IOException | TimeoutException e) {
+                log.info("❌ Could not connect to the \"BROKER QUEUE\"!. Retrying...");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -144,10 +150,17 @@ public class App {
                 factory.setPort(5672 + i);
             }
             Connection connection = null;
-            try {
-                connection = factory.newConnection();
-            } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to \"WORKER " + i + " QUEUE\"!");
+            while(connection == null) {
+                try {
+                    connection = factory.newConnection();
+                } catch(IOException | TimeoutException e) {
+                    log.info("❌ Could not connect to \"WORKER " + i + " QUEUE\"!. Retrying...");
+                    try {
+                        Thread.sleep(3000);
+                    } catch(InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
             if(connection != null) {
                 connections.add(connection);

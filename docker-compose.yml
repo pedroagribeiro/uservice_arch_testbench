@@ -1,6 +1,15 @@
 version: "3"
 
 services:
+  run_orchestrator:
+    build: ./run_orchestrator/
+    container_name: run_orchestrator
+    ports:
+      - "8080:8000"
+    networks:
+      - private_network
+    depends_on:
+      - producer_orchestration_queue
   producer_orchestration_queue:
     image: rabbitmq:3.9.13-management
     container_name: producer_orchestration
@@ -33,45 +42,48 @@ services:
       - broker_queue
     networks:
       - private_network
-  # worker0:
-  #   build: ./worker/
-  #   container_name: worker0
-  #   environment:
-  #     EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     ID: 0
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     POLER: 0
-  #     PRODUCER_QUEUE_HOST: broker_queue
-  #     PRODUCER_QUEUE_PORT: 5672
-  #   networks:
-  #     - private_network
-  # worker1:
-  #   build: ./worker/
-  #   container_name: worker1
-  #   environment:
-  #     EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     ID: 1
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     POLER: 0
-  #     PRODUCER_QUEUE_HOST: broker_queue
-  #     PRODUCER_QUEUE_PORT: 5672
-  #   networks:
-  #     - private_network
-  # worker2:
-  #   build: ./worker/
-  #   container_name: worker2
-  #   environment:
-  #     EXECUTABLE: worker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     ID: 2
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     POLER: 0
-  #     PRODUCER_QUEUE_HOST: broker_queue
-  #     PRODUCER_QUEUE_PORT: 5672
-  #   networks:
-  #     - private_network
+  worker0:
+    build:
+      context: ./worker/
+    command: "0"
+    container_name: worker0
+    networks:
+      - private_network
+  worker1:
+    build:
+      context: ./worker/
+    command: "1"
+    container_name: worker1
+    networks:
+      - private_network
+  worker2:
+    build:
+      context: ./worker/
+    command: "2"
+    container_name: worker2
+    networks:
+      - private_network
+  olt0:
+    build:
+      context: ./olt/
+    command: "0"
+    container_name: olt0
+    networks:
+      - private_network
+  olt1:
+    build:
+      context: ./olt/
+    command: "1"
+    container_name: olt1
+    networks:
+      - private_network
+  olt2:
+    build:
+      context: ./olt/
+    command: "2"
+    container_name: olt2
+    networks:
+      - private_network
   worker0_queue:
     image: rabbitmq:3.9.13-management
     container_name: worker_queue0
@@ -96,6 +108,7 @@ services:
       - "15674:15672"
     networks:
       - private_network
+
   olt0_queue:
     image: rabbitmq:3.9.13-management
     container_name: olt0_queue
@@ -134,7 +147,7 @@ services:
       - "6380:6379"
     networks:
       - private_network
- 
+
 networks:
   private_network:
     driver: bridge

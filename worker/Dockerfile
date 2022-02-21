@@ -1,4 +1,5 @@
 FROM ubuntu:18.04
+ARG ID
 
 # Install necessary packages
 RUN apt update && apt -y upgrade
@@ -18,6 +19,7 @@ COPY target/worker-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 # Switch directory context to /app
 WORKDIR /app
 
+RUN echo "$ID" > teste.txt 
+
 # Run the application
-# If the algoritm is 3 use ´-no_broker´
-CMD ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized"]
+ENTRYPOINT ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized", "-id"]
