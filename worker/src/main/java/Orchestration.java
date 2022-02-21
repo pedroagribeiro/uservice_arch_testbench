@@ -2,7 +2,6 @@ public class Orchestration {
 
     private int olts;
     private int messages;
-    private boolean no_broker;
     private int workers;
     private int algorithm;
 
@@ -24,14 +23,6 @@ public class Orchestration {
 
     public void set_messages(final int messages) {
         this.messages = messages;
-    }
-
-    public boolean get_no_broker() {
-        return this.no_broker;
-    }
-
-    public void set_no_broker(final boolean no_broker) {
-        this.no_broker = no_broker;
     }
 
     public int get_workers() {

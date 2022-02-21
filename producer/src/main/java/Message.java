@@ -9,6 +9,7 @@ public class Message implements Serializable {
     private long processing_time;
     private long timeout;
     private long issued_at;
+    private int worker;
     private long enqueued_at_broker;
     private long dequeued_at_broker;
     private long enqueued_at_worker;
@@ -54,6 +55,14 @@ public class Message implements Serializable {
 
     public long get_issued_at() {
         return this.issued_at;
+    }
+
+    public void set_worker(final int worker) {
+        this.worker = worker;
+    }
+
+    public int get_worker() {
+        return this.worker;
     }
 
     public void set_processing_time(final long processing_time) {

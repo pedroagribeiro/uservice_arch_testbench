@@ -19,7 +19,7 @@ def create_app_and_queue_connection():
         static_folder="/static"
     )
     app.config["CACHE_TYPE"] = "null"
-    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost", 5679))
+    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost", 5679, heartbeat=0))
     channel = connection.channel()
     channel.queue_declare(queue="orchestration")
     return app, channel

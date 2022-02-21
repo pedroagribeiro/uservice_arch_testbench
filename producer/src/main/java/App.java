@@ -27,19 +27,28 @@ public class App {
     private static boolean containerized;
 
     private static long message_timeout = 20000;
+    private int message_id = 0;
+    private boolean on_going_run = false;
+    private static Gson converter = new Gson();
 
     private String queue_host;
     private int queue_port;
     private String producer_orchestration_queue_host;
     private int producer_orchestration_queue_port;
+    private String results_database_host;
+    private int results_database_port;
+    private String redis_database_host;
+    private int redis_database_port;
+
+    private JedisPool redis_database_pool;
+    private JedisPool results_database_pool;
+    private Connection broker_queue_connection;
+    private Connection orchestration_queue_connection;
+    private Channel orchestration_queue_orchestration_channel;
+    private Channel broker_queue_messaging_channel;
+    private Channel broker_queue_orchestrationg_channel;
     
-    private boolean on_going_run = false;
-
-    private static Gson converter = new Gson();
-
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
-    private int message_id = 0;
 
     public static void main(String[] args) throws Exception {
         App application = new App();
@@ -53,68 +62,99 @@ public class App {
         application.run();
     }
 
+    public void run() {
+        establish_environment_variables();
+        establish_connection_with_results_database();
+        establish_connection_with_redis_database();
+        establish_connection_with_broker_queue();
+        establish_broker_queue_channels();
+        establish_connection_with_orchestration_queue();
+        establish_orchestration_queue_channels();
+        setup_orchestration_consumer();
+    }
+
     private void establish_environment_variables() {
         if(containerized) {
             this.queue_host = "broker_queue";
             this.queue_port = 5672;
             this.producer_orchestration_queue_host = "producer_orchestration";
             this.producer_orchestration_queue_port = 5672;
+            this.results_database_host = "results";
+            this.results_database_port = 6379;
+            this.redis_database_host = "redis_db";
+            this.redis_database_port = 6379;
         } else {
             this.queue_host = "localhost";
             this.queue_port = 5675;
             this.producer_orchestration_queue_host = "localhost";
             this.producer_orchestration_queue_port = 5679;
+            this.results_database_host = "localhost";
+            this.results_database_port = 6380;
+            this.redis_database_host = "localhost";
+            this.redis_database_port = 6379;
         }
     }
 
-    private JedisPool establish_connection_with_results_database() {
-        JedisPool pool = null;
+    private void establish_connection_with_results_database() {
         log.info("🕋 Connecting to the \"RESULTS DATABASE\"...");
-        if(containerized) {
-            pool = new JedisPool("results", 6379);
-        } else {
-            pool = new JedisPool("localhost", 6380);
-        }
+        this.results_database_pool = new JedisPool(this.results_database_host, this.results_database_port);
         log.info("✅ Successfuly connected to the \"RESULTS DATABASE\"!");
-        return pool;
     }
 
-    private JedisPool establish_connection_with_redis_database() {
-        JedisPool pool = null;
+    private void establish_connection_with_redis_database() {
         log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
-        if(containerized) {
-            pool = new JedisPool("redis_db", 6379);
-        } else {
-            pool = new JedisPool("localhost", 6379);
-        }
+        this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
         log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
-        return pool;
     }
     
-    private Connection establish_connection_with_orchestration_queue() throws IOException, TimeoutException {
+    private void establish_connection_with_orchestration_queue() {
         log.info("🕋 Connecting to the \"ORCHESTRATION QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(producer_orchestration_queue_host);
         factory.setPort(producer_orchestration_queue_port);
-        Connection connection = factory.newConnection();
-        log.info("✅ Successfuly connected to the \"ORCHESTRATION QUEUE\"!");
-        return connection;
+        try {
+            this.orchestration_queue_connection = factory.newConnection();
+            log.info("✅ Successfuly connected to the \"ORCHESTRATION QUEUE\"!");
+        } catch(IOException | TimeoutException e) {
+            log.info("❌ Could not connect to the \"ORCHESTRATION QUEUE\"!");
+        }
     }
 
-    private Connection establish_connection_with_broker_queue() throws IOException, TimeoutException {
+    private void establish_orchestration_queue_channels() {
+        try {
+            this.orchestration_queue_orchestration_channel = this.orchestration_queue_connection.createChannel();
+            this.orchestration_queue_orchestration_channel.queueDeclare("orchestration", false, false, false, null);
+        } catch(IOException e) {
+            log.info("❌ Something went wrong while declaring the \"orchestration\" channel on the \"ORCHESTRATION QUEUE\"!");
+        }
+    }
+
+    private void establish_connection_with_broker_queue() {
         log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(queue_host);
         factory.setPort(queue_port); 
-        Connection connection = factory.newConnection();
-        log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
-        return connection;
+        try {
+            this.broker_queue_connection = factory.newConnection();
+            log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+        } catch(IOException | TimeoutException e) {
+            log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
+        }
     }
 
-    private Channel declare_queue(Connection connection, final String queue_name) throws IOException {
-        Channel channel = connection.createChannel();
-        channel.queueDeclare(queue_name, false, false, false, null);
-        return channel;
+    private void establish_broker_queue_channels() {
+        try {
+            this.broker_queue_messaging_channel = this.broker_queue_connection.createChannel();
+            this.broker_queue_messaging_channel.queueDeclare("message_queue", false, false, false, null);
+        } catch(IOException e) {
+            log.info("❌ Something went wrong while declaring the \"message_queue\" channel on the \"BROKER QUEUE\"!");
+        }
+        try {
+            this.broker_queue_orchestrationg_channel = this.broker_queue_connection.createChannel();
+            this.broker_queue_orchestrationg_channel.queueDeclare("orchestration", false, false, false, null);
+        } catch(IOException e) {
+            log.info("❌ Something went wrong while declaring the \"orchestration\" channel on the \"BROKER QUEUE\"!");
+        }
     }
 
     private static Message message_generator(final int message_id, Random random, int olt_count, int type) {
@@ -141,7 +181,7 @@ public class App {
         return m;
     }
 
-    private void generate_and_send_messages(Orchestration orchestration, Channel channel, String queue_name) throws IOException, InterruptedException {
+    private void generate_and_send_messages(Orchestration orchestration) {
         // 1% of the messages will take longer than timeout to process [40000, 50000]
         // 3% of the messages will take either [10000, 20000, 30000] to process
         int longer_than_timeout = (int) Math.floor(orchestration.get_messages() * 0.01);
@@ -173,33 +213,41 @@ public class App {
                 m = message_generator(message_id++, r, orchestration.get_olts(), 0);
             }
             m.set_enqueued_at_broker(new Date().getTime());
-            channel.basicPublish("", queue_name, null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-            log.info("Published '" + converter.toJson(m) + "' to the broker.");
+            try {
+                this.broker_queue_messaging_channel.basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                log.info("❌ Something went wrong while publishing a new message on the \"message_queue\" channel of the \"BROKER_QUEUE\"!");
+            }
+            log.info("📢 Published '" + converter.toJson(m) + "' to the broker.");
             int sleep_time = (r.nextInt(10) + 5) * 100;
-            Thread.sleep(sleep_time);
+            try {
+                Thread.sleep(sleep_time);
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public List<Response> generate_run_results(JedisPool results_database_pool, long messages_to_generate) throws InterruptedException {
+    public List<Response> generate_run_results(Orchestration orchestration) {
         List<Response> responses = new ArrayList<>();
-        try(Jedis jedis = results_database_pool.getResource()) {
+        try(Jedis jedis = this.results_database_pool.getResource()) {
             long key_count = jedis.dbSize();
-            boolean not_all_request_reports_are_ready = (key_count < messages_to_generate);
+            boolean not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
             if(not_all_request_reports_are_ready) {
-                log.info("Waiting for all request reports to be ready in order to calculate this runs' results...");
+                log.info("🐌 Waiting for all request reports to be ready in order to calculate this runs' results...");
             }
             while(not_all_request_reports_are_ready) {
                 Thread.sleep(2000);
                 key_count = jedis.dbSize();
-                not_all_request_reports_are_ready = (key_count < messages_to_generate);
+                not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
             }
             Set<byte[]> result_keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
             for(byte[] key : result_keys) {
-                Response res_record = converter.fromJson(jedis.get(new String(key)), Response.class);
+                Response res_record = App.converter.fromJson(jedis.get(new String(key)), Response.class);
                 responses.add(res_record);
             }
         } catch(Exception e) {
-            e.printStackTrace();
+            log.info("❌ Something went wrong while getting resource from \"RESULTS\" database!");
         }
         return responses;
     }
@@ -234,7 +282,7 @@ public class App {
         double avg_time_worker_queue = time_worker_queue_total / results.size();
         double avg_time_olt_queue = time_olt_queue_total / results.size();
         double percentage_of_timedout_requests = (double) timedout_requests / (double) results.size();
-        if(orchestration.get_no_broker()) {
+        if(orchestration.get_algorithm() == 3) {
             return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
         } else {
             return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
@@ -248,11 +296,10 @@ public class App {
         try(Jedis jedis = redis_database_pool.getResource()) {
             jedis.flushAll();
         }
-        log.info("Both the results and redis database have been wiped ✅");
+        log.info("🧹✅ Both the results and redis database have been wiped");
     }
 
-    private void setup_orchestration_consumer(Connection orchestration_queue_connection, JedisPool results_database_pool, JedisPool redis_database_pool, Channel broker_queue_channel, Channel broker_orchestration_channel) throws IOException {
-        Channel orchestration_queue_channel = declare_queue(orchestration_queue_connection, "orchestration");
+    private void setup_orchestration_consumer() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             log.info("💬 Got a request a new run!");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -265,29 +312,33 @@ public class App {
                 }
             }
             log.info("🤩 About to start a new run!");
-            try {
-                orchestrate_broker(orchestration, broker_orchestration_channel);
-                perform_run(orchestration, results_database_pool, redis_database_pool, broker_queue_channel);
-                log.info("✅ Started a new run!");
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-            }
+            forward_orchestration(orchestration);
+            log.info("✅ Started a new run!");
+            perform_run(orchestration);
         };
-        orchestration_queue_channel.basicConsume("orchestration", true, deliverCallback, consumerTag -> {});
+        try {
+            this.orchestration_queue_orchestration_channel.basicConsume("orchestration", true, deliverCallback, consumerTag -> {});
+        } catch(IOException e) {
+            log.info("❌ Something went wrong while consuming message from \"orchestration\" on \"ORCHESTRATION QUEUE\"!");
+        }
     }
 
-    private void perform_run(Orchestration orchestration, JedisPool results_database_pool, JedisPool redis_database_pool, Channel broker_queue_channel) throws IOException, InterruptedException {
+    private void perform_run(Orchestration orchestration) {
         log.info("🏎  Starting a new run!");
-        generate_and_send_messages(orchestration, broker_queue_channel, "message_queue");
-        List<Response> responses = generate_run_results(results_database_pool, orchestration.get_messages());
+        generate_and_send_messages(orchestration);
+        List<Response> responses = generate_run_results(orchestration);
         String results_string = metrics_calculator(orchestration, responses);
-        log.info(results_string);
+        log.info("📖  " + results_string);
         wipe_redis_databases(results_database_pool, redis_database_pool);
         log.info("🏁 The run is finished!");
     }
 
-    private void orchestrate_broker(Orchestration orchestration, Channel broker_orchestration_channel) throws IOException {
-        broker_orchestration_channel.basicPublish("", "orchestration", null, converter.toJson(orchestration).getBytes(StandardCharsets.UTF_8));
+    private void forward_orchestration(Orchestration orchestration) {
+        try {
+            this.broker_queue_orchestrationg_channel.basicPublish("", "orchestration", null, converter.toJson(orchestration).getBytes(StandardCharsets.UTF_8));
+        } catch(IOException e) {
+            log.info("❌ Something went wrong while forwarding orchestration to \"orchestration\" on the \"BROKER QUEUE\"!");
+        }
         try {
             Thread.sleep(3000);
         } catch(InterruptedException e) {
@@ -295,15 +346,6 @@ public class App {
         }
     }
 
-    public void run() throws IOException, TimeoutException, InterruptedException {
-        establish_environment_variables();
-        JedisPool results_database_pool = establish_connection_with_results_database();
-        JedisPool redis_database_pool = establish_connection_with_redis_database();
-        Connection broker_queue_connection = establish_connection_with_broker_queue();
-        Connection orchestration_queue_connection = establish_connection_with_orchestration_queue();
-        Channel broker_queue_channel = declare_queue(broker_queue_connection, "message_queue");
-        Channel broker_orchestration_requests_channel = declare_queue(broker_queue_connection, "orchestration_requests");
-        setup_orchestration_consumer(orchestration_queue_connection, results_database_pool, redis_database_pool, broker_queue_channel, broker_orchestration_requests_channel);
-    }
+
 
 }

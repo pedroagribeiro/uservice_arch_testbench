@@ -29,8 +29,10 @@ public class App {
     @Parameter(names = { "-containerized"}, description = "Indicates wether the setup is containerized or not")
     private static boolean containerized;
 
-    private String consuming_queue_host;
-    private int consuming_queue_port;
+    private static final int WORKER_CONTAINERS = 3;
+
+    private String broker_queue_host;
+    private int broker_queue_port;
     private String redis_database_host;
     private int redis_database_port;
 
@@ -38,8 +40,11 @@ public class App {
     private Channel broker_queue_message_channel;
     private Channel broker_queue_orchestration_channel;
 
+    private JedisPool redis_database_pool;
+    private MessageDigest digester;
+    private AtomicInteger last_chosen_worker;
+
     private int current_logic = 1;
-    private int workers = 1;
     private List<Connection> workers_queues_connections;
     private List<Channel> workers_queues_message_channels;
     private List<Channel> workers_queues_orchestration_channels;
@@ -56,45 +61,79 @@ public class App {
             commands.usage();
             System.exit(-1);
         }
-        application.establish_environment_variables();
         application.run();
+    }
+
+    public void run() {
+        establish_environment_variables();
+        establish_connection_with_redis_database();
+        establish_connection_with_broker_queue();
+        establish_broker_queue_channels();
+        establish_connection_with_workers();
+        establish_workers_queues_channels();
+        setup_orchestration_consumer();
+        setup_broker_queue_message_consumption();
     }
 
     private void establish_environment_variables() {
         if(containerized) {
-            this.consuming_queue_host = "broker_queue";
-            this.consuming_queue_port = 5672;
+            this.broker_queue_host = "broker_queue";
+            this.broker_queue_port = 5672;
             this.redis_database_host = "redis_db";
             this.redis_database_port = 6379;
         } else {
-            this.consuming_queue_host = "localhost";
-            this.consuming_queue_port = 5675;
+            this.broker_queue_host = "localhost";
+            this.broker_queue_port = 5675;
             this.redis_database_host = "localhost";
             this.redis_database_port = 6379;
         }
+        this.last_chosen_worker = new AtomicInteger(0);
+        try {
+            this.digester = MessageDigest.getInstance("SHA-256");
+        } catch(NoSuchAlgorithmException e) {
+            log.info("❌ The algorithm \"SHA-526\" does not exist for the MessageDigester!");
+        }
     }
 
-    private JedisPool establish_connection_with_redis_database() {
+
+    private void establish_connection_with_redis_database() {
         log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
-        JedisPool pool = new JedisPool(redis_database_host, redis_database_port);
+        this.redis_database_pool = new JedisPool(redis_database_host, redis_database_port);
         log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
-        return pool;
     }
 
-    private void establish_connection_with_broker_queue() throws IOException, TimeoutException {
+    private void establish_connection_with_broker_queue() {
         log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(consuming_queue_host);
-        factory.setPort(consuming_queue_port);
-        Connection connection = factory.newConnection();
-        this.broker_queue_connection = connection;
-        log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+        factory.setHost(broker_queue_host);
+        factory.setPort(broker_queue_port);
+        try {
+            this.broker_queue_connection = factory.newConnection();
+            log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+        } catch(IOException | TimeoutException e) {
+            log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
+        }
     }
 
-    private void establish_connection_with_workers_queues(Orchestration orchestration) throws IOException, TimeoutException {
+    private void establish_broker_queue_channels() {
+        try {
+            this.broker_queue_message_channel = this.broker_queue_connection.createChannel();
+            this.broker_queue_message_channel.queueDeclare("message_queue", false, false, false, null);
+        } catch(IOException e) {
+            log.info("❌ An error ocurred while creating the \"message_queue\" channel on the \"BROKER QUEUE\"!");
+        }
+        try {
+            this.broker_queue_orchestration_channel = this.broker_queue_connection.createChannel();
+            this.broker_queue_orchestration_channel.queueDeclare("orchestration", false, false, false, null);
+        } catch(IOException e) {
+            log.info("❌ An error ocurred while creating the \"orchestration\" channel on the \"BROKER QUEUE\"!");
+        }
+    }
+
+    public void establish_connection_with_workers() {
         log.info("🕋 Connecting to the \"WORKERS QUEUES\"...");
         List<Connection> connections = new ArrayList<>();
-        for(int i = 0; i < orchestration.get_workers(); i++) {
+        for(int i = 0; i < App.WORKER_CONTAINERS; i++) {
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
                 factory.setHost("worker" + i + "_queue");
@@ -103,68 +142,99 @@ public class App {
                 factory.setHost("localhost");
                 factory.setPort(5672 + i);
             }
-            Connection connection = factory.newConnection();
-            connections.add(connection);
+            Connection connection = null;
+            try {
+                connection = factory.newConnection();
+            } catch(IOException | TimeoutException e) {
+                log.info("❌ Could not connect to \"WORKER " + i + " QUEUE\"!");
+            }
+            if(connection != null) {
+                connections.add(connection);
+            }
         }
         this.workers_queues_connections = connections;
         log.info("✅ Successfuly connected to the \"WORKERS QUEUES\"!");
     }
 
-    private Channel declare_queue(Connection connection, final String queue_name) throws IOException {
-        Channel channel = connection.createChannel();
-        channel.queueDeclare(queue_name, false, false, false, null);
-        return channel;
-    }
-
-    private void declare_message_queues(final String queue_name) throws IOException {
-        List<Channel> channels = new ArrayList<>();
-        for(Connection connection : workers_queues_connections) {
-            Channel channel = connection.createChannel();
-            channel.queueDeclare(queue_name, false, false, false, null);
-            channels.add(channel);
+    private void establish_channels_with_workers_queues(Orchestration orchestration) {
+        if(this.workers_queues_message_channels == null) {
+            this.workers_queues_message_channels = new ArrayList<>();
         }
-        this.workers_queues_message_channels = channels;
-    }
-
-    public void declare_orchestration_queues(final String queue_name) throws IOException {
-        List<Channel> channels = new ArrayList<>();
-        for(Connection connection : workers_queues_connections) {
-            Channel channel = connection.createChannel();
-            channel.queueDeclare(queue_name, false, false, false, null);
-            channels.add(channel);
+        for(int i = 0; i < this.workers_queues_message_channels.size(); i++) {
+            try {
+                this.workers_queues_message_channels.get(i).close();
+            } catch(IOException | TimeoutException e) {
+                log.info("❌ An error ocurred while closing the \"message_queue\" channel of \"WORKER " + i + "\"");
+            }
         }
-        this.workers_queues_orchestration_channels = channels;
+        this.workers_queues_message_channels.clear();
+        for(int i = 0; i < orchestration.get_workers(); i++) {
+            try {
+                Channel worker_channel = this.workers_queues_connections.get(i).createChannel();
+                worker_channel.queueDeclare("message_queue", false, false, false, null);
+                this.workers_queues_message_channels.add(worker_channel);
+            } catch(IOException e) {
+                log.info("❌ An error ocurred while opening up the \"message_queue\" channel of \"WORKER " + i + "\"");
+            }
+        }
     }
 
-    private void process_message_logic_one(Message m, JedisPool redis_database_pool, AtomicInteger last_chosen_worker) throws IOException {
-        try(Jedis jedis = redis_database_pool.getResource()) {; 
+    private void establish_workers_queues_channels() {
+        if(this.workers_queues_orchestration_channels == null) {
+            this.workers_queues_orchestration_channels = new ArrayList<>();
+        }
+        for(int i = 0; i < this.workers_queues_connections.size(); i++) {
+            try {
+                Channel channel = this.workers_queues_connections.get(i).createChannel();
+                channel.queueDeclare("orchestration", false, false, false, null);
+                this.workers_queues_orchestration_channels.add(channel);
+            } catch(IOException e) {
+                log.info("❌ An error ocurred while opening up the \"orchestration\" channel of \"WORKER " + i + "\"");
+            }
+        }
+    }
+
+    private void process_message_logic_one(Message m) {
+        try(Jedis jedis = this.redis_database_pool.getResource()) {; 
             int worker_to_forward = 0;
             if(jedis.exists(m.get_olt())) {
                 worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
             } else {
-                worker_to_forward = (last_chosen_worker.get() + 1) % workers;
+                worker_to_forward = (last_chosen_worker.get() + 1) % this.workers_queues_message_channels.size();
                 last_chosen_worker.set(worker_to_forward);
             }
             m.set_enqueued_at_worker(new Date().getTime());
-            workers_queues_message_channels.get(worker_to_forward).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-            log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+            try {
+                this.workers_queues_message_channels.get(worker_to_forward).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+            } catch(IOException e) {
+                log.info("❌ Something has gone wrong while sending the message to \"WORKER " + worker_to_forward + "\"");
+            }
+            log.info("📤 Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
         }
     }
 
-    private void process_manage_logic_two(Message m, JedisPool redis_database_pool, MessageDigest digester) throws IOException {
-        byte[] diggested_message = digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
-        int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % workers;
+    private void process_manage_logic_two(Message m) {
+        byte[] diggested_message = this.digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
+        int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
         if(worker_to_forward < 0 || worker_to_forward > 2) {
             worker_to_forward = new Random().nextInt(3);
         }
         m.set_enqueued_at_worker(new Date().getTime());
-        workers_queues_message_channels.get(worker_to_forward).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
-        log.info("Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+        try {
+            workers_queues_message_channels.get(worker_to_forward).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+        } catch(IOException e) {
+            log.info("❌ Something has gone wrong while sending the message to \"WORKER " + worker_to_forward + "\"");
+        }
+        log.info("📤 Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
     }
 
-    public void forward_orchestration_to_workers(Orchestration orchestration) throws IOException {
-        for(Channel channel : workers_queues_orchestration_channels) {
-            channel.basicPublish("", "orchestration", null, converter.toJson(orchestration).getBytes(StandardCharsets.UTF_8));
+    public void forward_orchestration_to_workers(Orchestration orchestration) {
+        for(int i = 0; i < this.workers_queues_orchestration_channels.size(); i++) {
+            try {
+                this.workers_queues_orchestration_channels.get(i).basicPublish("", "orchestration", null, converter.toJson(orchestration).getBytes(StandardCharsets.UTF_8));
+            } catch(IOException e) {
+                log.info("❌ Something has gone wrong while forwarding the orchestration to \"WORKER " + i + "\"");
+            }
         }
         try {
             Thread.sleep(4000);
@@ -173,58 +243,71 @@ public class App {
         }
     }
 
-    public void setup_orchestration_consumer(Channel orchestration_queue_channel) throws IOException {
+    public void setup_orchestration_consumer() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             log.info("🔀 Got a new orchestration request...");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class); 
             current_logic = orchestration.get_algorithm();
-            workers = orchestration.get_workers();
-            if(current_logic != 3) {
+            if(current_logic == 3) {
                 try {
-                    establish_connection_with_workers_queues(orchestration);
-                    declare_message_queues("message_queue");
-                    declare_orchestration_queues("orchestration");
-                    forward_orchestration_to_workers(orchestration);
+                    this.broker_queue_message_channel.close();
                 } catch(TimeoutException e) {
-                    e.printStackTrace();
+                    log.info("❌ An error has ocurred closing the \"message_queue\" channel on the \"BROKER QUEUE\"!");
                 }
+            } else {
+                establish_channels_with_workers_queues(orchestration);
+                establish_broker_queue_channels();
+                setup_broker_queue_message_consumption();
             }
-            log.info("✅ The new orchestration request imposed changes are now in effect! - Running algorithm " + current_logic);
+            forward_orchestration_to_workers(orchestration);
+            String algorithm = null;
+            switch(current_logic) {
+                case 1:
+                    algorithm = "1️⃣";
+                    break;
+                case 2:
+                    algorithm = "2️⃣";
+                    break;
+                case 3:
+                    algorithm = "3️⃣";
+                    break;
+                default:
+                    break;
+            }
+            log.info("✅ The new orchestration request imposed changes are now in effect! - Running algorithm " + algorithm);
+            if(current_logic == 3) {
+                log.info("👀 I'm only watching what's up. Not really handling anything...");
+            }
         };
-        orchestration_queue_channel.basicConsume("orchestration", true, deliverCallback, consumerTag -> {});
+        try {
+            this.broker_queue_orchestration_channel.basicConsume("orchestration", true, deliverCallback, consumerTag -> {});
+        } catch(IOException e) {
+            log.info("❌ Something went wrong when consuming messages from \"orchestration\" on the \"BROKER QUEUE\"!");
+        }
     }
 
-    public void setup_broker_queue_message_consumption(JedisPool redis_database_pool, AtomicInteger last_chosen_worker, MessageDigest digester) throws IOException {
+    public void setup_broker_queue_message_consumption() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
             m.set_dequeued_at_broker(new Date().getTime());
             switch(current_logic) {
                 case 1:
-                    process_message_logic_one(m, redis_database_pool, last_chosen_worker);
+                    process_message_logic_one(m);
                     break;
                 case 2:
-                    process_manage_logic_two(m, redis_database_pool, digester);
+                    process_manage_logic_two(m);
                     break;
                 default:
                     break;
             }
         };
-        broker_queue_message_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
+        try {
+            this.broker_queue_message_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
+        } catch(IOException e) {
+            log.info("❌ Something went wrong when consuming messages from \"message_queue\" on the \"BROKER QUEUE\"");
+        }
     }
 
-    public void run() throws IOException, TimeoutException, NoSuchAlgorithmException {
-        // Algorithm 1 - Round Robin Variable
-        AtomicInteger last_chosen_worker = new AtomicInteger(workers - 1);
-        // Alogirthm 2 - Message Digester
-        MessageDigest digester = MessageDigest.getInstance("SHA-256");
-        // Common variables
-        JedisPool redis_database_pool = establish_connection_with_redis_database();
-        establish_connection_with_broker_queue();
-        broker_queue_message_channel = declare_queue(broker_queue_connection, "message_queue");
-        broker_queue_orchestration_channel = declare_queue(broker_queue_connection, "orchestration");
-        setup_orchestration_consumer(broker_queue_orchestration_channel);
-        setup_broker_queue_message_consumption(redis_database_pool, last_chosen_worker, digester);
-    }
 }
