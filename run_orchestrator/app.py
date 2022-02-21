@@ -6,7 +6,6 @@ OrchestrationSchema = Schema.from_dict(
     {
         "olts": fields.Int(),
         "messages": fields.Int(),
-        "no_broker": fields.Boolean(),
         "workers": fields.Int(),
         "algorithm": fields.Int()
     }

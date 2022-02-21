@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
   broker_queue:
@@ -144,5 +144,4 @@ services:
       - private_network
 networks:
   private_network:
-    name: testbench_private_network
     driver: bridge

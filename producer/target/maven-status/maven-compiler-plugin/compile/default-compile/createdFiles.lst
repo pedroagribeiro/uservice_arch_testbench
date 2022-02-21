@@ -1,6 +1,6 @@
 RequestReport.class
 App.class
-Message.class
 Response.class
+Message.class
 Orchestration.class
 SecureConnection.class

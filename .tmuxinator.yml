@@ -1,4 +1,4 @@
-name: uservice_architectures_testbench
+name: uservice_arch_testbench
 root: <%= ENV["PWD"] %>
 
 startup_window: producer
@@ -14,47 +14,55 @@ windows:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd producer
             - ../bin/producer
   - broker:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd broker
             - ../bin/broker
   - worker_id_0:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd worker
             - ../bin/worker 0
   - worker_id_1:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd worker
             - ../bin/worker 1
   - worker_id_2:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd worker
             - ../bin/worker 2
   - olt_0:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd olt
             - ../bin/olt 0
   - olt_1:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd olt
             - ../bin/olt 1
   - olt_2:
       layout: main-vertical
       panes:
         - app:
+            - cd ~/Code/uservice_arch_testbench
             - cd olt
             - ../bin/olt 2
