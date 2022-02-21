@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
 
-    @Parameter(names = { "-containerized"}, description = "Indicates wether the setup is containerized or not")
+    @Parameter(names = { "-containerized" }, description = "Indicates wether the setup is containerized or not")
     private static boolean containerized;
 
     private static final int WORKER_CONTAINERS = 3;
@@ -105,12 +105,13 @@ public class App {
     private void establish_connection_with_broker_queue() {
         log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(broker_queue_host);
-        factory.setPort(broker_queue_port);
+        factory.setHost(this.broker_queue_host);
+        factory.setPort(this.broker_queue_port);
         try {
             this.broker_queue_connection = factory.newConnection();
             log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
         } catch(IOException | TimeoutException e) {
+            e.printStackTrace();
             log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
         }
     }

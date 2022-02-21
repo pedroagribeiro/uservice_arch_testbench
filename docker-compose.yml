@@ -1,38 +1,38 @@
 version: "3"
 
 services:
+  producer_orchestration_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: producer_orchestration
+    ports:
+      - "5679:5672"
+      - "15679:15672"
+    networks:
+      - private_network
   broker_queue:
     image: rabbitmq:3.9.13-management
     container_name: broker_queue
     hostname: broker_queue
-    # environment:
-    #   RABBITMQ_DEFAULT_USER: broker
-    #   RABBITMQ_DEFAULT_PASSWORD: broker
     ports:
       - "5675:5672"
       - "15675:15672"
     networks:
       - private_network
-  # producer:
-  #   build: ./producer/
-  #   container_name: producer
-  #   links:
-  #     - broker_queue
-  #   networks:
-  #     - private_network
-  # broker:
-  #   build: ./broker/
-  #   container_name: broker
-  #   environment:
-  #     EXECUTABLE: broker-1.0-SNAPSHOT-jar-with-dependencies.jar
-  #     WORKERS: "['worker0', 'worker1', 'worker2']"
-  #     REDIS_HOST: redis_db
-  #     REDIS_PORT: 6379
-  #     CONSUMING_QUEUE_HOST: broker_queue
-  #     CONSUMING_QUEUE_PORT: 5672
-  #     ALGORITHM: 3
-  #   networks:
-  #     - private_network
+  producer:
+    build: ./producer/
+    container_name: producer
+    depends_on:
+      - producer_orchestration_queue
+      - broker_queue
+    networks:
+      - private_network
+  broker:
+    build: ./broker/
+    container_name: broker
+    depends_on:
+      - broker_queue
+    networks:
+      - private_network
   # worker0:
   #   build: ./worker/
   #   container_name: worker0
@@ -134,14 +134,7 @@ services:
       - "6380:6379"
     networks:
       - private_network
-  producer_orchestration_queue:
-    image: rabbitmq:3.9.13-management
-    container_name: producer_orchestration
-    ports:
-      - "5679:5672"
-      - "15679:15672"
-    networks:
-      - private_network
+ 
 networks:
   private_network:
     driver: bridge

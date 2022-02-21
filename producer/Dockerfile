@@ -15,10 +15,14 @@ RUN mkdir /app
 # Copy the .jar to the container
 COPY target/producer-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 
+# Copy the start script
+COPY start.sh /app/
+
+# Make the script executable
+RUN chmod +x /app/start.sh
+
 # Switch directory context to /app
 WORKDIR /app
 
 # Run the application
-# In the case of a brokerless the flag ´-no_broker´should be passed
-# CMD ["java", "-cp", "producer-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized"]
-CMD ["tail", "-f", "/dev/null"]
+CMD ["sh", "start.sh"]

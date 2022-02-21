@@ -19,4 +19,4 @@ COPY target/broker-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
 WORKDIR /app
 
 # Run the application
-CMD ["java", "-cp", "broker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-workers", "3", "-algorithm", "1"]
+CMD ["java", "-cp", "broker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized"]

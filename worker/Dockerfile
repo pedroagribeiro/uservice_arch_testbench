@@ -20,4 +20,4 @@ WORKDIR /app
 
 # Run the application
 # If the algoritm is 3 use ´-no_broker´
-CMD ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-id", "0", "-olts", "3"]
+CMD ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized"]

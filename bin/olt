@@ -6,4 +6,4 @@
 # $3 - the port in which the OLT queue is running
 
 mvn clean compile exec:java \
-    -Dexec.args="-id ${1:-0} "
+    -Dexec.args="-id ${1:-0}"

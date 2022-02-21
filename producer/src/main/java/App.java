@@ -134,11 +134,14 @@ public class App {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(queue_host);
         factory.setPort(queue_port); 
-        try {
-            this.broker_queue_connection = factory.newConnection();
-            log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
-        } catch(IOException | TimeoutException e) {
-            log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
+        while(this.broker_queue_connection == null) {
+            try {
+                this.broker_queue_connection = factory.newConnection();
+                log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+            } catch(IOException | TimeoutException e) {
+                e.printStackTrace();
+                log.info("❌ Could not connect to the \"BROKER QUEUE\"!. Retrying....");
+            }
         }
     }
 
