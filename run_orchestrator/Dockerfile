@@ -10,6 +10,7 @@ RUN pip3 install --upgrade setuptools
 RUN pip3 install Flask
 RUN pip3 install marshmallow
 RUN pip3 install pika
+RUN pip3 install nmap
 
 # Create folder for the project
 RUN mkdir /app

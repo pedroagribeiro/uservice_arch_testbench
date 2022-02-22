@@ -1,15 +1,15 @@
 version: "3"
 
 services:
-  # run_orchestrator:
-  #   build: ./run_orchestrator/
-  #   container_name: run_orchestrator
-  #   ports:
-  #     - "8080:8000"
-  #   networks:
-  #     - private_network
-  #   depends_on:
-  #     - producer_orchestration_queue
+  run_orchestrator:
+    build: ./run_orchestrator/
+    container_name: run_orchestrator
+    ports:
+      - "8000:8000"
+    networks:
+      - private_network
+    depends_on:
+      - producer_orchestration_queue
   producer_orchestration_queue:
     image: rabbitmq:3.9.13-management
     container_name: producer_orchestration
@@ -27,63 +27,63 @@ services:
       - "15675:15672"
     networks:
       - private_network
-  # producer:
-  #   build: ./producer/
-  #   container_name: producer
-  #   depends_on:
-  #     - producer_orchestration_queue
-  #     - broker_queue
-  #   networks:
-  #     - private_network
-  # broker:
-  #   build: ./broker/
-  #   container_name: broker
-  #   depends_on:
-  #     - broker_queue
-  #   networks:
-  #     - private_network
-  # worker0:
-  #   build:
-  #     context: ./worker/
-  #   command: "0"
-  #   container_name: worker0
-  #   networks:
-  #     - private_network
-  # worker1:
-  #   build:
-  #     context: ./worker/
-  #   command: "1"
-  #   container_name: worker1
-  #   networks:
-  #     - private_network
-  # worker2:
-  #   build:
-  #     context: ./worker/
-  #   command: "2"
-  #   container_name: worker2
-  #   networks:
-  #     - private_network
-  # olt0:
-  #   build:
-  #     context: ./olt/
-  #   command: "0"
-  #   container_name: olt0
-  #   networks:
-  #     - private_network
-  # olt1:
-  #   build:
-  #     context: ./olt/
-  #   command: "1"
-  #   container_name: olt1
-  #   networks:
-  #     - private_network
-  # olt2:
-  #   build:
-  #     context: ./olt/
-  #   command: "2"
-  #   container_name: olt2
-  #   networks:
-  #     - private_network
+  producer:
+    build: ./producer/
+    container_name: producer
+    depends_on:
+      - producer_orchestration_queue
+      - broker_queue
+    networks:
+      - private_network
+  broker:
+    build: ./broker/
+    container_name: broker
+    depends_on:
+      - broker_queue
+    networks:
+      - private_network
+  worker0:
+    build:
+      context: ./worker/
+    command: "0"
+    container_name: worker0
+    networks:
+      - private_network
+  worker1:
+    build:
+      context: ./worker/
+    command: "1"
+    container_name: worker1
+    networks:
+      - private_network
+  worker2:
+    build:
+      context: ./worker/
+    command: "2"
+    container_name: worker2
+    networks:
+      - private_network
+  olt0:
+    build:
+      context: ./olt/
+    command: "0"
+    container_name: olt0
+    networks:
+      - private_network
+  olt1:
+    build:
+      context: ./olt/
+    command: "1"
+    container_name: olt1
+    networks:
+      - private_network
+  olt2:
+    build:
+      context: ./olt/
+    command: "2"
+    container_name: olt2
+    networks:
+      - private_network
   worker0_queue:
     image: rabbitmq:3.9.13-management
     container_name: worker_queue0

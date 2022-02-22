@@ -1,6 +1,7 @@
 from flask import Flask, make_response, request, json
 from marshmallow import Schema, fields, ValidationError
 import pika
+import os
 
 OrchestrationSchema = Schema.from_dict(
     {
@@ -18,9 +19,15 @@ def create_app_and_queue_connection():
         static_folder="/static"
     )
     app.config["CACHE_TYPE"] = "null"
-    connection = pika.BlockingConnection(pika.ConnectionParameters("localhost", 5679, heartbeat=0))
-    channel = connection.channel()
-    channel.queue_declare(queue="orchestration")
+    while True:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters("broker_queue", 5672, heartbeat=0))
+            channel = connection.channel()
+            channel.queue_declare(queue="orchestration")
+        except Exception:
+            pass
+        else:
+            break
     return app, channel
 
 app, channel = create_app_and_queue_connection()
