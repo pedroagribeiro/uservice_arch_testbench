@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.math.BigInteger;
 
 public class App {
 
@@ -229,7 +230,8 @@ public class App {
 
     private void process_manage_logic_two(Message m) {
         byte[] diggested_message = this.digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
-        int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
+        // int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
+        int worker_to_forward = (int) new BigInteger(diggested_message).longValue();
         if(worker_to_forward < 0 || worker_to_forward > 2) {
             worker_to_forward = new Random().nextInt(3);
         }

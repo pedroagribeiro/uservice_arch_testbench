@@ -259,8 +259,8 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, deliver) -> {
             String jsonString = new String(deliver.getBody(), StandardCharsets.UTF_8);
             Message m = App.converter.fromJson(jsonString, Message.class);
-            m.set_worker(worker_id);
             m.set_dequeued_at_worker(new Date().getTime());
+            m.set_worker(worker_id);
             process_message(m);
         };
         try {
@@ -338,11 +338,16 @@ public class App {
                 while(handling_request_for_same_olt) {
                     try {
                         Thread.sleep(100);
+                        log.info("cenas");
                     } catch(InterruptedException e) {
                         e.printStackTrace();
                     }
                     handling_request_for_same_olt = jedis.exists(m.get_olt());
                 }
+                jedis.set(m.get_olt(), String.valueOf(worker_id));
+            }
+        } else {
+            try(Jedis jedis = this.redis_database_pool.getResource()) {
                 jedis.set(m.get_olt(), String.valueOf(worker_id));
             }
         }
@@ -353,16 +358,12 @@ public class App {
         try {
             await().atMost(m.get_timeout(), TimeUnit.MILLISECONDS).until(request_satisfied(m.get_id()));
         } catch(Exception e) {
-            e.printStackTrace();
+            log.info("⚠️ The request " + m.get_id() + " timeout!");
         }
-        try(Jedis jedis = this.redis_database_pool.getResource()) {
-            jedis.del(m.get_olt());
-        }
-
     }
  
     private void start_olts_responses_consuming_logic() {
-        Thread response_handler = new Thread(new ResponseConsumer(this.worker_queue_olt_response_channel, this.results_database_pool, this.current_active_request, this.current_request_satisfied)); 
+        Thread response_handler = new Thread(new ResponseConsumer(this.worker_queue_olt_response_channel, this.results_database_pool, this.redis_database_pool, this.current_active_request, this.current_request_satisfied)); 
         response_handler.start();
         try {
             response_handler.join();
@@ -375,14 +376,16 @@ public class App {
 
         private Channel worker_queue_response_channel;
         private JedisPool results_database_pool;
+        private JedisPool redis_database_pool;
         private AtomicInteger current_active_request;
         private Map<Integer, Boolean> current_request_satisfied;   
 
         Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-        public ResponseConsumer(Channel worker_queue_response_channel, JedisPool results_database_pool, AtomicInteger current_active_request, Map<Integer, Boolean> current_request_satisfied) {
+        public ResponseConsumer(Channel worker_queue_response_channel, JedisPool results_database_pool, JedisPool redis_database_pool, AtomicInteger current_active_request, Map<Integer, Boolean> current_request_satisfied) {
             this.worker_queue_response_channel = worker_queue_response_channel;
             this.results_database_pool = results_database_pool;
+            this.redis_database_pool = redis_database_pool;
             this.current_active_request = current_active_request;
             this.current_request_satisfied = current_request_satisfied;
         }
@@ -396,15 +399,16 @@ public class App {
                 res.set_origin_message(origin_message);
                 if(origin_message.get_id() == this.current_active_request.get()) {
                     res.set_timedout(false);
+                    this.current_request_satisfied.put(origin_message.get_id(), true);
                 } else {
                     res.set_timedout(true);
-                }
-                if(origin_message.get_id() == this.current_active_request.get()) {
-                    this.current_request_satisfied.put(origin_message.get_id(), true);
                 }
                 log.info("📥 Received response'" + converter.toJson(res) + " from OLT" + res.get_origin_message().get_olt());
                 try(Jedis jedis = this.results_database_pool.getResource()) {
                     jedis.set(String.valueOf(res.get_origin_message().get_id()), converter.toJson(res));
+                }
+                try(Jedis jedis = this.redis_database_pool.getResource()) {
+                    jedis.del(String.valueOf(origin_message.get_olt()));
                 }
             };
             try {

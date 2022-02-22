@@ -25,4 +25,4 @@ RUN chmod +x /app/start.sh
 WORKDIR /app
 
 # Run the application
-CMD ["sh", "start.sh"]
+ENTRYPOINT [ "java", "-cp", "producer-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized" ]
