@@ -1,0 +1,30 @@
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices_arch_testbench
+  namespace: uservices_arch_testbench
+spec:
+  selector:
+    matchLabels:
+      app: uservices_arch_testbench
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices_arch_testbench
+    spec:
+      containers:
+        - name: run_orchestration
+          image: registry/run_orchestration:1.0
+        - name: producer
+          image: registry/producer:1.0
+        - name: broker
+          image: registry/broker:1.0
+        - name: worker
+          image: registry/worker:1.0
+        - name: olt
+          image: registry/olt:1.0
+      restartPolicy: Always
+

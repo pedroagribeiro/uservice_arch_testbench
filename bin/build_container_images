@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Run Orchestrator Image
+cd run_orchestrator
+docker build . -t run_orchestrator:1.0
+cd ..
+
+# Producer Container
+cd producer
+docker build . -t producer:1.0
+cd ..
+
+# Broker Container
+cd broker
+docker build . -t broker:1.0
+cd ..
+
+# Worker Container
+cd worker
+docker build . -t worker:1.0
+cd ..
+
+# OLT Container
+cd olt
+docker build . -t olt:1.0
+cd ..
