@@ -165,6 +165,7 @@ public class App {
     }
 
     private static Message message_generator(final int message_id, Random random, int olt_count, int type) {
+        // TODO: Verificar se as constraints estao a ser cumprida
         long[] longer_than_timeout_times = {40000, 50000};
         long[] spikes_times = {10000, 20000, 30000};
         // type 0: random
@@ -180,6 +181,7 @@ public class App {
                 message_processing_time = spikes_times[random.nextInt(3)];
                 break;
             default:
+                // TODO: 500 < t < 4000
                 message_processing_time = random.nextInt(4) * 1000 + 1000; // 1000 < t < 4000
                 break;
         }
@@ -189,8 +191,9 @@ public class App {
     }
 
     private void generate_and_send_messages(Orchestration orchestration) {
-        // 1% of the messages will take longer than timeout to process [40000, 50000]
-        // 3% of the messages will take either [10000, 20000, 30000] to process
+        // 1% of the messages will take longer than timeout to process [30000, 40000, 50000]
+        // 3% of the messages will take either [10000, 15000, 19000] to process
+
         int longer_than_timeout = (int) Math.floor(orchestration.get_messages() * 0.01);
         int spikes = (int) Math.floor(orchestration.get_messages() * 0.03);
         Random r = new Random(42);
