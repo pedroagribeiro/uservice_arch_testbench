@@ -2,7 +2,8 @@
 
 # Run Orchestrator Image
 cd run_orchestrator
-docker build . -t run_orchestrator:1.0
+docker build . -t 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
+docker push 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
 cd ..
 
 # Producer Container

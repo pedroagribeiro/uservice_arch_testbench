@@ -3,118 +3,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uservices_arch_testbench
-  namespace: uservices_arch_testbench
+  name: uservices-arch-testbench
+  namespace: dsr-onu-ztp
 spec:
   selector:
     matchLabels:
-      app: uservices_arch_testbench
+      app: uservices-arch-testbench
   replicas: 1
   template:
     metadata:
       labels:
-        app: uservices_arch_testbench
+        app: uservices-arch-testbench
     spec:
       containers:
-      - name: run_orchestration
-        image: registry/run_orchestration:1.0
+      - name: run-orchestratior
+        image: 10.112.106.236:32500/ztp-onu-run_orchestration:1.0
         ports:
-        - containerPort: 8000
-          name: http-requests-port
-      - name: producer_orchestration
+        - containerPort: 5000
+          name: http-req-port
+      - name: orch-queue
         image: rabbitmq:3.9.13-managment
         ports:
         - containerPort: 5672
           name: queue-port
         - containerPort: 15672
-          name: queue-management
-      - name: producer
-        image: registry/producer:1.0
-      - name: broker
-        image: registry/broker:1.0
-      - name: broker_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      - name: worker0
-        image: registry/worker:1.0
-        args: ["0"]
-      - name: worker1
-        image: registry/worker:1.0
-        args: ["1"]
-      - name: worker2
-        image: registry/worker:1.0
-        args: ["2"]
-      - name: worker0_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      - name: worker1_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      - name: worker2_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      - name: olt0
-        image: registry/olt:1.0
-        args: ["0"]
-      - name: olt1
-        image: registry/olt:1.0
-        args: ["1"]
-      - name: olt2
-        image: registry/olt:1.0
-        args: ["2"]
-      - name: olt0_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      - name: olt1_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      - name: olt2_queue
-        image: rabbitmq:3.9.13-managment
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-management
-      restartPolicy: Always
+          name: queue-mngt
+   restartPolicy: Always
 
 
 ---
 apiVersion: v1
 kind: Service
 metada:
-  name: uservices_arch_testbench_orchestrator
+  name: uservices-arch-testbench-orchestrator
   namespace: dsr-onu-ztp
 spec:
   selector:
-    app: uservices_arch_testbench
+    app: uservices-arch-testbench
   ports:
-    - name: orchestrator_port
+    - name: orch-port
       protocol: TCP
-      port: 8000
-      targetPort: 8000
+      port: 5000
+      targetPort: 5000
       nodePort: 32300 
   type: NodePort
