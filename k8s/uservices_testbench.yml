@@ -16,7 +16,7 @@ spec:
         app: uservices-arch-testbench
     spec:
       containers:
-      - name: run-orchestratior
+      - name: run-orchestrator
         image: 10.112.106.236:32500/ztp-onu-run_orchestration:1.0
         ports:
         - containerPort: 5000
@@ -28,7 +28,7 @@ spec:
           name: queue-port
         - containerPort: 15672
           name: queue-mngt
-   restartPolicy: Always
+  restartPolicy: Always
 
 
 ---
