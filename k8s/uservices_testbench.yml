@@ -17,24 +17,24 @@ spec:
     spec:
       containers:
       - name: run-orchestrator
-        image: 10.112.106.236:32500/ztp-onu-run_orchestration:1.0
+        image: 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
         ports:
         - containerPort: 5000
           name: http-req-port
       - name: orch-queue
-        image: rabbitmq:3.9.13-managment
+        image: rabbitmq:3.9.13-management
         ports:
         - containerPort: 5672
           name: queue-port
         - containerPort: 15672
           name: queue-mngt
-  restartPolicy: Always
+      restartPolicy: Always
 
 
 ---
 apiVersion: v1
 kind: Service
-metada:
+metadata:
   name: uservices-arch-testbench-orchestrator
   namespace: dsr-onu-ztp
 spec:
