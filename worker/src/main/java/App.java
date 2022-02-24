@@ -92,11 +92,11 @@ public class App {
 
     private void establish_environment_variables() {
         if(containerized) {
-            this.worker_queue_host = "worker_queue" + worker_id;
+            this.worker_queue_host = "worker-queue" + worker_id;
             this.worker_queue_port = 5672;
-            this.broker_queue_host = "broker_queue";
+            this.broker_queue_host = "broker-queue";
             this.broker_queue_port = 5672;
-            this.redis_database_host = "redis_db";
+            this.redis_database_host = "redis-db";
             this.redis_database_port = 6379;
             this.redis_results_database_host = "results";
             this.redis_results_database_port = 6379;

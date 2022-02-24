@@ -61,7 +61,7 @@ public class App {
 
     public void establish_environment_variables() {
         if(containerized) {
-            this.olt_queue_host = "olt" + id + "_queue";
+            this.olt_queue_host = "olt" + id + "-queue";
             this.olt_queue_port = 5672;
         } else {
             this.olt_queue_host = "localhost";
@@ -108,7 +108,7 @@ public class App {
         for(int i = 0; i < App.OLT_CONTAINERS; i++) {
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
-                factory.setHost("worker_queue" + i);
+                factory.setHost("worker-queue" + i);
                 factory.setPort(5672);
             } else {
                 factory.setHost("localhost");
