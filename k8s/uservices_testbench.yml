@@ -21,6 +21,7 @@ spec:
         ports:
         - containerPort: 5000
           name: http-req-port
+        imagePullPolicy: Always
       - name: orch-queue
         image: rabbitmq:3.9.13-management
         ports:
@@ -28,6 +29,84 @@ spec:
           name: queue-port
         - containerPort: 15672
           name: queue-mngt
+      - name: producer
+        image: 10.112.106.236:32500/ztp-onu-producer:1.0
+        imagePullPolicy: Always
+      - name: broker-queue
+        image: rabbitmq:3.9.13-management
+        ports:
+        - containerPort: 5673
+          name: queue-port
+        - containerPort: 15673
+          name: queue-mngt
+      - name: broker
+        image: 10.112.106.236:32500/ztp-onu-broker:1.0
+        imagePullPolicy: Always
+      - name: worker0
+        image: 10.112.106.236:32500/ztp-onu-worker:1.0
+        args: ["0"]
+        imagePullPolicy: Always
+      - name: worker1
+        image: 10.112.106.236:32500/ztp-onu-worker:1.0
+        args: ["1"]
+        imagePullPolicy: Always
+      - name: worker2
+        image: 10.112.106.236:32500/ztp-onu-worker:1.0
+        args: ["2"]
+        imagePullPolicy: Always
+      - name: worker-queue0
+        image: rabbitmq:3.9.13-management
+        ports:
+          - containerPort: 5674
+            name: wk0-queue-port
+            containerPort: 15674
+            name: wk0-queue-mngt
+      - name: worker-queue1
+        image: rabbitmq:3.9.13-management
+        ports:
+          - containerPort: 5675
+            name: wk1-queue-port
+            containerPort: 15675
+            name: wk1-queue-mngt
+      - name: worker-queue2
+        image: rabbitmq:3.9.13-management
+        ports:
+          - containerPort: 5676
+            name: wk2-queue-port
+            containerPort: 15676
+            name: wk2-queue-mngt
+      - name: olt0
+        image: 10.112.106.236:32500/ztp-onu-olt:1.0
+        args: ["0"]
+        imagePullPolicy: Always
+      - name: olt1
+        image: 10.112.106.236:32500/ztp-onu-olt:1.0
+        args: ["1"]
+      - name: olt2
+        image: 10.112.106.236:32500/ztp-onu-olt:1.0
+        args: ["2"]
+        imagePullPolicy: Always
+      - name: olt-queue0
+        image: rabbitmq:3.9.13-management
+        ports:
+          - containerPort: 5677
+            name: olt0-queue-port
+            containerPort: 15677
+            name: olt0-queue-mngt
+      - name: olt-queue1
+        image: rabbitmq:3.9.13-management
+        ports:
+          - containerPort: 5678
+            name: olt1-queue-port
+            containerPort: 15678
+            name: olt1-queue-mngt
+      - name: olt-queue2
+        image: rabbitmq:3.9.13-management
+        ports:
+          - containerPort: 5679
+            name: olt2-queue-port
+            containerPort: 15679
+            name: olt2-queue-mngt
       restartPolicy: Always
 
 
@@ -47,3 +126,117 @@ spec:
       targetPort: 5000
       nodePort: 32300 
   type: NodePort
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orch-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: orch-queue-port
+      port: 5672
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broker-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: broker-queue-port
+      port: 5673
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue0
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: wk0-queue-port
+      port: 5674
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue1
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: wk1-queue-port
+      port: 5675
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue2
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: wk2-queue-port
+      port: 5676
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue0
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: olt0-queue-port
+      port: 5677
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue1
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: olt1-queue-port
+      port: 5678
+      targetPort: 5672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue2
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: olt2-queue-port
+      port: 5679
+      targetPort: 5672
+
