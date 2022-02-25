@@ -14,6 +14,9 @@ import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +33,7 @@ public class App {
     private int message_id = 0;
     private boolean on_going_run = false;
     private static Gson converter = new Gson();
+    private int run_id = 0;
 
     private String queue_host;
     private int queue_port;
@@ -47,7 +51,8 @@ public class App {
     private Channel orchestration_queue_orchestration_channel;
     private Channel broker_queue_messaging_channel;
     private Channel broker_queue_orchestrationg_channel;
-    
+    private java.sql.Connection run_results_database_connection;
+
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     public static void main(String[] args) throws Exception {
@@ -70,6 +75,7 @@ public class App {
         establish_broker_queue_channels();
         establish_connection_with_orchestration_queue();
         establish_orchestration_queue_channels();
+        establish_connection_with_run_results_database();
         setup_orchestration_consumer();
     }
 
@@ -127,6 +133,20 @@ public class App {
         } catch(IOException e) {
             log.info("❌ Something went wrong while declaring the \"orchestration\" channel on the \"ORCHESTRATION QUEUE\"!");
         }
+    }
+
+    private void establish_connection_with_run_results_database() {
+        while(this.run_results_database_connection == null) {
+            try {
+                Class.forName("org.postgresql.Driver");
+                this.run_results_database_connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/results", "postgres", "postgres");
+            } catch(Exception e) {
+                e.printStackTrace();
+                log.info("❌ An error ocurred while connectiong to the run results database...");
+                log.info("Retrying...");
+            }
+        }
+        log.info("✅ Successfuly connected to the run results database!");
     }
 
     private void establish_connection_with_broker_queue() {
@@ -262,7 +282,7 @@ public class App {
         return responses;
     }
 
-    private static String metrics_calculator(Orchestration orchestration, List<Response> results) {
+    private String metrics_calculator(Orchestration orchestration, List<Response> results) {
         List<RequestReport> reports = new ArrayList<>();
         for(Response r : results) {
             int request_id = r.get_origin_message().get_id();
@@ -293,8 +313,45 @@ public class App {
         double avg_time_olt_queue = time_olt_queue_total / results.size();
         double percentage_of_timedout_requests = (double) timedout_requests / (double) results.size();
         if(orchestration.get_algorithm() == 3) {
+            try {
+                Statement stmt = null;
+                String sql = "INSERT INTO results (RUN, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
+                    "VALUES (" + String.valueOf(this.run_id++) + 
+                    ", " + String.valueOf(avg_time_total) +
+                    ", " + String.valueOf(avg_time_broker_queue) +
+                    ", " + String.valueOf(avg_time_worker_queue) +
+                    ", " + String.valueOf(avg_time_olt_queue) +
+                    ", " + String.valueOf(orchestration.get_olts()) +
+                    ", " + String.valueOf(orchestration.get_workers()) + 
+                    ", " + String.valueOf(orchestration.get_messages()) +
+                    ", " + String.valueOf(percentage_of_timedout_requests) + ");";
+                stmt = this.run_results_database_connection.createStatement();
+                stmt.executeUpdate(sql);
+                stmt.close();
+            } catch(SQLException e) {
+                log.info("❌ An error has ocurred while submitting the run result to the database!");
+            }
             return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
         } else {
+            try {
+                Statement stmt = null;
+                String sql = "INSERT INTO results (RUN, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
+                    "VALUES (" + String.valueOf(this.run_id++) + 
+                    ", " + String.valueOf(avg_time_total) +
+                    ", " + String.valueOf(avg_time_broker_queue) +
+                    ", " + String.valueOf(avg_time_worker_queue) +
+                    ", " + String.valueOf(avg_time_olt_queue) +
+                    ", " + String.valueOf(orchestration.get_olts()) +
+                    ", " + String.valueOf(orchestration.get_workers()) + 
+                    ", " + String.valueOf(orchestration.get_messages()) +
+                    ", " + String.valueOf(percentage_of_timedout_requests) + ");";
+                stmt = this.run_results_database_connection.createStatement();
+                stmt.executeUpdate(sql);
+                stmt.close();
+                this.run_results_database_connection.commit();
+            } catch(SQLException e) {
+                log.info("❌ An error has ocurred while submitting the run result to the database!");
+            }
             return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
         }
     }

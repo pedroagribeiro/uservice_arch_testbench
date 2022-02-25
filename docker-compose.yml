@@ -147,6 +147,18 @@ services:
       - "6380:6379"
     networks:
       - private_network
+  run_results_database:
+    build:
+      context: ./run_results_database/
+    container_name: run_results_database
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+      - "POSTGRES_PASSWORD=postgres"
+      - "POSTGRESD_DB=results"
+    ports:
+      - "5432:5432"
+    networks:
+      - private_network
 networks:
   private_network:
     driver: bridge

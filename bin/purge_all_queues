@@ -1,51 +1,51 @@
 #!/bin/bash
 
 echo "🧹 Purging \"orchestration\" on the \"producer_orchestration\" container..."
-sudo docker exec -it producer_orchestration rabbitmqctl purge_queue orchestration
+sudo docker exec -it orch-queue rabbitmqctl purge_queue orchestration
 
 echo "🧹 Purging \"message_queue\" on the \"broker_queue\" container..."
-sudo docker exec -it broker_queue rabbitmqctl purge_queue message_queue
+sudo docker exec -it broker-queue rabbitmqctl purge_queue message_queue
 
 echo "🧹 Purging \"orchestration\" on the \"broker_queue\" container..."
-sudo docker exec -it broker_queue rabbitmqctl purge_queue orchestration
+sudo docker exec -it broker-queue rabbitmqctl purge_queue orchestration
 
 echo "🧹 Purging \"message_queue\" on the \"worker_queue0\" container..."
-sudo docker exec -it worker_queue0 rabbitmqctl purge_queue message_queue
+sudo docker exec -it worker-queue0 rabbitmqctl purge_queue message_queue
 
 echo "🧹 Purging \"orchestration\" on the \"worker_queue0\" container..."
-sudo docker exec -it worker_queue0 rabbitmqctl purge_queue orchestration
+sudo docker exec -it worker-queue0 rabbitmqctl purge_queue orchestration
 
 echo "🧹 Purging \"message_queue\" on the \"worker_queue1\" container..."
-sudo docker exec -it worker_queue1 rabbitmqctl purge_queue message_queue
+sudo docker exec -it worker-queue1 rabbitmqctl purge_queue message_queue
 
 echo "🧹 Purging \"orchestration\" on the \"worker_queue1\" container..."
-sudo docker exec -it worker_queue1 rabbitmqctl purge_queue orchestration
+sudo docker exec -it worker-queue1 rabbitmqctl purge_queue orchestration
 
 echo "🧹 Purging \"message_queue\" on the \"worker_queue2\" container..."
-sudo docker exec -it worker_queue2 rabbitmqctl purge_queue message_queue
+sudo docker exec -it worker-queue2 rabbitmqctl purge_queue message_queue
 
 echo "🧹 Purging \"orchestration\" on the \"worker_queue2\" container..."
-sudo docker exec -it worker_queue2 rabbitmqctl purge_queue orchestration
+sudo docker exec -it worker-queue2 rabbitmqctl purge_queue orchestration
 
 echo "🧹 Purging \"requests\" on the \"olt0_queue\" container..."
-sudo docker exec -it olt0_queue rabbitmqctl purge_queue requests
+sudo docker exec -it olt-queue0 rabbitmqctl purge_queue requests
 
 echo "🧹 Purging \"responses\" on the \"olt0_queue\" container..."
-sudo docker exec -it olt0_queue rabbitmqctl purge_queue responses
+sudo docker exec -it olt-queue0 rabbitmqctl purge_queue responses
 
 echo "🧹 Purging \"requests\" on the \"olt1_queue\" container..."
-sudo docker exec -it olt1_queue rabbitmqctl purge_queue requests
+sudo docker exec -it olt-queue1 rabbitmqctl purge_queue requests
 
 echo "🧹 Purging \"responses\" on the \"olt1_queue\" container..."
-sudo docker exec -it olt1_queue rabbitmqctl purge_queue responses
+sudo docker exec -it olt-queue1 rabbitmqctl purge_queue responses
 
 echo "🧹 Purging \"requests\" on the \"olt2_queue\" container..."
-sudo docker exec -it olt2_queue rabbitmqctl purge_queue requests
+sudo docker exec -it olt-queue2 rabbitmqctl purge_queue requests
 
 echo "🧹 Purging \"responses\" on the \"olt2_queue\" container..."
-sudo docker exec -it olt2_queue rabbitmqctl purge_queue responses
+sudo docker exec -it olt-queue2 rabbitmqctl purge_queue responses
 
 echo "🧹 Purging \"orchestration\" on the \"producer_orchestration\" container..."
-sudo docker exec -it producer_orchestration purge_queue orchestration
+sudo docker exec -it orch-queue purge_queue orchestration
 
 echo "✅ All done! Queues are empty!"
