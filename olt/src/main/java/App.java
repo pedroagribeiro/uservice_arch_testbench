@@ -61,7 +61,7 @@ public class App {
 
     public void establish_environment_variables() {
         if(containerized) {
-            this.olt_queue_host = "olt" + id + "-queue";
+            this.olt_queue_host = "olt-queue" + id;
             this.olt_queue_port = 5672;
         } else {
             this.olt_queue_host = "localhost";

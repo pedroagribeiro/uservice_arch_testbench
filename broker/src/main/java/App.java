@@ -148,7 +148,7 @@ public class App {
         for(int i = 0; i < App.WORKER_CONTAINERS; i++) {
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
-                factory.setHost("worker" + i + "_queue");
+                factory.setHost("worker-queue" + i);
                 factory.setPort(5672);
             } else {
                 factory.setHost("localhost");

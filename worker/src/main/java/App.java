@@ -185,7 +185,7 @@ public class App {
         for(int i = 0; i < App.OLT_CONTAINERS; i++) {
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
-                factory.setHost("olt" + i + "_queue");
+                factory.setHost("olt-queue" + i);
                 factory.setPort(5672);
             } else {
                 factory.setHost("localhost");

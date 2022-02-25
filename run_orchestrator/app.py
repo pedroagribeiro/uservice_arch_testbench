@@ -22,7 +22,7 @@ def create_app_and_queue_connection():
     while True:
         try:
             print("trying to connect to the orchestration queue")
-            connection = pika.BlockingConnection(pika.ConnectionParameters("localhost", 5679, heartbeat=0))
+            connection = pika.BlockingConnection(pika.ConnectionParameters("orch-queue", 5672, heartbeat=0))
             channel = connection.channel()
             channel.queue_declare(queue="orchestration")
         except Exception:
@@ -47,4 +47,4 @@ def new_orchestration():
     channel.basic_publish(exchange="", routing_key="orchestration", body=json.dumps(data))
     return make_response("Your orchestration request was published to the job queue", 201)
 
-app.run(debug = True, host = '0.0.0.0', port = 8000)
+app.run(debug = True, host = '0.0.0.0', port = 5000)
