@@ -13,19 +13,23 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.math.BigInteger;
 
 public class App {
+
+
+    private Map<Integer, Integer> processing_time_test = new HashMap<>();
 
     @Parameter(names = { "-containerized" }, description = "Indicates wether the setup is containerized or not")
     private static boolean containerized;
@@ -307,6 +311,14 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
+            int processing_time = (int) m.get_processing_time();
+            if(this.processing_time_test.containsKey(processing_time)) {
+                int curr_occurrs = this.processing_time_test.get(processing_time);
+                this.processing_time_test.put(processing_time, curr_occurrs + 1);
+            } else {
+                this.processing_time_test.put(processing_time, 1);
+            }
+            log.info(this.converter.toJson(this.processing_time_test));
             m.set_dequeued_at_broker(new Date().getTime());
             switch(current_logic) {
                 case 1:

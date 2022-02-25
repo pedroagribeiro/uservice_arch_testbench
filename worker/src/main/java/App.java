@@ -46,6 +46,7 @@ public class App {
     private final static int BROKER_QUEUE = 1;
 
     private int current_consumption = WORKER_QUEUE;
+    private boolean wait = true;
     private Connection worker_queue_connection;
     private Connection broker_queue_connection;
     private Channel worker_queue_orchestration_channel; 
@@ -275,11 +276,14 @@ public class App {
             log.info("🔀 Got new orchestration request...");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
-            if(orchestration.get_algorithm() == 3) {
+            if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
                 if(current_consumption == WORKER_QUEUE) {
                     current_consumption = BROKER_QUEUE;
                     establish_current_consuming_channel();
                 } 
+                if(orchestration.get_algorithm() == 4) {
+                    this.wait = false;
+                }
             } else {
                 if(current_consumption == BROKER_QUEUE) {
                     current_consumption = WORKER_QUEUE;
@@ -333,18 +337,19 @@ public class App {
         int target_olt = Integer.parseInt(m.get_olt());
         log.info("📥 Received: '" + converter.toJson(m) + "'");
         if(current_consumption == BROKER_QUEUE) {
-            try(Jedis jedis = this.redis_database_pool.getResource()) {
-                boolean handling_request_for_same_olt = jedis.exists(m.get_olt());
-                while(handling_request_for_same_olt) {
-                    try {
-                        Thread.sleep(100);
-                        log.info("cenas");
-                    } catch(InterruptedException e) {
-                        e.printStackTrace();
+            if(wait) {
+                try(Jedis jedis = this.redis_database_pool.getResource()) {
+                    boolean handling_request_for_same_olt = jedis.exists(m.get_olt());
+                    while(handling_request_for_same_olt) {
+                        try {
+                            Thread.sleep(100);
+                        } catch(InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        handling_request_for_same_olt = jedis.exists(m.get_olt());
                     }
-                    handling_request_for_same_olt = jedis.exists(m.get_olt());
+                    jedis.set(m.get_olt(), String.valueOf(worker_id));
                 }
-                jedis.set(m.get_olt(), String.valueOf(worker_id));
             }
         } else {
             try(Jedis jedis = this.redis_database_pool.getResource()) {
