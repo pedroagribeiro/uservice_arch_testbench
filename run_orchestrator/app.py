@@ -22,7 +22,7 @@ def create_app_and_queue_connection():
     while True:
         try:
             print("trying to connect to the orchestration queue")
-            connection = pika.BlockingConnection(pika.ConnectionParameters("orch-queue", 5672, heartbeat=0))
+            connection = pika.BlockingConnection(pika.ConnectionParameters("broker-queue", 5673, heartbeat=0))
             channel = connection.channel()
             channel.queue_declare(queue="orchestration")
         except Exception:
