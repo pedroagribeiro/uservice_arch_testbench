@@ -1,4 +1,4 @@
-FROM postgres:10
+FROM postgres:14.2
 
 ENV POSTGRES_HOST_AUTH_METHOD trust
 ENV POSTGRES_PASSWORD postgres

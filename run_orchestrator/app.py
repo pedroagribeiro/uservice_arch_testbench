@@ -1,7 +1,8 @@
 from flask import Flask, make_response, request, json
 from marshmallow import Schema, fields, ValidationError
 import pika
-import os
+import sqlalchemy as db
+from sqlalchemy import text
 
 OrchestrationSchema = Schema.from_dict(
     {
@@ -29,9 +30,10 @@ def create_app_and_queue_connection():
             pass
         else:
             break
-    return app, channel
+    engine = db.create_engine("postgresql://postgres:postgres@localhost:5432/results")
+    return app, channel, engine
 
-app, channel = create_app_and_queue_connection()
+app, channel, engine = create_app_and_queue_connection()
 
 @app.route('/ping', methods = ['GET'])
 def ping():
@@ -47,4 +49,10 @@ def new_orchestration():
     channel.basic_publish(exchange="", routing_key="orchestration", body=json.dumps(data))
     return make_response("Your orchestration request was published to the job queue", 201)
 
-app.run(debug = True, port = 8000)
+@app.route("/results", methods = ['GET'])
+def get_run_results():
+    results = engine.execute(text("select * from results"))
+    rows = [dict(row) for row in results.fetchall()]
+    return make_response(str(rows), 200)
+
+app.run(debug = True, host = '0.0.0.0', port = 5000)
