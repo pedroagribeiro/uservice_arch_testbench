@@ -265,11 +265,13 @@ public class App {
             boolean not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
             if(not_all_request_reports_are_ready) {
                 log.info("🐌 Waiting for all request reports to be ready in order to calculate this runs' results...");
+                log.info("Number of results: " + key_count);
             }
             while(not_all_request_reports_are_ready) {
                 Thread.sleep(2000);
                 key_count = jedis.dbSize();
                 not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
+                log.info("Number of results: " + key_count);
             }
             Set<byte[]> result_keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
             for(byte[] key : result_keys) {
@@ -312,14 +314,14 @@ public class App {
         double avg_time_worker_queue = time_worker_queue_total / results.size();
         double avg_time_olt_queue = time_olt_queue_total / results.size();
         double percentage_of_timedout_requests = (double) timedout_requests / (double) results.size();
-        if(orchestration.get_algorithm() == 3) {
+        if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
             try {
                 Statement stmt = null;
-                String sql = "INSERT INTO results (RUN, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
+                String sql = "INSERT INTO results (RUN, ALGORITHM, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
                     "VALUES (" + String.valueOf(this.run_id++) + 
+                    ", " + String.valueOf(orchestration.get_algorithm()) +
                     ", " + String.valueOf(avg_time_total) +
                     ", " + String.valueOf(avg_time_broker_queue) +
-                    ", " + String.valueOf(avg_time_worker_queue) +
                     ", " + String.valueOf(avg_time_olt_queue) +
                     ", " + String.valueOf(orchestration.get_olts()) +
                     ", " + String.valueOf(orchestration.get_workers()) + 
@@ -329,14 +331,16 @@ public class App {
                 stmt.executeUpdate(sql);
                 stmt.close();
             } catch(SQLException e) {
+                e.printStackTrace();
                 log.info("❌ An error has ocurred while submitting the run result to the database!");
             }
             return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
         } else {
             try {
                 Statement stmt = null;
-                String sql = "INSERT INTO results (RUN, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
+                String sql = "INSERT INTO results (RUN, ALGORITHM, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
                     "VALUES (" + String.valueOf(this.run_id++) + 
+                    ", " + String.valueOf(orchestration.get_algorithm()) +
                     ", " + String.valueOf(avg_time_total) +
                     ", " + String.valueOf(avg_time_broker_queue) +
                     ", " + String.valueOf(avg_time_worker_queue) +
@@ -350,6 +354,7 @@ public class App {
                 stmt.close();
                 this.run_results_database_connection.commit();
             } catch(SQLException e) {
+                e.printStackTrace();
                 log.info("❌ An error has ocurred while submitting the run result to the database!");
             }
             return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;

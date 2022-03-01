@@ -64,6 +64,9 @@ public class App {
     private AtomicInteger current_active_request = new AtomicInteger();
     private final Map<Integer, Boolean> current_request_satisfied = new ConcurrentHashMap<>();
 
+    private AtomicInteger received_responses = new AtomicInteger(0);
+    private Integer received_messages = 0;
+
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
     public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
         App application = new App();
@@ -260,7 +263,13 @@ public class App {
         DeliverCallback deliverCallback = (consumerTag, deliver) -> {
             String jsonString = new String(deliver.getBody(), StandardCharsets.UTF_8);
             Message m = App.converter.fromJson(jsonString, Message.class);
-            m.set_dequeued_at_worker(new Date().getTime());
+            if(current_consumption == BROKER_QUEUE) {
+                m.set_dequeued_at_broker(new Date().getTime());
+                m.set_enqueued_at_worker(new Date().getTime());
+                m.set_dequeued_at_worker(m.get_enqueued_at_worker());
+            } else {
+                m.set_dequeued_at_worker(new Date().getTime());
+            }
             m.set_worker(worker_id);
             process_message(m);
         };
@@ -276,6 +285,7 @@ public class App {
             log.info("🔀 Got new orchestration request...");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
+            this.received_responses.set(0);
             if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
                 if(current_consumption == WORKER_QUEUE) {
                     current_consumption = BROKER_QUEUE;
@@ -305,7 +315,7 @@ public class App {
     public Connection establish_connection_with_consuming_queue(Orchestration orchestration) {
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = null;
-        if(orchestration.get_algorithm() == 3) {
+        if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
             log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
             factory.setHost(broker_queue_host);
             factory.setPort(broker_queue_port);
@@ -336,8 +346,10 @@ public class App {
     public void process_message(Message m) throws IOException {
         int target_olt = Integer.parseInt(m.get_olt());
         log.info("📥 Received: '" + converter.toJson(m) + "'");
+        this.received_messages++;
+        log.info("Received messages: " + this.received_messages);
         if(current_consumption == BROKER_QUEUE) {
-            if(wait) {
+            // if(this.wait == true) {
                 try(Jedis jedis = this.redis_database_pool.getResource()) {
                     boolean handling_request_for_same_olt = jedis.exists(m.get_olt());
                     while(handling_request_for_same_olt) {
@@ -351,11 +363,11 @@ public class App {
                     jedis.set(m.get_olt(), String.valueOf(worker_id));
                 }
             }
-        } else {
-            try(Jedis jedis = this.redis_database_pool.getResource()) {
-                jedis.set(m.get_olt(), String.valueOf(worker_id));
-            }
-        }
+        // } else {
+        //     try(Jedis jedis = this.redis_database_pool.getResource()) {
+        //         jedis.set(m.get_olt(), String.valueOf(worker_id));
+        //     }
+        // }
         m.set_enqueued_at_olt(new Date().getTime());
         this.current_active_request.set(m.get_id());
         this.current_request_satisfied.put(m.get_id(), false);
@@ -368,7 +380,7 @@ public class App {
     }
  
     private void start_olts_responses_consuming_logic() {
-        Thread response_handler = new Thread(new ResponseConsumer(this.worker_queue_olt_response_channel, this.results_database_pool, this.redis_database_pool, this.current_active_request, this.current_request_satisfied)); 
+        Thread response_handler = new Thread(new ResponseConsumer(this.worker_queue_olt_response_channel, this.results_database_pool, this.redis_database_pool, this.current_active_request, this.current_request_satisfied, this.received_responses)); 
         response_handler.start();
         try {
             response_handler.join();
@@ -384,22 +396,26 @@ public class App {
         private JedisPool redis_database_pool;
         private AtomicInteger current_active_request;
         private Map<Integer, Boolean> current_request_satisfied;   
+        private AtomicInteger received_responses;
 
         Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-        public ResponseConsumer(Channel worker_queue_response_channel, JedisPool results_database_pool, JedisPool redis_database_pool, AtomicInteger current_active_request, Map<Integer, Boolean> current_request_satisfied) {
+        public ResponseConsumer(Channel worker_queue_response_channel, JedisPool results_database_pool, JedisPool redis_database_pool, AtomicInteger current_active_request, Map<Integer, Boolean> current_request_satisfied, AtomicInteger received_responses) {
             this.worker_queue_response_channel = worker_queue_response_channel;
             this.results_database_pool = results_database_pool;
             this.redis_database_pool = redis_database_pool;
             this.current_active_request = current_active_request;
             this.current_request_satisfied = current_request_satisfied;
+            this.received_responses = received_responses;
         }
 
         public void run() {
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
                 Response res = converter.fromJson(jsonString, Response.class);
+                this.received_responses.set(this.received_responses.get() + 1);
                 Message origin_message = res.get_origin_message();
+                log.info("Received responses: " + this.received_responses.get());
                 origin_message.set_completed(new Date().getTime());
                 res.set_origin_message(origin_message);
                 if(origin_message.get_id() == this.current_active_request.get()) {
@@ -411,6 +427,9 @@ public class App {
                 log.info("📥 Received response'" + converter.toJson(res) + " from OLT" + res.get_origin_message().get_olt());
                 try(Jedis jedis = this.results_database_pool.getResource()) {
                     jedis.set(String.valueOf(res.get_origin_message().get_id()), converter.toJson(res));
+                } catch(Exception e) {
+                    log.info("📍 Couldn't write request result");
+                    e.printStackTrace();
                 }
                 try(Jedis jedis = this.redis_database_pool.getResource()) {
                     jedis.del(String.valueOf(origin_message.get_olt()));

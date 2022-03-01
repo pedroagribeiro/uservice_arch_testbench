@@ -38,6 +38,8 @@ public class App {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
+    private int received_messages = 0;
+
     public static void main(String[] args) throws Exception {
         App application = new App();
         JCommander commands = JCommander.newBuilder().addObject(application).build();
@@ -157,6 +159,8 @@ public class App {
     private void process_message(Message m) {
         log.info("📥 Received '" + converter.toJson(m) + "'"); 
         Response res = new Response(200, new Date().getTime(), -1, m);
+        this.received_messages++;
+        log.info("Received messages: " + this.received_messages);
         int origin_worker = m.get_worker();
         try {
             Thread.sleep(m.get_processing_time());

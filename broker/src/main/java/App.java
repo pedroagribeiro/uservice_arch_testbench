@@ -269,7 +269,7 @@ public class App {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class); 
             current_logic = orchestration.get_algorithm();
-            if(current_logic == 3) {
+            if(current_logic == 3 || current_logic == 4) {
                 try {
                     this.broker_queue_message_channel.close();
                 } catch(TimeoutException e) {
@@ -296,7 +296,7 @@ public class App {
                     break;
             }
             log.info("✅ The new orchestration request imposed changes are now in effect! - Running algorithm " + algorithm);
-            if(current_logic == 3) {
+            if(current_logic == 3 || current_logic == 4) {
                 log.info("👀 I'm only watching what's up. Not really handling anything...");
             }
         };

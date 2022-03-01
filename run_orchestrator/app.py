@@ -55,4 +55,4 @@ def get_run_results():
     rows = [dict(row) for row in results.fetchall()]
     return make_response(str(rows), 200)
 
-app.run(debug = True, host = '0.0.0.0', port = 5000)
+app.run(debug = True, host = '0.0.0.0', port = 8000)
