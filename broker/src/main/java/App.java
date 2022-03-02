@@ -18,9 +18,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,12 +27,12 @@ import java.math.BigInteger;
 public class App {
 
 
-    private Map<Integer, Integer> processing_time_test = new HashMap<>();
-
     @Parameter(names = { "-containerized" }, description = "Indicates wether the setup is containerized or not")
     private static boolean containerized;
 
     private static final int WORKER_CONTAINERS = 3;
+
+    private int current_logic = 1;
 
     private String broker_queue_host;
     private int broker_queue_port;
@@ -44,12 +42,12 @@ public class App {
     private Connection broker_queue_connection;
     private Channel broker_queue_message_channel;
     private Channel broker_queue_orchestration_channel;
+    private String broker_queue_consumerTag;
 
     private JedisPool redis_database_pool;
     private MessageDigest digester;
     private AtomicInteger last_chosen_worker;
 
-    private int current_logic = 1;
     private List<Connection> workers_queues_connections;
     private List<Channel> workers_queues_message_channels;
     private List<Channel> workers_queues_orchestration_channels;
@@ -80,6 +78,7 @@ public class App {
         setup_broker_queue_message_consumption();
     }
 
+    // ✅ Revisto
     private void establish_environment_variables() {
         if(containerized) {
             this.broker_queue_host = "broker-queue";
@@ -100,13 +99,14 @@ public class App {
         }
     }
 
-
+    // ✅ Revisto
     private void establish_connection_with_redis_database() {
         log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
         this.redis_database_pool = new JedisPool(redis_database_host, redis_database_port);
         log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
     }
 
+    // ✅ Revisto
     private void establish_connection_with_broker_queue() {
         log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
@@ -127,6 +127,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_broker_queue_channels() {
         try {
             this.broker_queue_message_channel = this.broker_queue_connection.createChannel();
@@ -142,6 +143,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public void establish_connection_with_workers() {
         log.info("🕋 Connecting to the \"WORKERS QUEUES\"...");
         List<Connection> connections = new ArrayList<>();
@@ -175,6 +177,7 @@ public class App {
         log.info("✅ Successfuly connected to the \"WORKERS QUEUES\"!");
     }
 
+    // ✅ Revisto
     private void establish_channels_with_workers_queues(Orchestration orchestration) {
         if(this.workers_queues_message_channels == null) {
             this.workers_queues_message_channels = new ArrayList<>();
@@ -198,6 +201,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_workers_queues_channels() {
         if(this.workers_queues_orchestration_channels == null) {
             this.workers_queues_orchestration_channels = new ArrayList<>();
@@ -213,8 +217,9 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void process_message_logic_one(Message m) {
-        try(Jedis jedis = this.redis_database_pool.getResource()) {; 
+        try(Jedis jedis = this.redis_database_pool.getResource()) { 
             int worker_to_forward = 0;
             if(jedis.exists(m.get_olt())) {
                 worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
@@ -228,10 +233,11 @@ public class App {
             } catch(IOException e) {
                 log.info("❌ Something has gone wrong while sending the message to \"WORKER " + worker_to_forward + "\"");
             }
-            log.info("📤 Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+            log.info("📤 Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward + " using logic 1");
         }
     }
 
+    // ✅ Revisto
     private void process_manage_logic_two(Message m) {
         byte[] diggested_message = this.digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
         // int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
@@ -245,9 +251,10 @@ public class App {
         } catch(IOException e) {
             log.info("❌ Something has gone wrong while sending the message to \"WORKER " + worker_to_forward + "\"");
         }
-        log.info("📤 Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward);
+        log.info("📤 Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward + " using logic 2");
     }
 
+    // ✅ Revisto
     public void forward_orchestration_to_workers(Orchestration orchestration) {
         for(int i = 0; i < this.workers_queues_orchestration_channels.size(); i++) {
             try {
@@ -257,21 +264,24 @@ public class App {
             }
         }
         try {
-            Thread.sleep(4000);
+            Thread.sleep(6000);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    // ✅ Revisto
     public void setup_orchestration_consumer() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             log.info("🔀 Got a new orchestration request...");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class); 
-            current_logic = orchestration.get_algorithm();
-            if(current_logic == 3 || current_logic == 4) {
+            this.current_logic = orchestration.get_algorithm();
+            if(this.current_logic == 3 || this.current_logic == 4) {
                 try {
                     this.broker_queue_message_channel.close();
+                    this.broker_queue_message_channel.basicCancel(this.broker_queue_consumerTag);
+                    log.info("Closed the channel to the broker queue!");
                 } catch(TimeoutException e) {
                     log.info("❌ An error has ocurred closing the \"message_queue\" channel on the \"BROKER QUEUE\"!");
                 }
@@ -292,6 +302,9 @@ public class App {
                 case 3:
                     algorithm = "3️⃣";
                     break;
+                case 4:
+                    algorithm = "4️⃣";
+                    break;
                 default:
                     break;
             }
@@ -307,20 +320,13 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public void setup_broker_queue_message_consumption() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Message m = converter.fromJson(jsonString, Message.class);
-            int processing_time = (int) m.get_processing_time();
-            if(this.processing_time_test.containsKey(processing_time)) {
-                int curr_occurrs = this.processing_time_test.get(processing_time);
-                this.processing_time_test.put(processing_time, curr_occurrs + 1);
-            } else {
-                this.processing_time_test.put(processing_time, 1);
-            }
-            log.info(this.converter.toJson(this.processing_time_test));
             m.set_dequeued_at_broker(new Date().getTime());
-            switch(current_logic) {
+            switch(this.current_logic) {
                 case 1:
                     process_message_logic_one(m);
                     break;
@@ -328,11 +334,12 @@ public class App {
                     process_manage_logic_two(m);
                     break;
                 default:
+                    log.info("Estou a consumir mensagens numa lógica em que não devia");
                     break;
             }
         };
         try {
-            this.broker_queue_message_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
+            this.broker_queue_message_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> this.broker_queue_consumerTag = consumerTag);
         } catch(IOException e) {
             log.info("❌ Something went wrong when consuming messages from \"message_queue\" on the \"BROKER QUEUE\"");
         }

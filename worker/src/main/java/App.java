@@ -46,7 +46,9 @@ public class App {
     private final static int BROKER_QUEUE = 1;
 
     private int current_consumption = WORKER_QUEUE;
+
     private boolean wait = true;
+
     private Connection worker_queue_connection;
     private Connection broker_queue_connection;
     private Channel worker_queue_orchestration_channel; 
@@ -94,6 +96,7 @@ public class App {
         setup_message_consumption();
     } 
 
+    // ✅ Revisto 
     private void establish_environment_variables() {
         if(containerized) {
             this.worker_queue_host = "worker-queue" + worker_id;
@@ -116,25 +119,28 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public void establish_connection_with_redis_database() {
         log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
         this.redis_database_pool = new JedisPool(redis_database_host, redis_database_port);
         log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
     }
 
+    // ✅ Revisto
     public void establish_connection_with_redis_results_database() {
         log.info("🕋 Connecting to the \"RESULTS DATABASE\"...");
         this.results_database_pool = new JedisPool(redis_results_database_host, redis_results_database_port);
         log.info("✅ Successfuly connected to the \"RESULTS DATABASE\"!");
     }
 
+    // ✅ Revisto
     public void establish_connection_with_worker_queue() {
         log.info("🕋 Connecting to the \"WORKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(worker_queue_host);
         factory.setPort(worker_queue_port);
         while(this.worker_queue_connection == null) {
-        try {
+            try {
                 this.worker_queue_connection = factory.newConnection();
                 log.info("✅ Successfuly connected to the \"WORKER QUEUE\"!");
             } catch(IOException | TimeoutException e) {
@@ -148,6 +154,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public void establish_connection_with_broker_queue() {
         log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
@@ -168,6 +175,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public void establish_worker_queue_channels() {
         try {
             this.worker_queue_orchestration_channel = this.worker_queue_connection.createChannel();
@@ -183,6 +191,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public void establish_connection_with_olts_queues() {
         log.info("🕋 Connecting to the \"OLT QUEUE\"s...");
         for(int i = 0; i < App.OLT_CONTAINERS; i++) {
@@ -212,6 +221,7 @@ public class App {
         log.info("✅ Successfuly connected to the \"OLT QUEUE\"s!");
     }
 
+    // ✅ Revisto
     public void establish_olts_queues_channels(int olts) {
         log.info("🕋 Creating channels for communication with OLT's!");
         if(this.current_olts_request_channels != null) {
@@ -239,6 +249,7 @@ public class App {
         log.info("✅ Successfuly created channels for communication with OLT's!");
     }
 
+    // ✅ Revisto
     public void establish_current_consuming_channel() {
         if(this.current_consumption_channel != null) {
             try {
@@ -248,7 +259,7 @@ public class App {
             }
         }
         try {
-            if(current_consumption == WORKER_QUEUE) {
+            if(this.current_consumption == WORKER_QUEUE) {
                 this.current_consumption_channel = this.worker_queue_connection.createChannel();
             } else {
                 this.current_consumption_channel = this.broker_queue_connection.createChannel();
@@ -259,6 +270,7 @@ public class App {
         } 
     }
 
+    // ✅ Revisto
     public void setup_message_consumption() {
         DeliverCallback deliverCallback = (consumerTag, deliver) -> {
             String jsonString = new String(deliver.getBody(), StandardCharsets.UTF_8);
@@ -280,6 +292,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void setup_orchestration_consumption() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             log.info("🔀 Got new orchestration request...");
@@ -287,16 +300,16 @@ public class App {
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
             this.received_responses.set(0);
             if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
-                if(current_consumption == WORKER_QUEUE) {
-                    current_consumption = BROKER_QUEUE;
+                if(this.current_consumption == WORKER_QUEUE) {
+                    this.current_consumption = BROKER_QUEUE;
                     establish_current_consuming_channel();
                 } 
                 if(orchestration.get_algorithm() == 4) {
                     this.wait = false;
                 }
             } else {
-                if(current_consumption == BROKER_QUEUE) {
-                    current_consumption = WORKER_QUEUE;
+                if(this.current_consumption == BROKER_QUEUE) {
+                    this.current_consumption = WORKER_QUEUE;
                     establish_current_consuming_channel();
                 }
             }
@@ -312,6 +325,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public Connection establish_connection_with_consuming_queue(Orchestration orchestration) {
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = null;
@@ -339,17 +353,19 @@ public class App {
         return connection;
     }
 
+    // ✅ Revisto
     private Callable<Boolean> request_satisfied(int request_id) {
         return () -> this.current_request_satisfied.get(request_id);
     }
 
+    // ✅ Revisto
     public void process_message(Message m) throws IOException {
         int target_olt = Integer.parseInt(m.get_olt());
         log.info("📥 Received: '" + converter.toJson(m) + "'");
         this.received_messages++;
         log.info("Received messages: " + this.received_messages);
-        if(current_consumption == BROKER_QUEUE) {
-            // if(this.wait == true) {
+        if(this.current_consumption == BROKER_QUEUE) {
+            if(this.wait) {
                 try(Jedis jedis = this.redis_database_pool.getResource()) {
                     boolean handling_request_for_same_olt = jedis.exists(m.get_olt());
                     while(handling_request_for_same_olt) {
@@ -363,11 +379,11 @@ public class App {
                     jedis.set(m.get_olt(), String.valueOf(worker_id));
                 }
             }
-        // } else {
-        //     try(Jedis jedis = this.redis_database_pool.getResource()) {
-        //         jedis.set(m.get_olt(), String.valueOf(worker_id));
-        //     }
-        // }
+        } else {
+             try(Jedis jedis = this.redis_database_pool.getResource()) {
+                 jedis.set(m.get_olt(), String.valueOf(worker_id));
+             }
+        }
         m.set_enqueued_at_olt(new Date().getTime());
         this.current_active_request.set(m.get_id());
         this.current_request_satisfied.put(m.get_id(), false);
@@ -378,7 +394,8 @@ public class App {
             log.info("⚠️ The request " + m.get_id() + " timeout!");
         }
     }
- 
+
+    // ✅ Revisto
     private void start_olts_responses_consuming_logic() {
         Thread response_handler = new Thread(new ResponseConsumer(this.worker_queue_olt_response_channel, this.results_database_pool, this.redis_database_pool, this.current_active_request, this.current_request_satisfied, this.received_responses)); 
         response_handler.start();
@@ -389,6 +406,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private class ResponseConsumer implements Runnable {
 
         private Channel worker_queue_response_channel;

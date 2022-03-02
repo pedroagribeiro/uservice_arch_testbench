@@ -25,6 +25,7 @@ public class App {
     private static boolean containerized;
 
     private static final int OLT_CONTAINERS = 3;
+    private static final int WORKER_CONTAINERS = 3;
 
     private String olt_queue_host;
     private int olt_queue_port;
@@ -61,6 +62,7 @@ public class App {
         start_message_comsumption();
     }
 
+    // ✅ Revisto
     public void establish_environment_variables() {
         if(containerized) {
             this.olt_queue_host = "olt-queue" + id;
@@ -71,6 +73,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_connection_with_olt_queue() {
         log.info("🕋 Connecting to the \"OLT QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
@@ -91,6 +94,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_olts_queue_channels() {
         log.info("🕋 Setting up communication channels on \"OLT QUEUE\" connection...");
         try {
@@ -102,12 +106,13 @@ public class App {
         log.info("✅ Sucessfuly created the communication channels on the \"OLT QUEUE\" connection!");
     }
 
+    // ✅ Revisto
     private void establish_connection_with_workers() {
         log.info("🕋 Connecting to the \"WORKER's QUEUES\"...");
         if(this.workers_queues_connections == null) {
             this.workers_queues_connections = new ArrayList<>();
         }
-        for(int i = 0; i < App.OLT_CONTAINERS; i++) {
+        for(int i = 0; i < App.WORKER_CONTAINERS; i++) {
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
                 factory.setHost("worker-queue" + i);
@@ -126,6 +131,7 @@ public class App {
         log.info("✅ Successfuly connect to the workers!");
     }
 
+    // ✅ Revisto
     private void establish_workers_queues_channels() {
         log.info("🕋 Creating the \"response\" channels on the \"WORKERS QUEUES\"...");
         if(this.workers_queues_response_channels == null) {
@@ -142,6 +148,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void start_message_comsumption() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -156,6 +163,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void process_message(Message m) {
         log.info("📥 Received '" + converter.toJson(m) + "'"); 
         Response res = new Response(200, new Date().getTime(), -1, m);

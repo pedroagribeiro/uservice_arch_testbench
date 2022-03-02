@@ -101,18 +101,21 @@ public class App {
         }
     }
 
+    // ✅ Revisto 
     private void establish_connection_with_results_database() {
         log.info("🕋 Connecting to the \"RESULTS DATABASE\"...");
         this.results_database_pool = new JedisPool(this.results_database_host, this.results_database_port);
         log.info("✅ Successfuly connected to the \"RESULTS DATABASE\"!");
     }
 
+    // ✅ Revisto
     private void establish_connection_with_redis_database() {
         log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
         this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
         log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
     }
-    
+   
+    // ✅ Revisto
     private void establish_connection_with_orchestration_queue() {
         log.info("🕋 Connecting to the \"ORCHESTRATION QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
@@ -126,6 +129,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_orchestration_queue_channels() {
         try {
             this.orchestration_queue_orchestration_channel = this.orchestration_queue_connection.createChannel();
@@ -135,6 +139,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_connection_with_run_results_database() {
         while(this.run_results_database_connection == null) {
             try {
@@ -149,6 +154,7 @@ public class App {
         log.info("✅ Successfuly connected to the run results database!");
     }
 
+    // ✅ Revisto
     private void establish_connection_with_broker_queue() {
         log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
         ConnectionFactory factory = new ConnectionFactory();
@@ -169,6 +175,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void establish_broker_queue_channels() {
         try {
             this.broker_queue_messaging_channel = this.broker_queue_connection.createChannel();
@@ -184,8 +191,8 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private static Message message_generator(final int message_id, Random random, int olt_count, int type) {
-        // TODO: Verificar se as constraints estao a ser cumprida
         long[] longer_than_timeout_times = {40000, 50000};
         long[] spikes_times = {10000, 20000, 30000};
         // type 0: random
@@ -210,10 +217,10 @@ public class App {
         return m;
     }
 
+    // ✅ Revisto
     private void generate_and_send_messages(Orchestration orchestration) {
         // 1% of the messages will take longer than timeout to process [30000, 40000, 50000]
         // 3% of the messages will take either [10000, 15000, 19000] to process
-
         int longer_than_timeout = (int) Math.floor(orchestration.get_messages() * 0.01);
         int spikes = (int) Math.floor(orchestration.get_messages() * 0.03);
         Random r = new Random(42);
@@ -258,6 +265,7 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     public List<Response> generate_run_results(Orchestration orchestration) {
         List<Response> responses = new ArrayList<>();
         try(Jedis jedis = this.results_database_pool.getResource()) {
@@ -265,13 +273,12 @@ public class App {
             boolean not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
             if(not_all_request_reports_are_ready) {
                 log.info("🐌 Waiting for all request reports to be ready in order to calculate this runs' results...");
-                log.info("Number of results: " + key_count);
             }
             while(not_all_request_reports_are_ready) {
                 Thread.sleep(2000);
                 key_count = jedis.dbSize();
                 not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
-                log.info("Number of results: " + key_count);
+                log.info("Ready results: " + key_count);
             }
             Set<byte[]> result_keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
             for(byte[] key : result_keys) {
@@ -284,6 +291,7 @@ public class App {
         return responses;
     }
 
+    // ✅ Revisto
     private String metrics_calculator(Orchestration orchestration, List<Response> results) {
         List<RequestReport> reports = new ArrayList<>();
         for(Response r : results) {
@@ -314,53 +322,30 @@ public class App {
         double avg_time_worker_queue = time_worker_queue_total / results.size();
         double avg_time_olt_queue = time_olt_queue_total / results.size();
         double percentage_of_timedout_requests = (double) timedout_requests / (double) results.size();
-        if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
-            try {
-                Statement stmt = null;
-                String sql = "INSERT INTO results (RUN, ALGORITHM, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
-                    "VALUES (" + String.valueOf(this.run_id++) + 
-                    ", " + String.valueOf(orchestration.get_algorithm()) +
-                    ", " + String.valueOf(avg_time_total) +
-                    ", " + String.valueOf(avg_time_broker_queue) +
-                    ", " + String.valueOf(avg_time_olt_queue) +
-                    ", " + String.valueOf(orchestration.get_olts()) +
-                    ", " + String.valueOf(orchestration.get_workers()) + 
-                    ", " + String.valueOf(orchestration.get_messages()) +
-                    ", " + String.valueOf(percentage_of_timedout_requests) + ");";
-                stmt = this.run_results_database_connection.createStatement();
-                stmt.executeUpdate(sql);
-                stmt.close();
-            } catch(SQLException e) {
-                e.printStackTrace();
-                log.info("❌ An error has ocurred while submitting the run result to the database!");
-            }
-            return "avg_time_total=" + avg_time_total + ", avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
-        } else {
-            try {
-                Statement stmt = null;
-                String sql = "INSERT INTO results (RUN, ALGORITHM, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
-                    "VALUES (" + String.valueOf(this.run_id++) + 
-                    ", " + String.valueOf(orchestration.get_algorithm()) +
-                    ", " + String.valueOf(avg_time_total) +
-                    ", " + String.valueOf(avg_time_broker_queue) +
-                    ", " + String.valueOf(avg_time_worker_queue) +
-                    ", " + String.valueOf(avg_time_olt_queue) +
-                    ", " + String.valueOf(orchestration.get_olts()) +
-                    ", " + String.valueOf(orchestration.get_workers()) + 
-                    ", " + String.valueOf(orchestration.get_messages()) +
-                    ", " + String.valueOf(percentage_of_timedout_requests) + ");";
-                stmt = this.run_results_database_connection.createStatement();
-                stmt.executeUpdate(sql);
-                stmt.close();
-                this.run_results_database_connection.commit();
-            } catch(SQLException e) {
-                e.printStackTrace();
-                log.info("❌ An error has ocurred while submitting the run result to the database!");
-            }
-            return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
+        try {
+            Statement stmt = null;
+            String sql = "INSERT INTO results (RUN, ALGORITHM, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
+                "VALUES (" + String.valueOf(this.run_id++) + 
+                ", " + String.valueOf(orchestration.get_algorithm()) +
+                ", " + String.valueOf(avg_time_total) +
+                ", " + String.valueOf(avg_time_broker_queue) +
+                ", " + String.valueOf(avg_time_worker_queue) +
+                ", " + String.valueOf(avg_time_olt_queue) +
+                ", " + String.valueOf(orchestration.get_olts()) +
+                ", " + String.valueOf(orchestration.get_workers()) + 
+                ", " + String.valueOf(orchestration.get_messages()) +
+                ", " + String.valueOf(percentage_of_timedout_requests) + ");";
+            stmt = this.run_results_database_connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+        } catch(SQLException e) {
+            e.printStackTrace();
+            log.info("❌ An error has ocurred while submitting the run result to the database!");
         }
+        return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
     }
 
+    // ✅ Revisto
     public void wipe_redis_databases(JedisPool results_database_pool, JedisPool redis_database_pool) {
         try(Jedis jedis = results_database_pool.getResource()) {
             jedis.flushAll();
@@ -371,12 +356,13 @@ public class App {
         log.info("🧹✅ Both the results and redis database have been wiped");
     }
 
+    // ✅ Revisto
     private void setup_orchestration_consumer() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             log.info("💬 Got a request a new run!");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
-            while(on_going_run == true) {
+            while(this.on_going_run == true) {
                 try {
                     Thread.sleep(10000);
                 } catch(InterruptedException e) {
@@ -395,16 +381,20 @@ public class App {
         }
     }
 
+    // ✅ Revisto
     private void perform_run(Orchestration orchestration) {
         log.info("🏎  Starting a new run!");
+        this.on_going_run = true;
         generate_and_send_messages(orchestration);
         List<Response> responses = generate_run_results(orchestration);
         String results_string = metrics_calculator(orchestration, responses);
         log.info("📖  " + results_string);
         wipe_redis_databases(results_database_pool, redis_database_pool);
+        this.on_going_run = false;
         log.info("🏁 The run is finished!");
     }
 
+    // ✅ Revisto
     private void forward_orchestration(Orchestration orchestration) {
         try {
             this.broker_queue_orchestrationg_channel.basicPublish("", "orchestration", null, converter.toJson(orchestration).getBytes(StandardCharsets.UTF_8));
@@ -412,12 +402,10 @@ public class App {
             log.info("❌ Something went wrong while forwarding orchestration to \"orchestration\" on the \"BROKER QUEUE\"!");
         }
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-
 
 }
