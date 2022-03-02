@@ -19,7 +19,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -54,6 +56,8 @@ public class App {
     private java.sql.Connection run_results_database_connection;
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
+
+    private Map<Integer, Integer> processing_times_ocurrences = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
         App application = new App();
@@ -252,6 +256,12 @@ public class App {
                 m = message_generator(message_id++, r, orchestration.get_olts(), 0);
             }
             m.set_enqueued_at_broker(new Date().getTime());
+            if(this.processing_times_ocurrences.containsKey((int) m.get_processing_time())) {
+                int curr_ocurrences = this.processing_times_ocurrences.get((int) m.get_processing_time());
+                this.processing_times_ocurrences.put((int) m.get_processing_time(), curr_ocurrences + 1);
+            } else {
+                this.processing_times_ocurrences.put((int) m.get_processing_time(), 1);
+            }
             try {
                 this.broker_queue_messaging_channel.basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
@@ -344,7 +354,7 @@ public class App {
             e.printStackTrace();
             log.info("❌ An error has ocurred while submitting the run result to the database!");
         }
-        return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests;
+        return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests + ", processing_time_ocurrences=" + App.converter.toJson(this.processing_times_ocurrences);  
     }
 
     // ✅ Revisto
