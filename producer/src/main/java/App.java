@@ -219,10 +219,12 @@ public class App {
 
     // ✅ Revisto
     private void generate_and_send_messages(Orchestration orchestration) {
+        // TODO: fazer variar estas percentagens
         // 1% of the messages will take longer than timeout to process [30000, 40000, 50000]
         // 3% of the messages will take either [10000, 15000, 19000] to process
         int longer_than_timeout = (int) Math.floor(orchestration.get_messages() * 0.01);
         int spikes = (int) Math.floor(orchestration.get_messages() * 0.03);
+        // TODO: user seeds diferentes: p.ex mais 2
         Random r = new Random(42);
         List<Integer> longer_than_timeouts_order_numbers = new ArrayList<>();
         for(int i = 0; i < longer_than_timeout; i++) {
