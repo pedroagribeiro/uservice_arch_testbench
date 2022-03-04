@@ -36,7 +36,7 @@ def create_app_and_queue_connection(containerized_environment):
     run_results_relational_db_port = 5432 if (containerized_environment == True) else 5432
     while True:
         try:
-            print("trying to connect to the orchestration queue")
+            print("trying to connect to the orchestration queue at " + orchestration_queue_host + ":" + str(orchestration_queue_port))
             time.sleep(4)
             connection = pika.BlockingConnection(pika.ConnectionParameters(orchestration_queue_host, orchestration_queue_port, heartbeat=0))
             channel = connection.channel()
@@ -71,4 +71,4 @@ def get_run_results():
     rows = [dict(row) for row in results.fetchall()]
     return make_response(str(rows), 200)
 
-app.run(debug = True, host = '0.0.0.0', port = 8000)
+app.run(debug = True, host = '0.0.0.0', port = 5000)

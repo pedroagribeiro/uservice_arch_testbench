@@ -4,13 +4,15 @@ FROM ubuntu:18.04
 RUN apt update && apt -y upgrade
 RUN apt -y install python3 
 RUN apt -y install python3-pip
+RUN apt -y install libgl-dev
 RUN pip3 install --upgrade setuptools
 
 # Install the dependencies
 RUN pip3 install Flask
 RUN pip3 install marshmallow
 RUN pip3 install pika
-RUN pip3 install nmap
+RUN pip3 install sqlalchemy
+RUN pip3 install argparse
 
 # Create folder for the project
 RUN mkdir /app

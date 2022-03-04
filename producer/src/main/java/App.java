@@ -126,13 +126,16 @@ public class App {
     private void establish_connection_with_orchestration_queue() {
         log.info("STATUS: Connecting to the orchestration queue at: " + this.producer_orchestration_queue_host + ":" + this.producer_orchestration_queue_port);
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(producer_orchestration_queue_host);
-        factory.setPort(producer_orchestration_queue_port);
-        try {
-            this.orchestration_queue_connection = factory.newConnection();
-            log.info("SUCCESS: Connected to the orchestration queue");
-        } catch(IOException | TimeoutException e) {
-            log.info("FAILURE: Could not connect to the orchestration queue");
+        factory.setHost(this.producer_orchestration_queue_host);
+        factory.setPort(this.producer_orchestration_queue_port);
+        while(this.orchestration_queue_connection == null) {
+            try {
+                this.orchestration_queue_connection = factory.newConnection();
+                log.info("SUCCESS: Connected to the orchestration queue");
+            } catch(IOException | TimeoutException e) {
+                log.info("FAILURE: Could not connect to the orchestration queue");
+                log.info("STATUS: Retrying");
+            }
         }
     }
 

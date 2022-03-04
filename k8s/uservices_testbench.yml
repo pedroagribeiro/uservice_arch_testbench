@@ -18,10 +18,10 @@ spec:
       containers:
         - name: run-orchestrator
           image: 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
               name: http-req-port
-          imagePullPolicy: Always
       restartPolicy: Always
 
 ---
