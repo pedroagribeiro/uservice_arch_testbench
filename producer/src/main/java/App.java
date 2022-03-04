@@ -45,6 +45,8 @@ public class App {
     private int results_database_port;
     private String redis_database_host;
     private int redis_database_port;
+    private String run_results_relational_database_host;
+    private int run_results_relational_database_port;
 
     private JedisPool redis_database_pool;
     private JedisPool results_database_pool;
@@ -93,6 +95,8 @@ public class App {
             this.results_database_port = 6379;
             this.redis_database_host = "redis-db";
             this.redis_database_port = 6379;
+            this.run_results_relational_database_host = "run-results-db";
+            this.run_results_relational_database_port = 5432;
         } else {
             this.queue_host = "localhost";
             this.queue_port = 5675;
@@ -102,6 +106,8 @@ public class App {
             this.results_database_port = 6380;
             this.redis_database_host = "localhost";
             this.redis_database_port = 6379;
+            this.run_results_relational_database_host = "localhost";
+            this.run_results_relational_database_port = 5432;
         }
     }
 
@@ -142,9 +148,9 @@ public class App {
     private void establish_connection_with_run_results_database() {
         while(this.run_results_database_connection == null) {
             try {
-                log.info("STATUS: Connecting to the relation run results database at: localhost:5432");
+                log.info("STATUS: Connecting to the relation run results database at: " + this.run_results_relational_database_host + ":" + this.run_results_relational_database_port);
                 Class.forName("org.postgresql.Driver");
-                this.run_results_database_connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/results", "postgres", "postgres");
+                this.run_results_database_connection = DriverManager.getConnection("jdbc:postgresql://" + this.run_results_relational_database_host + ":" + this.run_results_relational_database_port + "/results", "postgres", "postgres");
             } catch(Exception e) {
                 log.info("FAILURE: An error ocurred while connectiong to the relational run results database");
                 log.info("STATUS: Retrying");

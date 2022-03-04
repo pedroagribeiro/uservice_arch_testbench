@@ -150,11 +150,7 @@ services:
   run_results_database:
     build:
       context: ./run_results_database/
-    container_name: run_results_database
-    environment:
-      - "POSTGRES_HOST_AUTH_METHOD=trust"
-      - "POSTGRES_PASSWORD=postgres"
-      - "POSTGRESD_DB=results"
+    container_name: run-results-db
     ports:
       - "5432:5432"
     networks:

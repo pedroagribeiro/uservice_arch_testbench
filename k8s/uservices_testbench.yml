@@ -435,3 +435,120 @@ spec:
     - name: olt2-queue-port
       port: 5672
       targetPort: 5672
+
+# Componente: Redis database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-redis-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-redis-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-redis-database
+    spec:
+      containers:
+        - name: redis-db
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+              name: redis-db-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-redis-database
+  ports:
+    - name: redis-db-port
+      port: 6379
+      targetPort: 6379
+
+# Componente: Redis results database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-results-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-results-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-results-database
+    spec:
+      containers:
+        - name: results
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+              name: results-db-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: results-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-results-database
+  ports:
+    - name: results-db-port
+      port: 6379
+      targetPort: 6379
+
+# Componente: Run results relational database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-results-relational-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-results-relational-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-results-relational-database
+    spec:
+      containers:
+        - name: run-results-db
+          image: 10.112.106.236:32500/ztp-onu-run_results_database:1.0
+          ports:
+            - containerPort: 5432
+              name: results-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: results-rel-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-results-database
+  ports:
+    - name: results-db-port
+      port: 5432
+      targetPort: 5432

@@ -9,7 +9,7 @@ windows:
       panes:
         - app:
             - cd run_orchestrator
-            - python3 app.py
+            - python3 app.py --no-containerized
   - producer:
       layout: main-vertical
       panes:

@@ -3,6 +3,8 @@ from marshmallow import Schema, fields, ValidationError
 import pika
 import sqlalchemy as db
 from sqlalchemy import text
+import argparse
+import time
 
 OrchestrationSchema = Schema.from_dict(
     {
@@ -13,27 +15,41 @@ OrchestrationSchema = Schema.from_dict(
     }
 ) 
 
-def create_app_and_queue_connection():
+def define_environment():
+    parser = argparse.ArgumentParser(description="Run orchestrator")
+    parser.add_argument('--containerized', dest='containerized', action='store_true')
+    parser.add_argument('--no-containerized', dest='containerized', action='store_false')
+    parser.set_defaults(containerized=True)
+    args = parser.parse_args()
+    return args.containerized
+
+def create_app_and_queue_connection(containerized_environment):
     app = Flask(
         __name__,
         static_url_path="",
         static_folder="/static"
     )
     app.config["CACHE_TYPE"] = "null"
+    orchestration_queue_host = "orch-queue" if (containerized_environment == True) else "localhost" 
+    orchestration_queue_port = 5672 if (containerized_environment == True) else 5679
+    run_results_relational_db_host = "run-results-db" if (containerized_environment == True) else "localhost"
+    run_results_relational_db_port = 5432 if (containerized_environment == True) else 5432
     while True:
         try:
             print("trying to connect to the orchestration queue")
-            connection = pika.BlockingConnection(pika.ConnectionParameters("localhost", 5679, heartbeat=0))
+            time.sleep(4)
+            connection = pika.BlockingConnection(pika.ConnectionParameters(orchestration_queue_host, orchestration_queue_port, heartbeat=0))
             channel = connection.channel()
             channel.queue_declare(queue="orchestration")
         except Exception:
             pass
         else:
             break
-    engine = db.create_engine("postgresql://postgres:postgres@localhost:5432/results")
+    engine = db.create_engine("postgresql://postgres:postgres@" + run_results_relational_db_host + ":" + str(run_results_relational_db_port) + "/results")
     return app, channel, engine
 
-app, channel, engine = create_app_and_queue_connection()
+containerized_environment = define_environment()
+app, channel, engine = create_app_and_queue_connection(containerized_environment)
 
 @app.route('/ping', methods = ['GET'])
 def ping():
