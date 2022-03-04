@@ -105,71 +105,66 @@ public class App {
         }
     }
 
-    // ✅ Revisto 
     private void establish_connection_with_results_database() {
-        log.info("🕋 Connecting to the \"RESULTS DATABASE\"...");
+        log.info("STATUS: Connecting to the results database at: " + this.results_database_host + ":" + this.results_database_port);
         this.results_database_pool = new JedisPool(this.results_database_host, this.results_database_port);
-        log.info("✅ Successfuly connected to the \"RESULTS DATABASE\"!");
+        log.info("SUCCESS: Connected to the results database");
     }
 
-    // ✅ Revisto
     private void establish_connection_with_redis_database() {
-        log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
+        log.info("STATUS: Connecting to the redis database at: " + this.redis_database_host + ":" + this.redis_database_port);
         this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
-        log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
+        log.info("SUCCESS: Connected to the redis database");
     }
    
-    // ✅ Revisto
     private void establish_connection_with_orchestration_queue() {
-        log.info("🕋 Connecting to the \"ORCHESTRATION QUEUE\"...");
+        log.info("STATUS: Connecting to the orchestration queue at: " + this.producer_orchestration_queue_host + ":" + this.producer_orchestration_queue_port);
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(producer_orchestration_queue_host);
         factory.setPort(producer_orchestration_queue_port);
         try {
             this.orchestration_queue_connection = factory.newConnection();
-            log.info("✅ Successfuly connected to the \"ORCHESTRATION QUEUE\"!");
+            log.info("SUCCESS: Connected to the orchestration queue");
         } catch(IOException | TimeoutException e) {
-            log.info("❌ Could not connect to the \"ORCHESTRATION QUEUE\"!");
+            log.info("FAILURE: Could not connect to the orchestration queue");
         }
     }
 
-    // ✅ Revisto
     private void establish_orchestration_queue_channels() {
         try {
             this.orchestration_queue_orchestration_channel = this.orchestration_queue_connection.createChannel();
             this.orchestration_queue_orchestration_channel.queueDeclare("orchestration", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ Something went wrong while declaring the \"orchestration\" channel on the \"ORCHESTRATION QUEUE\"!");
+            log.info("FAILURE: Something went wrong while declaring the \"orchestration\" channel on the orchestration queue");
         }
     }
 
-    // ✅ Revisto
     private void establish_connection_with_run_results_database() {
         while(this.run_results_database_connection == null) {
             try {
+                log.info("STATUS: Connecting to the relation run results database at: localhost:5432");
                 Class.forName("org.postgresql.Driver");
                 this.run_results_database_connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/results", "postgres", "postgres");
             } catch(Exception e) {
-                e.printStackTrace();
-                log.info("❌ An error ocurred while connectiong to the run results database...");
-                log.info("Retrying...");
+                log.info("FAILURE: An error ocurred while connectiong to the relational run results database");
+                log.info("STATUS: Retrying");
             }
         }
-        log.info("✅ Successfuly connected to the run results database!");
+        log.info("SUCCESS: Connected to the run results database");
     }
 
-    // ✅ Revisto
     private void establish_connection_with_broker_queue() {
-        log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
+        log.info("STATUS: Connecting to the broker queue at: " + this.queue_host + ":" + this.queue_port);
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(queue_host);
-        factory.setPort(queue_port); 
+        factory.setHost(this.queue_host);
+        factory.setPort(this.queue_port); 
         while(this.broker_queue_connection == null) {
             try {
                 this.broker_queue_connection = factory.newConnection();
-                log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+                log.info("SUCCESS: Connected to the broker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to the \"BROKER QUEUE\"!. Retrying....");
+                log.info("FAILURE: Could not connect to the broker queue");
+                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -179,23 +174,21 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     private void establish_broker_queue_channels() {
         try {
             this.broker_queue_messaging_channel = this.broker_queue_connection.createChannel();
             this.broker_queue_messaging_channel.queueDeclare("message_queue", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ Something went wrong while declaring the \"message_queue\" channel on the \"BROKER QUEUE\"!");
+            log.info("FAILURE: Something went wrong while declaring the \"message_queue\" channel on the broker queue");
         }
         try {
             this.broker_queue_orchestrationg_channel = this.broker_queue_connection.createChannel();
             this.broker_queue_orchestrationg_channel.queueDeclare("orchestration", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ Something went wrong while declaring the \"orchestration\" channel on the \"BROKER QUEUE\"!");
+            log.info("FAILURE: Something went wrong while declaring the \"orchestration\" channel on the broker queue");
         }
     }
 
-    // ✅ Revisto
     private static Message message_generator(final int message_id, Random random, int olt_count, int type) {
         long[] longer_than_timeout_times = {40000, 50000};
         long[] spikes_times = {10000, 20000, 30000};
@@ -212,7 +205,6 @@ public class App {
                 message_processing_time = spikes_times[random.nextInt(3)];
                 break;
             default:
-                // TODO: 500 < t < 4000
                 message_processing_time = random.nextInt(4) * 1000 + 1000; // 1000 < t < 4000
                 break;
         }
@@ -221,7 +213,6 @@ public class App {
         return m;
     }
 
-    // ✅ Revisto
     private void generate_and_send_messages(Orchestration orchestration) {
         // TODO: fazer variar estas percentagens
         // 1% of the messages will take longer than timeout to process [30000, 40000, 50000]
@@ -265,9 +256,9 @@ public class App {
             try {
                 this.broker_queue_messaging_channel.basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
-                log.info("❌ Something went wrong while publishing a new message on the \"message_queue\" channel of the \"BROKER_QUEUE\"!");
+                log.info("FAILURE: Something went wrong while publishing a new message on the \"message_queue\" channel of the broker queue");
             }
-            log.info("📢 Published '" + converter.toJson(m) + "' to the broker.");
+            log.info("STATUS: Published '" + converter.toJson(m) + "' to the broker");
             int sleep_time = (r.nextInt(10) + 5) * 100;
             try {
                 Thread.sleep(sleep_time);
@@ -277,20 +268,18 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     public List<Response> generate_run_results(Orchestration orchestration) {
         List<Response> responses = new ArrayList<>();
         try(Jedis jedis = this.results_database_pool.getResource()) {
             long key_count = jedis.dbSize();
             boolean not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
             if(not_all_request_reports_are_ready) {
-                log.info("🐌 Waiting for all request reports to be ready in order to calculate this runs' results...");
+                log.info("STATUS: Waiting for the run to be fully completed in order to get all the results");
             }
             while(not_all_request_reports_are_ready) {
                 Thread.sleep(2000);
                 key_count = jedis.dbSize();
                 not_all_request_reports_are_ready = (key_count < orchestration.get_messages());
-                log.info("Ready results: " + key_count);
             }
             Set<byte[]> result_keys = jedis.keys("*".getBytes(StandardCharsets.UTF_8));
             for(byte[] key : result_keys) {
@@ -298,12 +287,11 @@ public class App {
                 responses.add(res_record);
             }
         } catch(Exception e) {
-            log.info("❌ Something went wrong while getting resource from \"RESULTS\" database!");
+            log.info("FAILURE: Something went wrong while getting resource from results database");
         }
         return responses;
     }
 
-    // ✅ Revisto
     private String metrics_calculator(Orchestration orchestration, List<Response> results) {
         List<RequestReport> reports = new ArrayList<>();
         for(Response r : results) {
@@ -352,12 +340,11 @@ public class App {
             stmt.close();
         } catch(SQLException e) {
             e.printStackTrace();
-            log.info("❌ An error has ocurred while submitting the run result to the database!");
+            log.info("FAILURE: An error has ocurred while submitting the run result to the relational database");
         }
         return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests + ", processing_time_ocurrences=" + App.converter.toJson(this.processing_times_ocurrences);  
     }
 
-    // ✅ Revisto
     public void wipe_redis_databases(JedisPool results_database_pool, JedisPool redis_database_pool) {
         try(Jedis jedis = results_database_pool.getResource()) {
             jedis.flushAll();
@@ -365,13 +352,12 @@ public class App {
         try(Jedis jedis = redis_database_pool.getResource()) {
             jedis.flushAll();
         }
-        log.info("🧹✅ Both the results and redis database have been wiped");
+        log.info("SUCCESS: Both the results and redis databases have been flushed");
     }
 
-    // ✅ Revisto
     private void setup_orchestration_consumer() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            log.info("💬 Got a request a new run!");
+            log.info("STATUS: Received a request to perform a new run");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
             while(this.on_going_run == true) {
@@ -381,37 +367,34 @@ public class App {
                     e.printStackTrace();
                 }
             }
-            log.info("🤩 About to start a new run!");
+            log.info("STATUS: Forwarding orchestration to the workers broker and workers");
             forward_orchestration(orchestration);
-            log.info("✅ Started a new run!");
             perform_run(orchestration);
         };
         try {
             this.orchestration_queue_orchestration_channel.basicConsume("orchestration", true, deliverCallback, consumerTag -> {});
         } catch(IOException e) {
-            log.info("❌ Something went wrong while consuming message from \"orchestration\" on \"ORCHESTRATION QUEUE\"!");
+            log.info("FAILURE: Something went wrong while consuming message from \"orchestration\" on the orchestration queue");
         }
     }
 
-    // ✅ Revisto
     private void perform_run(Orchestration orchestration) {
-        log.info("🏎  Starting a new run!");
+        log.info("STATUS: Started a new run");
         this.on_going_run = true;
         generate_and_send_messages(orchestration);
         List<Response> responses = generate_run_results(orchestration);
         String results_string = metrics_calculator(orchestration, responses);
-        log.info("📖  " + results_string);
+        log.info("RESULTS: " + results_string);
         wipe_redis_databases(results_database_pool, redis_database_pool);
         this.on_going_run = false;
-        log.info("🏁 The run is finished!");
+        log.info("COMPLETION: The run has been completed");
     }
 
-    // ✅ Revisto
     private void forward_orchestration(Orchestration orchestration) {
         try {
             this.broker_queue_orchestrationg_channel.basicPublish("", "orchestration", null, converter.toJson(orchestration).getBytes(StandardCharsets.UTF_8));
         } catch(IOException e) {
-            log.info("❌ Something went wrong while forwarding orchestration to \"orchestration\" on the \"BROKER QUEUE\"!");
+            log.info("FAILURE: Something went wrong while forwarding orchestration to \"orchestration\" on the broker queue");
         }
         try {
             Thread.sleep(5000);

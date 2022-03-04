@@ -24,7 +24,6 @@ public class App {
     @Parameter(names = { "-containerized" }, description = "Describes if the running environment is fully containerized")
     private static boolean containerized;
 
-    private static final int OLT_CONTAINERS = 3;
     private static final int WORKER_CONTAINERS = 3;
 
     private String olt_queue_host;
@@ -62,7 +61,6 @@ public class App {
         start_message_comsumption();
     }
 
-    // ✅ Revisto
     public void establish_environment_variables() {
         if(containerized) {
             this.olt_queue_host = "olt-queue" + id;
@@ -73,18 +71,17 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     private void establish_connection_with_olt_queue() {
-        log.info("🕋 Connecting to the \"OLT QUEUE\"...");
+        log.info("STATUS: Connecting to the OLT queue");
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(this.olt_queue_host);
         factory.setPort(this.olt_queue_port); 
         while(this.olt_queue_connection == null) {
             try {
                 this.olt_queue_connection = factory.newConnection();
-                log.info("✅ Successfuly connected to the \"OLT QUEUE\"!");
+                log.info("SUCCESS: Connected to the OLT queue");
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to the \"OLT QUEUE\"!");
+                log.info("FAILURE: Could not connect to the OLT queue");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -94,21 +91,19 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     private void establish_olts_queue_channels() {
-        log.info("🕋 Setting up communication channels on \"OLT QUEUE\" connection...");
+        log.info("STATUS: Setting up communication channels on OLT queue connection");
         try {
             this.olt_queue_request_channel = this.olt_queue_connection.createChannel();
             this.olt_queue_request_channel.queueDeclare("requests", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ An error ocurred while trying to create the \"requests\" channel on the \"OLT QUEUE\"!");
+            log.info("FAILURE: An error ocurred while trying to create the \"requests\" channel on the olt queue");
         }
-        log.info("✅ Sucessfuly created the communication channels on the \"OLT QUEUE\" connection!");
+        log.info("SUCCESS: Created the communication channels on the OLT queue connection");
     }
 
-    // ✅ Revisto
     private void establish_connection_with_workers() {
-        log.info("🕋 Connecting to the \"WORKER's QUEUES\"...");
+        log.info("STATUS: Connecting to the workers queues");
         if(this.workers_queues_connections == null) {
             this.workers_queues_connections = new ArrayList<>();
         }
@@ -125,15 +120,14 @@ public class App {
                 Connection connection = factory.newConnection();
                 this.workers_queues_connections.add(connection);
             } catch(IOException | TimeoutException e) {
-                log.info("❌ An error ocurred while trying to connect to \"WORKER " + i + "\"!");
+                log.info("FAILURE: An error ocurred while trying to connect to \"WORKER " + i);
             }
         }
-        log.info("✅ Successfuly connect to the workers!");
+        log.info("SUCCESS: Connected to the workers");
     }
 
-    // ✅ Revisto
     private void establish_workers_queues_channels() {
-        log.info("🕋 Creating the \"response\" channels on the \"WORKERS QUEUES\"...");
+        log.info("STATUS: Creating the \"response\" channels on the workers queues");
         if(this.workers_queues_response_channels == null) {
             this.workers_queues_response_channels = new ArrayList<>();
         }
@@ -143,12 +137,11 @@ public class App {
                 channel.queueDeclare("responses", false, false, false, null);
                 this.workers_queues_response_channels.add(channel);
             } catch(IOException e) {
-                log.info("❌ An error ocurred while creating the \"responses\" channel on \"WORKER " + i + "\"!");
+                log.info("FAILURE: An error ocurred while creating the \"responses\" channel on worker " + i);
             }
         }
     }
 
-    // ✅ Revisto
     private void start_message_comsumption() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -159,16 +152,13 @@ public class App {
         try {
             this.olt_queue_request_channel.basicConsume("requests", true, deliverCallback, consumerTag -> {});
         } catch(IOException e) {
-            log.info("❌ An error ocurred when trying to consume messages from the \"requests\" channel of the \"OLT QUEUE\"!");
+            log.info("FAILURE: An error ocurred when trying to consume messages from the \"requests\" channel of the OLT queue");
         }
     }
 
-    // ✅ Revisto
     private void process_message(Message m) {
-        log.info("📥 Received '" + converter.toJson(m) + "'"); 
+        log.info("STATUS: Received '" + converter.toJson(m) + "'"); 
         Response res = new Response(200, new Date().getTime(), -1, m);
-        this.received_messages++;
-        log.info("Received messages: " + this.received_messages);
         int origin_worker = m.get_worker();
         try {
             Thread.sleep(m.get_processing_time());
@@ -180,7 +170,7 @@ public class App {
         try {
             this.workers_queues_response_channels.get(origin_worker).basicPublish("", "responses", null, converter.toJson(res).getBytes(StandardCharsets.UTF_8));
         } catch(IOException e) {
-            log.info("❌ An error ocurred when trying to publish to the \"responses\" channel of the \"OLT QUEUE\"!");
+            log.info("FAILURE: An error ocurred when trying to publish to the \"responses\" channel of the OLT queue");
         }
     }
 

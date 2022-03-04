@@ -96,7 +96,6 @@ public class App {
         setup_message_consumption();
     } 
 
-    // ✅ Revisto 
     private void establish_environment_variables() {
         if(containerized) {
             this.worker_queue_host = "worker-queue" + worker_id;
@@ -119,32 +118,30 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     public void establish_connection_with_redis_database() {
-        log.info("🕋 Connecting to the \"REDIS DATABASE\"...");
-        this.redis_database_pool = new JedisPool(redis_database_host, redis_database_port);
-        log.info("✅ Successfuly connected to the \"REDIS DATABASE\"!");
+        log.info("STATUS: Connecting to the redis database at: " + this.redis_database_host + ":" + this.redis_database_port);
+        this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
+        log.info("SUCCESS: Successfuly connected to the redis database");
     }
 
-    // ✅ Revisto
     public void establish_connection_with_redis_results_database() {
-        log.info("🕋 Connecting to the \"RESULTS DATABASE\"...");
-        this.results_database_pool = new JedisPool(redis_results_database_host, redis_results_database_port);
-        log.info("✅ Successfuly connected to the \"RESULTS DATABASE\"!");
+        log.info("STATUS: Connecting to the results database at: " + this.redis_results_database_host + ":" + this.redis_results_database_port);
+        this.results_database_pool = new JedisPool(this.redis_results_database_host, this.redis_results_database_port);
+        log.info("SUCCESS: Successfuly connected to the results database");
     }
 
-    // ✅ Revisto
     public void establish_connection_with_worker_queue() {
-        log.info("🕋 Connecting to the \"WORKER QUEUE\"...");
+        log.info("STATUS: Connecting to the worker queue at: " + this.worker_queue_host + ":" + this.worker_queue_port);
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(worker_queue_host);
-        factory.setPort(worker_queue_port);
+        factory.setHost(this.worker_queue_host);
+        factory.setPort(this.worker_queue_port);
         while(this.worker_queue_connection == null) {
             try {
                 this.worker_queue_connection = factory.newConnection();
-                log.info("✅ Successfuly connected to the \"WORKER QUEUE\"!");
+                log.info("SUCCESS: Connected to the worker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to the \"WORKER QUEUE\"!. Retrying...");
+                log.info("FAILURE: Could not connect to the worker queue");
+                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -154,18 +151,18 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     public void establish_connection_with_broker_queue() {
-        log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
+        log.info("STAUTS: Connecting to the broker queue");
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(broker_queue_host);
         factory.setPort(broker_queue_port);
         while(this.broker_queue_connection == null) {
             try {
                 this.broker_queue_connection = factory.newConnection();
-                log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+                log.info("SUCCESS: Connected to the broker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to the \"BROKER QUEUE\"!. Retrying...");
+                log.info("FAILURE: Could not connect to the broker queue");
+                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -175,25 +172,23 @@ public class App {
         }
     }
 
-    // ✅ Revisto
     public void establish_worker_queue_channels() {
         try {
             this.worker_queue_orchestration_channel = this.worker_queue_connection.createChannel();
             this.worker_queue_orchestration_channel.queueDeclare("orchestration", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ Something went wrong while declaring the \"orchestration\" channel on the \"WORKER QUEUE\"!");
+            log.info("FAILURE: Something went wrong while declaring the \"orchestration\" channel on the worker queue");
         }
         try {
             this.worker_queue_olt_response_channel = this.worker_queue_connection.createChannel();
             this.worker_queue_olt_response_channel.queueDeclare("responses", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ Something went wrong while declaring the \"responses\" channel on the \"WORKER QUEUE\"!");
+            log.info("FAILURE: Something went wrong while declaring the \"responses\" channel on the worker queue");
         }
     }
 
-    // ✅ Revisto
     public void establish_connection_with_olts_queues() {
-        log.info("🕋 Connecting to the \"OLT QUEUE\"s...");
+        log.info("STATUS: Connecting to the OLT's queues");
         for(int i = 0; i < App.OLT_CONTAINERS; i++) {
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
@@ -209,7 +204,8 @@ public class App {
                     connection = factory.newConnection();
                     this.olts_connections.add(connection);
                 } catch(IOException | TimeoutException e) {
-                    log.info("❌ Something went wrong while connecting to \"OLT " + i + "\"!. Retrying...");
+                    log.info("FAILURE: Something went wrong while connecting to OLT " + i);
+                    log.info("STATUS: Retrying");
                     try {
                         Thread.sleep(3000);
                     } catch(InterruptedException e1) {
@@ -218,18 +214,17 @@ public class App {
                 }
             }
         }
-        log.info("✅ Successfuly connected to the \"OLT QUEUE\"s!");
+        log.info("SUCCESS: Connected to the OLT's queues");
     }
 
-    // ✅ Revisto
     public void establish_olts_queues_channels(int olts) {
-        log.info("🕋 Creating channels for communication with OLT's!");
+        log.info("STATUS: Creating channels for communication with the OLT's");
         if(this.current_olts_request_channels != null) {
             for(int i = 0; i < this.current_olts_request_channels.size(); i++) {
                 try {
                     this.current_olts_request_channels.get(i).close();
                 } catch(IOException | TimeoutException e) {
-                    log.info("❌ An error ocurred while closing the \"requests\" channel on the \"OLT " + i + " QUEUE\"!");
+                    log.info("FAILURE: An error ocurred while closing the \"requests\" channel on OLT " + i);
                 }
             }
             this.current_olts_request_channels.clear();
@@ -243,19 +238,18 @@ public class App {
                 request_channel.queueDeclare("requests", false, false, false, null);
                 this.current_olts_request_channels.add(request_channel);
             } catch(IOException e) {
-                log.info("❌ An error ocurred while creating the \"requests\" channel on the \"OLT " + i + "QUEUE\"!");
+                log.info("FAILURE: An error ocurred while creating the \"requests\" channel on OLT " + i);
             }
         }
-        log.info("✅ Successfuly created channels for communication with OLT's!");
+        log.info("SUCCESS: Created channels for communication with the OLT's");
     }
 
-    // ✅ Revisto
     public void establish_current_consuming_channel() {
         if(this.current_consumption_channel != null) {
             try {
                 this.current_consumption_channel.close();
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Something has gone wrong while trying to close the \"message_queue\" channel on the \"CONSUMING QUEUE\"!");
+                log.info("FAILURE: Something has gone wrong while trying to close the \"message_queue\" channel on the consuming queue");
             }
         }
         try {
@@ -266,11 +260,10 @@ public class App {
             }
             this.current_consumption_channel.queueDeclare("message_queue", false, false, false, null);
         } catch(IOException e) {
-            log.info("❌ Something has gone wrong while trying to declare the \"message_queue\" on the \"CONSUMING QUEUE\"!");
+            log.info("FAILURE: Something has gone wrong while trying to declare the \"message_queue\" on the consuming queue");
         } 
     }
 
-    // ✅ Revisto
     public void setup_message_consumption() {
         DeliverCallback deliverCallback = (consumerTag, deliver) -> {
             String jsonString = new String(deliver.getBody(), StandardCharsets.UTF_8);
@@ -288,14 +281,13 @@ public class App {
         try {
             this.current_consumption_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
         } catch(IOException e) {
-            log.info("❌ Something has gone wrong when trying to consume from \"message_queue\" channel in the \"CONSUMING QUEUE\"!");
+            log.info("FAILURE: Something has gone wrong when trying to consume from \"message_queue\" channel in the consuming queue");
         }
     }
 
-    // ✅ Revisto
     private void setup_orchestration_consumption() {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            log.info("🔀 Got new orchestration request...");
+            log.info("STATUS: Got new orchestration request");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
             this.received_responses.set(0);
@@ -316,54 +308,49 @@ public class App {
             establish_olts_queues_channels(orchestration.get_olts());
             setup_message_consumption();
             start_olts_responses_consuming_logic();
-            log.info("✅ The new orchestration request imposed changes are now in effect!"); 
+            log.info("SUCCESS: The changes imposed by the orchestration request are now in effect"); 
         };
         try {
             this.worker_queue_orchestration_channel.basicConsume("orchestration", true, deliverCallback, consumerTag -> {});
         } catch(IOException e) {
-            log.info("❌ Something has gone wrong when trying to consume from \"orchestration\" channel in the \"WORKER QUEUE\"!");
+            log.info("FAILURE: Something has gone wrong when trying to consume from \"orchestration\" channel in the worker queue");
         }
     }
 
-    // ✅ Revisto
     public Connection establish_connection_with_consuming_queue(Orchestration orchestration) {
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = null;
         if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
-            log.info("🕋 Connecting to the \"BROKER QUEUE\"...");
+            log.info("STATUS: Connecting to the broker queue");
             factory.setHost(broker_queue_host);
             factory.setPort(broker_queue_port);
             try {
                 connection = factory.newConnection();
-                log.info("✅ Successfuly connected to the \"BROKER QUEUE\"!");
+                log.info("SUCCESS: Connected to the broker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to the \"BROKER QUEUE\"!");
+                log.info("FAILURE: Could not connect to the broker queue");
             }
         } else {
-            log.info("🕋 Connectiong to the \"WORKER_QUEUE\"...");
+            log.info("STATUS: Connectiong to the worker queue");
             factory.setHost(worker_queue_host);
             factory.setPort(worker_queue_port);
             try {
                 connection = factory.newConnection();
-                log.info("✅ Successfuly connected to the \"WORKER QUEUE\"!");
+                log.info("SUCCESS: Connected to the worker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("❌ Could not connect to the \"WORKER QUEUE\"!");
+                log.info("FAILURE: Could not connect to the worker queue");
             }
         } 
         return connection;
     }
 
-    // ✅ Revisto
     private Callable<Boolean> request_satisfied(int request_id) {
         return () -> this.current_request_satisfied.get(request_id);
     }
 
-    // ✅ Revisto
     public void process_message(Message m) throws IOException {
         int target_olt = Integer.parseInt(m.get_olt());
-        log.info("📥 Received: '" + converter.toJson(m) + "'");
-        this.received_messages++;
-        log.info("Received messages: " + this.received_messages);
+        log.info("STATUS: Received: '" + converter.toJson(m) + "'");
         if(this.current_consumption == BROKER_QUEUE) {
             if(this.wait) {
                 try(Jedis jedis = this.redis_database_pool.getResource()) {
@@ -391,22 +378,20 @@ public class App {
         try {
             await().atMost(m.get_timeout(), TimeUnit.MILLISECONDS).until(request_satisfied(m.get_id()));
         } catch(Exception e) {
-            log.info("⚠️ The request " + m.get_id() + " timeout!");
+            log.info("TIMEOUT: The request " + m.get_id() + " timedout");
         }
     }
 
-    // ✅ Revisto
     private void start_olts_responses_consuming_logic() {
         Thread response_handler = new Thread(new ResponseConsumer(this.worker_queue_olt_response_channel, this.results_database_pool, this.redis_database_pool, this.current_active_request, this.current_request_satisfied, this.received_responses)); 
         response_handler.start();
         try {
             response_handler.join();
         } catch(InterruptedException e) {
-            log.info("❌ The response handler failed"); 
+            log.info("FAILURE: The OLT response handler thread failed"); 
         }
     }
 
-    // ✅ Revisto
     private class ResponseConsumer implements Runnable {
 
         private Channel worker_queue_response_channel;
@@ -433,7 +418,6 @@ public class App {
                 Response res = converter.fromJson(jsonString, Response.class);
                 this.received_responses.set(this.received_responses.get() + 1);
                 Message origin_message = res.get_origin_message();
-                log.info("Received responses: " + this.received_responses.get());
                 origin_message.set_completed(new Date().getTime());
                 res.set_origin_message(origin_message);
                 if(origin_message.get_id() == this.current_active_request.get()) {
@@ -442,11 +426,11 @@ public class App {
                 } else {
                     res.set_timedout(true);
                 }
-                log.info("📥 Received response'" + converter.toJson(res) + " from OLT" + res.get_origin_message().get_olt());
+                log.info("STATUS: Received response'" + converter.toJson(res) + " from OLT" + res.get_origin_message().get_olt());
                 try(Jedis jedis = this.results_database_pool.getResource()) {
                     jedis.set(String.valueOf(res.get_origin_message().get_id()), converter.toJson(res));
                 } catch(Exception e) {
-                    log.info("📍 Couldn't write request result");
+                    log.info("FAILURE: Couldn't write request result");
                     e.printStackTrace();
                 }
                 try(Jedis jedis = this.redis_database_pool.getResource()) {
@@ -456,7 +440,7 @@ public class App {
             try {
                 this.worker_queue_response_channel.basicConsume("responses", true, deliverCallback, consumerTag -> {});
             } catch(IOException e) {
-                log.info("❌ Something has gone wrong while trying to declare the \"responses\" channel on the \"WORKER_QUEUE\"!");
+                log.info("FAILURE: Something has gone wrong while trying to declare the \"responses\" channel on the worker queue");
             }
         }
     }

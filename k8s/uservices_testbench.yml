@@ -1,4 +1,3 @@
-
 # Componente: Orchestrator
 ---
 apiVersion: apps/v1
@@ -17,12 +16,12 @@ spec:
         app: uservices-arch-testbench-orchestrator
     spec:
       containers:
-      - name: run-orchestrator
-        image: 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
-        ports:
-        - containerPort: 5000
-          name: http-req-port
-        imagePullPolicy: Always
+        - name: run-orchestrator
+          image: 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
+          ports:
+            - containerPort: 5000
+              name: http-req-port
+          imagePullPolicy: Always
       restartPolicy: Always
 
 ---
@@ -39,7 +38,7 @@ spec:
       protocol: TCP
       port: 5000
       targetPort: 5000
-      nodePort: 32300 
+      nodePort: 32300
   type: NodePort
 
 # Componente: Orchestrator Queue
@@ -60,13 +59,13 @@ spec:
         app: uservices-arch-testbench-orch-queue
     spec:
       containers:
-      - name: orch-queue
-        image: rabbitmq:3.9.13-management
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-mngt
+        - name: orch-queue
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
       restartPolicy: Always
 
 ---
@@ -101,9 +100,9 @@ spec:
         app: uservices-arch-testbench-producer
     spec:
       containers:
-      - name: producer
-        image: 10.112.106.236:32500/ztp-onu-producer:1.0
-        imagePullPolicy: Always
+        - name: producer
+          image: 10.112.106.236:32500/ztp-onu-producer:1.0
+          imagePullPolicy: Always
       restartPolicy: Always
 
 # Componente: Broker Queue
@@ -124,13 +123,13 @@ spec:
         app: uservices-arch-testbench-broker-queue
     spec:
       containers:
-      - name: broker-queue
-        image: rabbitmq:3.9.13-management
-        ports:
-        - containerPort: 5672
-          name: queue-port
-        - containerPort: 15672
-          name: queue-mngt
+        - name: broker-queue
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
       restartPolicy: Always
 
 ---
@@ -165,11 +164,10 @@ spec:
         app: uservices-arch-testbench-broker
     spec:
       containers:
-      - name: broker
-        image: 10.112.106.236:32500/ztp-onu-broker:1.0
-        imagePullPolicy: Always
+        - name: broker
+          image: 10.112.106.236:32500/ztp-onu-broker:1.0
+          imagePullPolicy: Always
       restartPolicy: Always
-
 
 # Componente: Worker 0 bundle: worker + queue
 ---
@@ -189,17 +187,17 @@ spec:
         app: uservices-arch-testbench-worker0-bundle
     spec:
       containers:
-      - name: worker0
-        image: 10.112.106.236:32500/ztp-onu-worker:1.0
-        args: ["0"]
-        imagePullPolicy: Always
-      - name: worker-queue0
-        image: rabbitmq:3.9.13-management
-        ports:
-          - containerPort: 5672
-            name: queue-port
-            containerPort: 15672
-            name: queue-mngt
+        - name: worker0
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["0"]
+          imagePullPolicy: Always
+        - name: worker-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
 
 ---
 apiVersion: v1
@@ -233,17 +231,17 @@ spec:
         app: uservices-arch-testbench-worker1-bundle
     spec:
       containers:
-      - name: worker1
-        image: 10.112.106.236:32500/ztp-onu-worker:1.0
-        args: ["1"]
-        imagePullPolicy: Always
-      - name: worker-queue0
-        image: rabbitmq:3.9.13-management
-        ports:
-          - containerPort: 5672
-            name: queue-port
-            containerPort: 15672
-            name: queue-mngt
+        - name: worker1
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["1"]
+          imagePullPolicy: Always
+        - name: worker-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
 
 ---
 apiVersion: v1
@@ -277,17 +275,17 @@ spec:
         app: uservices-arch-testbench-worker2-bundle
     spec:
       containers:
-      - name: worker2
-        image: 10.112.106.236:32500/ztp-onu-worker:1.0
-        args: ["2"]
-        imagePullPolicy: Always
-      - name: worker-queue0
-        image: rabbitmq:3.9.13-management
-        ports:
-          - containerPort: 5672
-            name: queue-port
-            containerPort: 15672
-            name: queue-mngt
+        - name: worker2
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["2"]
+          imagePullPolicy: Always
+        - name: worker-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
 
 ---
 apiVersion: v1
@@ -302,7 +300,6 @@ spec:
     - name: wk2-queue-port
       port: 5672
       targetPort: 5672
-
 
 # Componente: OLT 0 bundle: olt + queue
 ---
@@ -322,17 +319,17 @@ spec:
         app: uservices-arch-testbench-olt0-bundle
     spec:
       containers:
-      - name: olt0
-        image: 10.112.106.236:32500/ztp-onu-olt:1.0
-        args: ["0"]  
-        imagePullPolicy: Always
-      - name: olt-queue0
-        image: rabbitmq:3.9.13-management
-        ports:
-          - containerPort: 5672
-            name: olt0-queue-port
-            containerPort: 15672
-            name: olt0-queue-mngt
+        - name: olt0
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["0"]
+          imagePullPolicy: Always
+        - name: olt-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt0-queue-port
+            - containerPort: 15672
+              name: olt0-queue-mngt
       restartPolicy: Always
 
 ---
@@ -367,17 +364,17 @@ spec:
         app: uservices-arch-testbench-olt1-bundle
     spec:
       containers:
-      - name: olt1
-        image: 10.112.106.236:32500/ztp-onu-olt:1.0
-        args: ["1"]  
-        imagePullPolicy: Always
-      - name: olt-queue1
-        image: rabbitmq:3.9.13-management
-        ports:
-          - containerPort: 5672
-            name: olt1-queue-port
-            containerPort: 15672
-            name: olt1-queue-mngt
+        - name: olt1
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["1"]
+          imagePullPolicy: Always
+        - name: olt-queue1
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt1-queue-port
+            - containerPort: 15672
+              name: olt1-queue-mngt
       restartPolicy: Always
 
 ---
@@ -412,17 +409,17 @@ spec:
         app: uservices-arch-testbench-olt2-bundle
     spec:
       containers:
-      - name: olt2
-        image: 10.112.106.236:32500/ztp-onu-olt:1.0
-        args: ["0"]  
-        imagePullPolicy: Always
-      - name: olt-queue2
-        image: rabbitmq:3.9.13-management
-        ports:
-          - containerPort: 5672
-            name: olt2-queue-port
-            containerPort: 15672
-            name: olt2-queue-mngt
+        - name: olt2
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["0"]
+          imagePullPolicy: Always
+        - name: olt-queue2
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt2-queue-port
+            - containerPort: 15672
+              name: olt2-queue-mngt
       restartPolicy: Always
 
 ---

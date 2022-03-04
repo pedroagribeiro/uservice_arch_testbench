@@ -1,6 +1,5 @@
 RequestReport.class
 App$ResponseConsumer.class
 App.class
-Message.class
 Response.class
 Orchestration.class
