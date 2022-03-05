@@ -5,7 +5,7 @@ services:
     build: ./run_orchestrator/
     container_name: orchestrator
     ports:
-      - "8000:8000"
+      - "5000:5000"
     networks:
       - private_network
     depends_on:

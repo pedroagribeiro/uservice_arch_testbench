@@ -67,7 +67,7 @@ def new_orchestration():
     data['id'] = run_identifier 
     run_identifier += 1
     channel.basic_publish(exchange="", routing_key="orchestration", body=json.dumps(data))
-    return make_response("Your orchestration request was published to the job queue", 201)
+    return make_response("Your orchestration request was published to the job queue. The run id is: " + str(run_identifier - 1), 201)
 
 @app.route("/results", methods = ['GET'])
 def get_run_results():
@@ -79,6 +79,13 @@ def get_run_results():
 def get_run_result(run_id):
     results = engine.execute(text("select * from results where run = " + str(run_id)))
     rows = [dict(row) for row in results.fetchall()]
+    result = rows[0]
+    if result['status'] == 'waiting_to_start':
+        return make_response("The run is still waiting to start so the results are not ready", 200)
+    if result['status'] == 'on_going':
+        return make_response("The run is still being performed so the results are not ready", 200)
+    if result['status'] == 'completed':
+        return make_response(str(result), 200)
     return make_response(str(rows[0]), 200)
 
-app.run(debug = True, host = '0.0.0.0', port = 8000)
+app.run(debug = True, host = '0.0.0.0', port = 5000)
