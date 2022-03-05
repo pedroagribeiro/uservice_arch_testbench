@@ -128,8 +128,6 @@ public class App {
                 success = true;
                 jedis.close();
             } catch(JedisConnectionException e) {
-                log.info("FAILED: Could not connect to the redis database");
-                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -150,8 +148,6 @@ public class App {
                 success = true;
                 jedis.close();
             } catch(JedisConnectionException e) {
-                log.info("FAILED: Could not connect to the results database");
-                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -172,8 +168,6 @@ public class App {
                 this.worker_queue_connection = factory.newConnection();
                 log.info("SUCCESS: Connected to the worker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("FAILURE: Could not connect to the worker queue");
-                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -193,8 +187,6 @@ public class App {
                 this.broker_queue_connection = factory.newConnection();
                 log.info("SUCCESS: Connected to the broker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("FAILURE: Could not connect to the broker queue");
-                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -236,8 +228,6 @@ public class App {
                     connection = factory.newConnection();
                     this.olts_connections.add(connection);
                 } catch(IOException | TimeoutException e) {
-                    log.info("FAILURE: Something went wrong while connecting to OLT " + i);
-                    log.info("STATUS: Retrying");
                     try {
                         Thread.sleep(3000);
                     } catch(InterruptedException e1) {

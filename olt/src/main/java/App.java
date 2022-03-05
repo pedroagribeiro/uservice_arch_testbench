@@ -79,7 +79,6 @@ public class App {
                 this.olt_queue_connection = factory.newConnection();
                 log.info("SUCCESS: Connected to the OLT queue");
             } catch(IOException | TimeoutException e) {
-                log.info("FAILURE: Could not connect to the OLT queue");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -114,11 +113,18 @@ public class App {
                 factory.setHost("localhost");
                 factory.setPort(5672 + i);
             }
-            try {
-                Connection connection = factory.newConnection();
-                this.workers_queues_connections.add(connection);
-            } catch(IOException | TimeoutException e) {
-                log.info("FAILURE: An error ocurred while trying to connect to \"WORKER " + i);
+            Connection connection = null;
+            while(connection == null) {
+                try {
+                    connection = factory.newConnection();
+                    this.workers_queues_connections.add(connection);
+                } catch(IOException | TimeoutException e) {
+                    try {
+                        Thread.sleep(3000);
+                    } catch(InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         }
         log.info("SUCCESS: Connected to the workers");

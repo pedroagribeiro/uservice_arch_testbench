@@ -147,8 +147,6 @@ public class App {
                success = true;
                jedis.close();
            } catch(JedisConnectionException e) {
-               log.info("FAILED: Could not connect to the redis database");
-               log.info("STATUS: Retrying");
                try {
                    Thread.sleep(3000);
                } catch(InterruptedException e1) {
@@ -168,10 +166,7 @@ public class App {
             while(this.broker_queue_connection == null) {
                 try {
                     this.broker_queue_connection = factory.newConnection();
-                    log.info("SUCCESS: Connected to the broker queue");
                 } catch(IOException | TimeoutException e) {
-                    log.info("FAILURE: Could not connect to the broker queue");
-                    log.info("STATUS: Retrying");
                     try {
                         Thread.sleep(3000);
                     } catch(InterruptedException e1) {
@@ -180,6 +175,7 @@ public class App {
                 }
             }
         }
+        log.info("SUCCESS: Connected to the broker queue");
     }
 
     private void establish_broker_queue_channels() {
@@ -205,6 +201,7 @@ public class App {
         log.info("STATUS: Connecting to the worker queues");
         List<Connection> connections = new ArrayList<>();
         for(int i = 0; i < App.WORKER_CONTAINERS; i++) {
+            log.info("STATUS: Connecting to worker " + i);
             ConnectionFactory factory = new ConnectionFactory();
             if(containerized) {
                 factory.setHost("worker-queue" + i);
@@ -218,8 +215,6 @@ public class App {
                 try {
                     connection = factory.newConnection();
                 } catch(IOException | TimeoutException e) {
-                    log.info("FAILURE: Could not connect to worker " + i + " queue");
-                    log.info("STATUS: Retrying");
                     try {
                         Thread.sleep(3000);
                     } catch(InterruptedException e1) {

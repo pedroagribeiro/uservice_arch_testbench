@@ -122,8 +122,6 @@ public class App {
                 success = true;
                 jedis.close();
             } catch(JedisConnectionException e) {
-                log.info("FAILED: Could not connect to the results database");
-                log.info("STATUS: Retrying");
                 try {
                 Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -144,8 +142,6 @@ public class App {
                 success = true;
                 jedis.close();
             } catch(JedisConnectionException e) {
-                log.info("FAILED: Could not connect to the redis database");
-                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -164,12 +160,15 @@ public class App {
         while(this.orchestration_queue_connection == null) {
             try {
                 this.orchestration_queue_connection = factory.newConnection();
-                log.info("SUCCESS: Connected to the orchestration queue");
             } catch(IOException | TimeoutException e) {
-                log.info("FAILURE: Could not connect to the orchestration queue");
-                log.info("STATUS: Retrying");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
+        log.info("SUCCESS: Connected to the orchestration queue");
     }
 
     private void establish_orchestration_queue_channels() {
@@ -188,8 +187,11 @@ public class App {
                 Class.forName("org.postgresql.Driver");
                 this.run_results_database_connection = DriverManager.getConnection("jdbc:postgresql://" + this.run_results_relational_database_host + ":" + this.run_results_relational_database_port + "/results", "postgres", "postgres");
             } catch(Exception e) {
-                log.info("FAILURE: An error ocurred while connectiong to the relational run results database");
-                log.info("STATUS: Retrying");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
         log.info("SUCCESS: Connected to the run results database");
@@ -203,10 +205,7 @@ public class App {
         while(this.broker_queue_connection == null) {
             try {
                 this.broker_queue_connection = factory.newConnection();
-                log.info("SUCCESS: Connected to the broker queue");
             } catch(IOException | TimeoutException e) {
-                log.info("FAILURE: Could not connect to the broker queue");
-                log.info("STATUS: Retrying");
                 try {
                     Thread.sleep(3000);
                 } catch(InterruptedException e1) {
@@ -214,6 +213,7 @@ public class App {
                 }
             }
         }
+        log.info("SUCCESS: Connected to the broker queue");
     }
 
     private void establish_broker_queue_channels() {
