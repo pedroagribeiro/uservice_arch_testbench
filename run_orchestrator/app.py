@@ -37,7 +37,7 @@ def create_app_and_queue_connection(containerized_environment):
     while True:
         try:
             print("trying to connect to the orchestration queue at " + orchestration_queue_host + ":" + str(orchestration_queue_port))
-            time.sleep(4)
+            time.sleep(3)
             connection = pika.BlockingConnection(pika.ConnectionParameters(orchestration_queue_host, orchestration_queue_port, heartbeat=0))
             channel = connection.channel()
             channel.queue_declare(queue="orchestration")
@@ -48,6 +48,7 @@ def create_app_and_queue_connection(containerized_environment):
     engine = db.create_engine("postgresql://postgres:postgres@" + run_results_relational_db_host + ":" + str(run_results_relational_db_port) + "/results")
     return app, channel, engine
 
+run_identifier = 0
 containerized_environment = define_environment()
 app, channel, engine = create_app_and_queue_connection(containerized_environment)
 
@@ -57,11 +58,14 @@ def ping():
 
 @app.route("/orchestration", methods = ['POST'])
 def new_orchestration():
+    global run_identifier
     data = request.get_json()
     try:
         OrchestrationSchema().load(data)
     except ValidationError as err:
         return make_response(err.messages, 400)
+    data['id'] = run_identifier 
+    run_identifier += 1
     channel.basic_publish(exchange="", routing_key="orchestration", body=json.dumps(data))
     return make_response("Your orchestration request was published to the job queue", 201)
 
@@ -71,4 +75,10 @@ def get_run_results():
     rows = [dict(row) for row in results.fetchall()]
     return make_response(str(rows), 200)
 
-app.run(debug = True, host = '0.0.0.0', port = 5000)
+@app.route("/results/<int:run_id>", methods = ['GET'])
+def get_run_result(run_id):
+    results = engine.execute(text("select * from results where run = " + str(run_id)))
+    rows = [dict(row) for row in results.fetchall()]
+    return make_response(str(rows[0]), 200)
+
+app.run(debug = True, host = '0.0.0.0', port = 8000)

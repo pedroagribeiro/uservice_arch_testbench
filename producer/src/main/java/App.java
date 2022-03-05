@@ -366,23 +366,17 @@ public class App {
         double percentage_of_timedout_requests = (double) timedout_requests / (double) results.size();
         try {
             Statement stmt = null;
-            String sql = "INSERT INTO results (RUN, ALGORITHM, AVG_TIME_TOTAL, AVG_TIME_BROKER_QUEUE, AVG_TIME_WORKER_QUEUE, AVG_TIME_OLT_QUEUE, OLTS, WORKERS, REQUESTS, TIMEDOUT) " +
-                "VALUES (" + String.valueOf(this.run_id++) + 
-                ", " + String.valueOf(orchestration.get_algorithm()) +
-                ", " + String.valueOf(avg_time_total) +
-                ", " + String.valueOf(avg_time_broker_queue) +
-                ", " + String.valueOf(avg_time_worker_queue) +
-                ", " + String.valueOf(avg_time_olt_queue) +
-                ", " + String.valueOf(orchestration.get_olts()) +
-                ", " + String.valueOf(orchestration.get_workers()) + 
-                ", " + String.valueOf(orchestration.get_messages()) +
-                ", " + String.valueOf(percentage_of_timedout_requests) + ");";
+            String sql = "UPDATE results SET ";
+            sql += "avg_time_total = " + String.valueOf(avg_time_total) + ", ";
+            sql += "avg_time_broker_queue = " + String.valueOf(avg_time_broker_queue) + ", ";
+            sql += "avg_time_worker_queue = " + String.valueOf(avg_time_worker_queue) + ", ";
+            sql += "avg_time_olt_queue = " + String.valueOf(avg_time_olt_queue) + ", ";
+            sql += "timedout = " + String.valueOf(timedout_requests) + " WHERE run = " + orchestration.get_id() + ";";
             stmt = this.run_results_database_connection.createStatement();
             stmt.executeUpdate(sql);
             stmt.close();
         } catch(SQLException e) {
-            e.printStackTrace();
-            log.info("FAILURE: An error has ocurred while submitting the run result to the relational database");
+            log.info("FAILURE: An error has ocurred while updating the run results");
         }
         return "avg_time_total=" + avg_time_total + " , avg_time_broker_queue=" + avg_time_broker_queue + ", avg_time_worker_queue=" + avg_time_worker_queue + ", avg_time_olt_queue=" + avg_time_olt_queue + ", %timedout=" + percentage_of_timedout_requests + ", processing_time_ocurrences=" + App.converter.toJson(this.processing_times_ocurrences);  
     }
@@ -402,12 +396,36 @@ public class App {
             log.info("STATUS: Received a request to perform a new run");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
+            try {
+                Statement stmt = null;
+                String sql = "INSERT INTO results (RUN, ALGORITHM, OLTS, WORKERS, REQUESTS, STATUS) " +
+                    "VALUES (" + String.valueOf(this.run_id++) + 
+                    ", " + String.valueOf(orchestration.get_algorithm()) +
+                    ", " + String.valueOf(orchestration.get_olts()) +
+                    ", " + String.valueOf(orchestration.get_workers()) + 
+                    ", " + String.valueOf(orchestration.get_messages()) +
+                    ", " + "WAITING_TO_START" + ");";
+                stmt = this.run_results_database_connection.createStatement();
+                stmt.executeUpdate(sql);
+                stmt.close();
+            } catch(SQLException e) {
+                log.info("FAILURE: An error has ocurred while submitting the run information to the database");
+            }
             while(this.on_going_run == true) {
                 try {
                     Thread.sleep(10000);
                 } catch(InterruptedException e) {
                     e.printStackTrace();
                 }
+            }
+            try {
+                Statement stmt = null;
+                String sql = "UPDATE results SET status = \'ON_GOING\'' where run = " + orchestration.get_id() + ";";
+                stmt = this.run_results_database_connection.createStatement();
+                stmt.executeUpdate(sql);
+                stmt.close();
+            } catch(SQLException e) {
+                log.info("FAILURE: An error has ocurred while updated the run status");
             }
             log.info("STATUS: Forwarding orchestration to the workers broker and workers");
             forward_orchestration(orchestration);

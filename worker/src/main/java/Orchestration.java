@@ -1,5 +1,6 @@
 public class Orchestration {
 
+    private int id;
     private int olts;
     private int messages;
     private int workers;
@@ -7,6 +8,14 @@ public class Orchestration {
 
     public Orchestration() {
 
+    }
+    
+    public int get_id() {
+        return this.id;
+    }
+
+    public void set_id(final int id) {
+        this.id = id;
     }
 
     public int get_olts() {
