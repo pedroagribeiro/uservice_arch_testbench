@@ -38,8 +38,6 @@ public class App {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    private int received_messages = 0;
-
     public static void main(String[] args) throws Exception {
         App application = new App();
         JCommander commands = JCommander.newBuilder().addObject(application).build();

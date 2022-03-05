@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -138,7 +139,23 @@ public class App {
 
     private void establish_connection_with_redis_database() {
         log.info("STATUS: Connecting to the redis database at: " + this.redis_database_host + ":" + this.redis_database_port);
-        this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
+        boolean success = false;
+        while(success == false) {
+           this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
+           try {
+               Jedis jedis = this.redis_database_pool.getResource();
+               success = true;
+               jedis.close();
+           } catch(JedisConnectionException e) {
+               log.info("FAILED: Could not connect to the redis database");
+               log.info("STATUS: Retrying");
+               try {
+                   Thread.sleep(3000);
+               } catch(InterruptedException e1) {
+                   e1.printStackTrace();
+               }
+           }
+        }
         log.info("SUCCESS: Connected to the redis database");
     }
 
@@ -342,29 +359,4 @@ public class App {
             log.info("FAILURE: Something went wrong when consuming messages from \"message_queue\" on the broker queue");
         }
     }
-
-    public void setup_broker_queue_message_consumption_backup() {
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            Message m = converter.fromJson(jsonString, Message.class);
-            m.set_dequeued_at_broker(new Date().getTime());
-            switch(this.current_logic) {
-                case 1:
-                    process_message_logic_one(m);
-                    break;
-                case 2:
-                    process_manage_logic_two(m);
-                    break;
-                default:
-                    log.info("Estou a consumir mensagens numa lógica em que não devia");
-                    break;
-            }
-        };
-        try {
-            this.broker_queue_message_channel.basicConsume("message_queue", true, deliverCallback, consumerTag -> {});
-        } catch(IOException e) {
-            log.info("FAILURE: Something went wrong when consuming messages from \"message_queue\" on the broker queue");
-        }
-    }
-
 }

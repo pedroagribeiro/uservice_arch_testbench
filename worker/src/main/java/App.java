@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -67,7 +68,6 @@ public class App {
     private final Map<Integer, Boolean> current_request_satisfied = new ConcurrentHashMap<>();
 
     private AtomicInteger received_responses = new AtomicInteger(0);
-    private Integer received_messages = 0;
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
     public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
@@ -120,13 +120,45 @@ public class App {
 
     public void establish_connection_with_redis_database() {
         log.info("STATUS: Connecting to the redis database at: " + this.redis_database_host + ":" + this.redis_database_port);
-        this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
+        boolean success = false;
+        while(success == false) {
+            this.redis_database_pool = new JedisPool(this.redis_database_host, this.redis_database_port);
+            try {
+                Jedis jedis = this.redis_database_pool.getResource();
+                success = true;
+                jedis.close();
+            } catch(JedisConnectionException e) {
+                log.info("FAILED: Could not connect to the redis database");
+                log.info("STATUS: Retrying");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
         log.info("SUCCESS: Successfuly connected to the redis database");
     }
 
     public void establish_connection_with_redis_results_database() {
         log.info("STATUS: Connecting to the results database at: " + this.redis_results_database_host + ":" + this.redis_results_database_port);
-        this.results_database_pool = new JedisPool(this.redis_results_database_host, this.redis_results_database_port);
+        boolean success = false;
+        while(success == false) {
+            this.results_database_pool = new JedisPool(this.redis_results_database_host, this.redis_results_database_port);
+            try {
+                Jedis jedis = this.results_database_pool.getResource();
+                success = true;
+                jedis.close();
+            } catch(JedisConnectionException e) {
+                log.info("FAILED: Could not connect to the results database");
+                log.info("STATUS: Retrying");
+                try {
+                    Thread.sleep(3000);
+                } catch(InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
         log.info("SUCCESS: Successfuly connected to the results database");
     }
 
