@@ -5,6 +5,7 @@ import sqlalchemy as db
 from sqlalchemy import text
 import argparse
 import time
+import logging
 
 OrchestrationSchema = Schema.from_dict(
     {
@@ -36,7 +37,8 @@ def create_app_and_queue_connection(containerized_environment):
     run_results_relational_db_port = 5432 if (containerized_environment == True) else 5432
     while True:
         try:
-            print("trying to connect to the orchestration queue at " + orchestration_queue_host + ":" + str(orchestration_queue_port))
+            # print("trying to connect to the orchestration queue at " + orchestration_queue_host + ":" + str(orchestration_queue_port))
+            logging.info("trying to connect to the orchestration queue at " + orchestration_queue_host + ":" + str(orchestration_queue_port))
             time.sleep(3)
             connection = pika.BlockingConnection(pika.ConnectionParameters(orchestration_queue_host, orchestration_queue_port, heartbeat=0))
             channel = connection.channel()
@@ -46,6 +48,7 @@ def create_app_and_queue_connection(containerized_environment):
         else:
             break
     engine = db.create_engine("postgresql://postgres:postgres@" + run_results_relational_db_host + ":" + str(run_results_relational_db_port) + "/results")
+    logging.info("all connections are completed")
     return app, channel, engine
 
 run_identifier = 0

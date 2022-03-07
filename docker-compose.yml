@@ -5,11 +5,12 @@ services:
     build: ./run_orchestrator/
     container_name: orchestrator
     ports:
-      - "5000:5000"
+      - "8000:8000"
     networks:
       - private_network
     depends_on:
       - producer_orchestration_queue
+      - run_results_database
   producer_orchestration_queue:
     image: rabbitmq:3.9.13-management
     container_name: orch-queue
