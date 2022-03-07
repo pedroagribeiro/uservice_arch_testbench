@@ -89,32 +89,32 @@ def timedout_percentage_chart_random_42():
 
 # Seed 2: 7
 
-number_of_requests_random_7 = [50, 100, 500]
+number_of_requests_random_7 = [50, 100, 500, 1000, 2000]
 
-avg_time_total_algorithm_1_random_7 = [21423.0, 54764.0, 215862.0]
-avg_time_total_algorithm_2_random_7 = [30597.0, 63052.0, 252514.0]
-avg_time_total_algorithm_3_random_7 = [24495.0, 65484.0, 266222.0]
-avg_time_total_algorithm_4_random_7 = [22886.0, 69561.0, 260116.0]
+avg_time_total_algorithm_1_random_7 = [21423.0, 54764.0, 215862.0, 485321.0, 930501.0]
+avg_time_total_algorithm_2_random_7 = [30597.0, 63052.0, 252514.0, 521362.0, 968164.0]
+avg_time_total_algorithm_3_random_7 = [24495.0, 65484.0, 266222.0, 601500.0, 1082109.0]
+avg_time_total_algorithm_4_random_7 = [22886.0, 69561.0, 260116.0, 505470.0, 1018536.0]
 
-avg_time_broker_queue_algorithm_1_random_7 = [6.0, 6.0, 5.0]
-avg_time_broker_queue_algorithm_2_random_7 = [8.0, 6.0, 5.0]
-avg_time_broker_queue_algorithm_3_random_7 = [19185.0, 58303.0, 259627.0]
-avg_time_broker_queue_algorithm_4_random_7 = [17805.0, 62113.0, 253773.0]
+avg_time_broker_queue_algorithm_1_random_7 = [6.0, 6.0, 5.0, 5.0, 5.0]
+avg_time_broker_queue_algorithm_2_random_7 = [8.0, 6.0, 5.0, 5.0, 5.0]
+avg_time_broker_queue_algorithm_3_random_7 = [19185.0, 58303.0, 259627.0, 594600.0, 1075652.0]
+avg_time_broker_queue_algorithm_4_random_7 = [17805.0, 62113.0, 253773.0, 498216.0, 1011602.0]
 
-avg_time_worker_queue_algorithm_1_random_7 = [17796.0, 47133.0, 209309.0]
-avg_time_worker_queue_algorithm_2_random_7 = [25193.0, 54164.0, 245460.0]
-avg_time_worker_queue_algorithm_3_random_7 = [0.0, 0.0, 0.0]
-avg_time_worker_queue_algorithm_4_random_7 = [0.0, 0.0, 0.0]
+avg_time_worker_queue_algorithm_1_random_7 = [17796.0, 47133.0, 209309.0, 478333.0, 923829.0]
+avg_time_worker_queue_algorithm_2_random_7 = [25193.0, 54164.0, 245460.0, 514109.0, 960966.0]
+avg_time_worker_queue_algorithm_3_random_7 = [0.0, 0.0, 0.0, 0.0, 0.0]
+avg_time_worker_queue_algorithm_4_random_7 = [0.0, 0.0, 0.0, 0.0, 0.0]
 
-avg_time_olt_queue_algorithm_1_random_7 = [480.0, 3864.0, 3026.0]
-avg_time_olt_queue_algorithm_2_random_7 = [2262.0, 5127.0, 3529.0]
-avg_time_olt_queue_algorithm_3_random_7 = [475.0, 1495.0, 364.0]
-avg_time_olt_queue_algorithm_4_random_7 = [1949.0, 1189.0, 333.0]
+avg_time_olt_queue_algorithm_1_random_7 = [480.0, 3864.0, 3026.0, 3469.0, 3140.0]
+avg_time_olt_queue_algorithm_2_random_7 = [2262.0, 5127.0, 3529.0, 3739.0, 3670.0]
+avg_time_olt_queue_algorithm_3_random_7 = [475.0, 1495.0, 364.0, 663.0, 484.0]
+avg_time_olt_queue_algorithm_4_random_7 = [1949.0, 1189.0, 333.0, 3750.0, 3417.0]
 
-timedout_percentage_algorithm_1_random_7 = [0.02, 0.11, 0.1]
-timedout_percentage_algorithm_2_random_7 = [0.04, 0.13, 0.096]
-timedout_percentage_algorithm_3_random_7 = [0.0, 0.04, 0.022]
-timedout_percentage_algorithm_4_random_7 = [0.0, 0.04, 0.02]
+timedout_percentage_algorithm_1_random_7 = [0.02, 0.11, 0.1, 0.092, 0.0855]
+timedout_percentage_algorithm_2_random_7 = [0.04, 0.13, 0.096, 0.092, 0.081]
+timedout_percentage_algorithm_3_random_7 = [0.0, 0.04, 0.022, 0.024, 0.016]
+timedout_percentage_algorithm_4_random_7 = [0.0, 0.04, 0.02, 0.101, 0.089]
 
 def average_time_total_chart_random_7():
     plt.plot(number_of_requests_random_7, avg_time_total_algorithm_1_random_7, label = "Algoritmo 1")
@@ -173,32 +173,32 @@ def timedout_percentage_chart_random_7():
 
 # Seed 3: 34
 
-number_of_requests_random_34 = [50, 100, 500]
+number_of_requests_random_34 = [50, 100, 500, 1000]
 
-avg_time_total_algorithm_1_random_34 = [14595.0, 58628.0, 249483.0]
-avg_time_total_algorithm_2_random_34 = [16367.0, 68849.0, 214793.0]
-avg_time_total_algorithm_3_random_34 = [17349.0, 72169.0, 246215.0]
-avg_time_total_algorithm_4_random_34 = [22635.0, 71911.0, 258507.0]
+avg_time_total_algorithm_1_random_34 = [14595.0, 58628.0, 249483.0, 452312.0]
+avg_time_total_algorithm_2_random_34 = [16367.0, 68849.0, 214793.0, 452081.0]
+avg_time_total_algorithm_3_random_34 = [17349.0, 72169.0, 246215.0, 521745.0]
+avg_time_total_algorithm_4_random_34 = [22635.0, 71911.0, 258507.0, 470040.0]
 
-avg_time_broker_queue_algorithm_1_random_34 = [5.0, 5.0, 5.0]
-avg_time_broker_queue_algorithm_2_random_34 = [7.0, 6.0, 5.0]
-avg_time_broker_queue_algorithm_3_random_34 = [12561.0, 65679.0, 240209.0]
-avg_time_broker_queue_algorithm_4_random_34 = [17503.0, 65537.0, 252059.0]
+avg_time_broker_queue_algorithm_1_random_34 = [5.0, 5.0, 5.0, 5.0]
+avg_time_broker_queue_algorithm_2_random_34 = [7.0, 6.0, 5.0, 5.0]
+avg_time_broker_queue_algorithm_3_random_34 = [12561.0, 65679.0, 240209.0, 515180.0]
+avg_time_broker_queue_algorithm_4_random_34 = [17503.0, 65537.0, 252059.0, 463131.0]
 
-avg_time_worker_queue_algorithm_1_random_34 = [11257.0, 51868.0, 242520.0]
-avg_time_worker_queue_algorithm_2_random_34 = [11919.0, 61709.0, 208655.0]
-avg_time_worker_queue_algorithm_3_random_34 = [0.0, 0.0, 0.0]
-avg_time_worker_queue_algorithm_4_random_34 = [0.0, 0.0, 0.0]
+avg_time_worker_queue_algorithm_1_random_34 = [11257.0, 51868.0, 242520.0, 445536.0]
+avg_time_worker_queue_algorithm_2_random_34 = [11919.0, 61709.0, 208655.0, 445368.0]
+avg_time_worker_queue_algorithm_3_random_34 = [0.0, 0.0, 0.0, 0.0]
+avg_time_worker_queue_algorithm_4_random_34 = [0.0, 0.0, 0.0, 0.0]
 
-avg_time_olt_queue_algorithm_1_random_34 = [274.0, 3475.0, 3543.0]
-avg_time_olt_queue_algorithm_2_random_34 = [1387.0, 3861.0, 2724.0]
-avg_time_olt_queue_algorithm_3_random_34 = [144.0, 828.0, 325.0]
-avg_time_olt_queue_algorithm_4_random_34 = [4.0, 673.0, 702.0]
+avg_time_olt_queue_algorithm_1_random_34 = [274.0, 3475.0, 3543.0, 3275.0]
+avg_time_olt_queue_algorithm_2_random_34 = [1387.0, 3861.0, 2724.0, 3216.0]
+avg_time_olt_queue_algorithm_3_random_34 = [144.0, 828.0, 325.0, 480.0]
+avg_time_olt_queue_algorithm_4_random_34 = [4.0, 673.0, 702.0, 3421.0]
 
-timedout_percentage_algorithm_1_random_34 = [0.02, 0.1, 0.1]
-timedout_percentage_algorithm_2_random_34 = [0.04, 0.09, 0.072]
-timedout_percentage_algorithm_3_random_34 = [0.02, 0.03, 0.01]
-timedout_percentage_algorithm_4_random_34 = [0.02, 0.03, 0.02]
+timedout_percentage_algorithm_1_random_34 = [0.02, 0.1, 0.1, 0.083]
+timedout_percentage_algorithm_2_random_34 = [0.04, 0.09, 0.072, 0.08]
+timedout_percentage_algorithm_3_random_34 = [0.02, 0.03, 0.01, 0.019]
+timedout_percentage_algorithm_4_random_34 = [0.02, 0.03, 0.02, 0.081]
 
 def average_time_total_chart_random_34():
     plt.plot(number_of_requests_random_34, avg_time_total_algorithm_1_random_34, label = "Algoritmo 1")
