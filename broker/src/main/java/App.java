@@ -63,11 +63,14 @@ public class App {
         log.info("STATUS: Got a new orchestration request");
         String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
         Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class); 
-        int previous_logic = App.current_logic;
         App.current_logic = orchestration.get_algorithm();
         if(App.current_logic == 3 || App.current_logic == 4) {
             try {
-                this.broker_queue_message_channel.basicCancel("broker");
+                try {
+                    this.broker_queue_message_channel.basicCancel("broker");
+                } catch(IOException e1) {
+                    log.info("STATUS: Consumption channel was already closed");
+                }
                 if(this.broker_queue_message_channel != null && this.broker_queue_message_channel.isOpen()) {
                     this.broker_queue_message_channel.close();
                 }
