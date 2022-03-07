@@ -63,6 +63,7 @@ public class App {
         log.info("STATUS: Got a new orchestration request");
         String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
         Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class); 
+        int previous_logic = App.current_logic;
         App.current_logic = orchestration.get_algorithm();
         if(App.current_logic == 3 || App.current_logic == 4) {
             try {
@@ -274,7 +275,11 @@ public class App {
         try(Jedis jedis = this.redis_database_pool.getResource()) { 
             int worker_to_forward = 0;
             if(jedis.exists(m.get_olt())) {
-                worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
+                try {
+                    worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
+                } catch(NumberFormatException e) {
+                    log.info("FAILED: Could not parse worker to forward. Defaulted to worker 0");
+                }
             } else {
                 worker_to_forward = (last_chosen_worker.get() + 1) % this.workers_queues_message_channels.size();
                 last_chosen_worker.set(worker_to_forward);

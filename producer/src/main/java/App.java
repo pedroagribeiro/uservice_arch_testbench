@@ -262,7 +262,10 @@ public class App {
         int longer_than_timeout = (int) Math.floor(orchestration.get_messages() * 0.01);
         int spikes = (int) Math.floor(orchestration.get_messages() * 0.03);
         // TODO: user seeds diferentes: p.ex mais 2
-        Random r = new Random(42);
+        // Seed 1: 42
+        // Seed 2: 7
+        // Seed 3: 34
+        Random r = new Random(34);
         List<Integer> longer_than_timeouts_order_numbers = new ArrayList<>();
         for(int i = 0; i < longer_than_timeout; i++) {
             int order_number = r.nextInt(orchestration.get_messages());
@@ -371,7 +374,7 @@ public class App {
             sql += "avg_time_broker_queue = " + String.valueOf(avg_time_broker_queue) + ", ";
             sql += "avg_time_worker_queue = " + String.valueOf(avg_time_worker_queue) + ", ";
             sql += "avg_time_olt_queue = " + String.valueOf(avg_time_olt_queue) + ", ";
-            sql += "timedout = " + String.valueOf(timedout_requests) + ", "; 
+            sql += "timedout = " + String.valueOf(percentage_of_timedout_requests) + ", "; 
             sql += "status = \'completed\' WHERE run = " + orchestration.get_id() + ";";
             stmt = this.run_results_database_connection.createStatement();
             stmt.executeUpdate(sql);

@@ -88,4 +88,4 @@ def get_run_result(run_id):
         return make_response(str(result), 200)
     return make_response(str(rows[0]), 200)
 
-app.run(debug = True, host = '0.0.0.0', port = 5000)
+app.run(debug = True, host = '0.0.0.0', port = 8000)

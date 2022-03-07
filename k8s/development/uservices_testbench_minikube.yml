@@ -1,0 +1,555 @@
+# Componente: Orchestrator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-orchestrator
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-orchestrator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-orchestrator
+    spec:
+      containers:
+        - name: run-orchestrator
+          image: ztp-onu-run_orchestrator:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+              name: http-req-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uservices-arch-testbench-orchestrator
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: orch-port
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 32300
+  type: NodePort
+
+# Componente: Orchestrator Queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-orch-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-orch-queue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-orch-queue
+    spec:
+      containers:
+        - name: orch-queue
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orch-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench
+  ports:
+    - name: orch-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Producer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-producer
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-producer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-producer
+    spec:
+      containers:
+        - name: producer
+          image: ztp-onu-producer:1.0
+          imagePullPolicy: Never
+      restartPolicy: Always
+
+# Componente: Broker Queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-broker-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-broker-queue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-broker-queue
+    spec:
+      containers:
+        - name: broker-queue
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broker-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-broker-queue
+  ports:
+    - name: broker-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Broker
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-broker
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-broker
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-broker
+    spec:
+      containers:
+        - name: broker
+          image: ztp-onu-broker:1.0
+          imagePullPolicy: Never
+      restartPolicy: Always
+
+# Componente: Worker 0 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker0-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker0-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker0-bundle
+    spec:
+      containers:
+        - name: worker0
+          image: ztp-onu-worker:1.0
+          args: ["0"]
+          imagePullPolicy: Never
+        - name: worker-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue0
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker0-bundle
+  ports:
+    - name: wk0-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 1 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker1-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker1-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker1-bundle
+    spec:
+      containers:
+        - name: worker1
+          image: ztp-onu-worker:1.0
+          args: ["1"]
+          imagePullPolicy: Never
+        - name: worker-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue1
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker1-bundle
+  ports:
+    - name: wk1-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 2 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker2-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker2-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker2-bundle
+    spec:
+      containers:
+        - name: worker2
+          image: ztp-onu-worker:1.0
+          args: ["2"]
+          imagePullPolicy: Never
+        - name: worker-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue2
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker2-bundle
+  ports:
+    - name: wk2-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 0 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt0-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt0-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt0-bundle
+    spec:
+      containers:
+        - name: olt0
+          image: ztp-onu-olt:1.0
+          args: ["0"]
+          imagePullPolicy: Never
+        - name: olt-queue0
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt0-queue-port
+            - containerPort: 15672
+              name: olt0-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue0
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt0-bundle
+  ports:
+    - name: olt0-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 1 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt1-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt1-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt1-bundle
+    spec:
+      containers:
+        - name: olt1
+          image: ztp-onu-olt:1.0
+          args: ["1"]
+          imagePullPolicy: Never
+        - name: olt-queue1
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt1-queue-port
+            - containerPort: 15672
+              name: olt1-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue1
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt1-bundle
+  ports:
+    - name: olt1-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 2 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt2-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt2-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt2-bundle
+    spec:
+      containers:
+        - name: olt2
+          image: ztp-onu-olt:1.0
+          args: ["2"]
+          imagePullPolicy: Never
+        - name: olt-queue2
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt2-queue-port
+            - containerPort: 15672
+              name: olt2-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue2
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt2-bundle
+  ports:
+    - name: olt2-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Redis database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-redis-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-redis-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-redis-database
+    spec:
+      containers:
+        - name: redis-db
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+              name: redis-db-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-redis-database
+  ports:
+    - name: redis-db-port
+      port: 6379
+      targetPort: 6379
+
+# Componente: Redis results database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-results-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-results-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-results-database
+    spec:
+      containers:
+        - name: results
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+              name: results-db-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: results-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-results-database
+  ports:
+    - name: results-db-port
+      port: 6379
+      targetPort: 6379
+
+# Componente: Run results relational database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-results-relational-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-results-relational-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-results-relational-database
+    spec:
+      containers:
+        - name: run-results-db
+          image: ztp-onu-run_results_database:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5432
+              name: results-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: results-rel-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-results-database
+  ports:
+    - name: results-db-port
+      port: 5432
+      targetPort: 5432

@@ -1,0 +1,93 @@
+version: "3"
+
+services:
+  producer_orchestration_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: orch-queue
+    ports:
+      - "5679:5672"
+      - "15679:15672"
+    networks:
+      - private_network
+  broker_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: broker-queue
+    hostname: broker-queue
+    ports:
+      - "5675:5672"
+      - "15675:15672"
+    networks:
+      - private_network
+  worker0_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: worker-queue0
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - private_network
+  worker1_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: worker-queue1
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    networks:
+      - private_network
+  worker2_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: worker-queue2
+    ports:
+      - "5674:5672"
+      - "15674:15672"
+    networks:
+      - private_network
+  olt0_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue0
+    ports:
+      - "5676:5672"
+      - "15676:15672"
+    networks:
+      - private_network
+  olt1_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue1
+    ports:
+      - "5677:5672"
+      - "15677:15672"
+    networks:
+      - private_network
+  olt2_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue2
+    ports:
+      - "5678:5672"
+      - "15678:15672"
+    networks:
+      - private_network
+  redis_database:
+    image: redis:latest
+    container_name: redis-db
+    ports:
+      - "6379:6379"
+    networks:
+      - private_network
+  results_database:
+    image: redis:latest
+    container_name: results
+    ports:
+      - "6380:6379"
+    networks:
+      - private_network
+  run_results_database:
+    build:
+      context: ./run_results_database/
+    container_name: run-results-db
+    ports:
+      - "5432:5432"
+    networks:
+      - private_network
+networks:
+  private_network:
+    driver: bridge

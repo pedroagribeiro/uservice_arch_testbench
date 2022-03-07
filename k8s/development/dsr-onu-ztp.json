@@ -1,0 +1,10 @@
+{
+  "apiVersion": "v1",
+  "kind": "Namespace",
+  "metadata": {
+    "name": "dsr-onu-ztp",
+    "labels": {
+      "name": "dsr-onu-ztp"
+    }
+  }
+}
