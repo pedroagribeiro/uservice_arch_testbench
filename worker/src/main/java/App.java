@@ -104,7 +104,7 @@ public class App {
             this.broker_queue_port = 5672;
             this.redis_database_host = "redis-db";
             this.redis_database_port = 6379;
-            this.redis_results_database_host = "results";
+            this.redis_results_database_host = "results-db";
             this.redis_results_database_port = 6379;
         } else {
             this.worker_queue_host = "localhost";

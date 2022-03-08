@@ -92,7 +92,7 @@ public class App {
             this.queue_port = 5672;
             this.producer_orchestration_queue_host = "orch-queue";
             this.producer_orchestration_queue_port = 5672;
-            this.results_database_host = "results";
+            this.results_database_host = "results-db";
             this.results_database_port = 6379;
             this.redis_database_host = "redis-db";
             this.redis_database_port = 6379;
