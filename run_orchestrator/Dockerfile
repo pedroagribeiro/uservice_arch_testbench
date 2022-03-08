@@ -14,6 +14,7 @@ RUN pip3 install pika
 RUN pip3 install psycopg2
 RUN pip3 install sqlalchemy
 RUN pip3 install argparse
+RUN pip3 install flasgger
 
 # Create folder for the project
 RUN mkdir /app

@@ -6,6 +6,7 @@ from sqlalchemy import text
 import argparse
 import time
 import logging
+from flasgger import Swagger
 
 OrchestrationSchema = Schema.from_dict(
     {
@@ -30,6 +31,9 @@ def create_app_and_queue_connection(containerized_environment):
         static_url_path="",
         static_folder="/static"
     )
+    app.config['SWAGGER'] = {
+        'title': 'Orchestrator API Documentation'
+    }
     app.config["CACHE_TYPE"] = "null"
     orchestration_queue_host = "orch-queue" if (containerized_environment == True) else "localhost" 
     orchestration_queue_port = 5672 if (containerized_environment == True) else 5679
@@ -49,18 +53,51 @@ def create_app_and_queue_connection(containerized_environment):
             break
     engine = db.create_engine("postgresql://postgres:postgres@" + run_results_relational_db_host + ":" + str(run_results_relational_db_port) + "/results")
     logging.info("all connections are completed")
-    return app, channel, engine
+    swagger = Swagger(app)
+    return app, swagger, channel, engine
 
 run_identifier = 0
 containerized_environment = define_environment()
-app, channel, engine = create_app_and_queue_connection(containerized_environment)
+app, swagger, channel, engine = create_app_and_queue_connection(containerized_environment)
 
 @app.route('/ping', methods = ['GET'])
 def ping():
+    """Serve para perceber se o serviço está a correr e disponível.
+    ---
+    responses:
+        200:
+            description: O serviço está a correr.
+    """
     return make_response("I'm alive!", 200)
 
 @app.route("/orchestration", methods = ['POST'])
 def new_orchestration():
+    """Serve para introduzir no ambiente uma nova ordem de simulação.
+    ---
+    parameters:
+        - in: body
+          name: orchestration
+          description: Contém a informação necessária para uma nova simulação.
+          schema:
+            $ref: '#/definitions/Orchestration'
+    definitions:
+        Orchestration:
+            type: object
+            properties:
+                olts:
+                    type: number
+                messages:
+                    type: number
+                workers:
+                    type: number
+                algorithm:
+                    type: number
+    responses:
+        200:
+            description: A nova ordem de simulação foi incorporada no sistema com sucesso.
+        400:
+            description: O objeto da ordem de simulação não tinha o formato esperado. 
+    """
     global run_identifier
     data = request.get_json()
     try:
@@ -74,12 +111,32 @@ def new_orchestration():
 
 @app.route("/results", methods = ['GET'])
 def get_run_results():
+    """Serve para obter o resultado de todas as simulações realizadas.
+    ---
+    responses:
+        200:
+            description: Os resultados foram obtidos com sucesso.
+    """
     results = engine.execute(text("select * from results"))
     rows = [dict(row) for row in results.fetchall()]
     return make_response(str(rows), 200)
 
 @app.route("/results/<int:run_id>", methods = ['GET'])
 def get_run_result(run_id):
+    """
+    Permite obter o resultado de uma simulação da qual se tem o identificador.
+    ---
+    parameters:
+        - name: run_id
+          in: path
+          type: number
+          required: true
+    responses:
+        200:
+            description: O resultado da simulação com o identificador fornecido foi encontrado.
+        400:
+            description: O identificador não foi fornecido ou não corresponde a uma simulação que foi iniciada.
+    """
     results = engine.execute(text("select * from results where run = " + str(run_id)))
     rows = [dict(row) for row in results.fetchall()]
     result = rows[0]
