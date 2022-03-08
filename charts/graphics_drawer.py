@@ -173,32 +173,32 @@ def timedout_percentage_chart_random_7():
 
 # Seed 3: 34
 
-number_of_requests_random_34 = [50, 100, 500, 1000]
+number_of_requests_random_34 = [50, 100, 500, 1000, 2000]
 
-avg_time_total_algorithm_1_random_34 = [14595.0, 58628.0, 249483.0, 452312.0]
-avg_time_total_algorithm_2_random_34 = [16367.0, 68849.0, 214793.0, 452081.0]
-avg_time_total_algorithm_3_random_34 = [17349.0, 72169.0, 246215.0, 521745.0]
-avg_time_total_algorithm_4_random_34 = [22635.0, 71911.0, 258507.0, 470040.0]
+avg_time_total_algorithm_1_random_34 = [14595.0, 58628.0, 249483.0, 452312.0, 952082.0]
+avg_time_total_algorithm_2_random_34 = [16367.0, 68849.0, 214793.0, 452081.0, 986418.0]
+avg_time_total_algorithm_3_random_34 = [17349.0, 72169.0, 246215.0, 521745.0, 1020718.0]
+avg_time_total_algorithm_4_random_34 = [22635.0, 71911.0, 258507.0, 470040.0, 970580.0]
 
-avg_time_broker_queue_algorithm_1_random_34 = [5.0, 5.0, 5.0, 5.0]
-avg_time_broker_queue_algorithm_2_random_34 = [7.0, 6.0, 5.0, 5.0]
-avg_time_broker_queue_algorithm_3_random_34 = [12561.0, 65679.0, 240209.0, 515180.0]
-avg_time_broker_queue_algorithm_4_random_34 = [17503.0, 65537.0, 252059.0, 463131.0]
+avg_time_broker_queue_algorithm_1_random_34 = [5.0, 5.0, 5.0, 5.0, 4.0]
+avg_time_broker_queue_algorithm_2_random_34 = [7.0, 6.0, 5.0, 5.0, 4.0]
+avg_time_broker_queue_algorithm_3_random_34 = [12561.0, 65679.0, 240209.0, 515180.0, 1014531.0]
+avg_time_broker_queue_algorithm_4_random_34 = [17503.0, 65537.0, 252059.0, 463131.0, 963344.0]
 
-avg_time_worker_queue_algorithm_1_random_34 = [11257.0, 51868.0, 242520.0, 445536.0]
-avg_time_worker_queue_algorithm_2_random_34 = [11919.0, 61709.0, 208655.0, 445368.0]
-avg_time_worker_queue_algorithm_3_random_34 = [0.0, 0.0, 0.0, 0.0]
-avg_time_worker_queue_algorithm_4_random_34 = [0.0, 0.0, 0.0, 0.0]
+avg_time_worker_queue_algorithm_1_random_34 = [11257.0, 51868.0, 242520.0, 445536.0, 945258.0]
+avg_time_worker_queue_algorithm_2_random_34 = [11919.0, 61709.0, 208655.0, 445368.0, 979313.0]
+avg_time_worker_queue_algorithm_3_random_34 = [0.0, 0.0, 0.0, 0.0, 0.0]
+avg_time_worker_queue_algorithm_4_random_34 = [0.0, 0.0, 0.0, 0.0, 0.0]
 
-avg_time_olt_queue_algorithm_1_random_34 = [274.0, 3475.0, 3543.0, 3275.0]
-avg_time_olt_queue_algorithm_2_random_34 = [1387.0, 3861.0, 2724.0, 3216.0]
-avg_time_olt_queue_algorithm_3_random_34 = [144.0, 828.0, 325.0, 480.0]
-avg_time_olt_queue_algorithm_4_random_34 = [4.0, 673.0, 702.0, 3421.0]
+avg_time_olt_queue_algorithm_1_random_34 = [274.0, 3475.0, 3543.0, 3275.0, 3333.0]
+avg_time_olt_queue_algorithm_2_random_34 = [1387.0, 3861.0, 2724.0, 3216.0, 3618.0]
+avg_time_olt_queue_algorithm_3_random_34 = [144.0, 828.0, 325.0, 480.0, 415.0]
+avg_time_olt_queue_algorithm_4_random_34 = [4.0, 673.0, 702.0, 3421.0, 3760.0]
 
-timedout_percentage_algorithm_1_random_34 = [0.02, 0.1, 0.1, 0.083]
-timedout_percentage_algorithm_2_random_34 = [0.04, 0.09, 0.072, 0.08]
-timedout_percentage_algorithm_3_random_34 = [0.02, 0.03, 0.01, 0.019]
-timedout_percentage_algorithm_4_random_34 = [0.02, 0.03, 0.02, 0.081]
+timedout_percentage_algorithm_1_random_34 = [0.02, 0.1, 0.1, 0.083, 0.0835]
+timedout_percentage_algorithm_2_random_34 = [0.04, 0.09, 0.072, 0.08, 0.0875]
+timedout_percentage_algorithm_3_random_34 = [0.02, 0.03, 0.01, 0.019, 0.014]
+timedout_percentage_algorithm_4_random_34 = [0.02, 0.03, 0.02, 0.081, 0.0915]
 
 def average_time_total_chart_random_34():
     plt.plot(number_of_requests_random_34, avg_time_total_algorithm_1_random_34, label = "Algoritmo 1")
