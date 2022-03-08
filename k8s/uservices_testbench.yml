@@ -411,7 +411,7 @@ spec:
       containers:
         - name: olt2
           image: 10.112.106.236:32500/ztp-onu-olt:1.0
-          args: ["0"]
+          args: ["2"]
           imagePullPolicy: Always
         - name: olt-queue2
           image: rabbitmq:3.9.13-management
