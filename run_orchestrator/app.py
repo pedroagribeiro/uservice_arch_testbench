@@ -113,9 +113,39 @@ def new_orchestration():
 def get_run_results():
     """Serve para obter o resultado de todas as simulações realizadas.
     ---
+    definitions:
+        RunResult:
+            type: object
+            properties:
+                run:
+                    type: number
+                algorithm:
+                    type: number
+                avg_time_total:
+                    type: number
+                avg_time_broker_queue:
+                    type: number
+                avg_time_worker_queue:
+                    type: number
+                avg_time_olt_queue:
+                    type: number
+                olts:
+                    type: number
+                workers:
+                    type: number
+                requests:
+                    type: number
+                timedout:
+                    type: number
+                status:
+                    type: string
     responses:
         200:
             description: Os resultados foram obtidos com sucesso.
+            schema:
+                type: array
+                items: 
+                    $ref: '#/definitions/RunResult'
     """
     results = engine.execute(text("select * from results"))
     rows = [dict(row) for row in results.fetchall()]
@@ -126,6 +156,32 @@ def get_run_result(run_id):
     """
     Permite obter o resultado de uma simulação da qual se tem o identificador.
     ---
+    definitions:
+        RunResult:
+            type: object
+            properties:
+                run:
+                    type: number
+                algorithm:
+                    type: number
+                avg_time_total:
+                    type: number
+                avg_time_broker_queue:
+                    type: number
+                avg_time_worker_queue:
+                    type: number
+                avg_time_olt_queue:
+                    type: number
+                olts:
+                    type: number
+                workers:
+                    type: number
+                requests:
+                    type: number
+                timedout:
+                    type: number
+                status:
+                    type: string
     parameters:
         - name: run_id
           in: path
@@ -134,6 +190,8 @@ def get_run_result(run_id):
     responses:
         200:
             description: O resultado da simulação com o identificador fornecido foi encontrado.
+            schema:
+                $ref: '#/definitions/RunResult'
         400:
             description: O identificador não foi fornecido ou não corresponde a uma simulação que foi iniciada.
     """

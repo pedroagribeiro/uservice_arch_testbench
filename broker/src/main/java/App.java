@@ -34,6 +34,7 @@ public class App {
     @Parameter(names = { "-containerized" }, description = "Indicates wether the setup is containerized or not")
     private static boolean containerized;
 
+    // This should be set to how many worker containers there are in the deployment
     private static final int WORKER_CONTAINERS = 3;
 
     private static int current_logic = 1;

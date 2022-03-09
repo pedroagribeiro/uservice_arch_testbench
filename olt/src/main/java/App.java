@@ -24,6 +24,7 @@ public class App {
     @Parameter(names = { "-containerized" }, description = "Describes if the running environment is fully containerized")
     private static boolean containerized;
 
+    // This should be set to how many worker containers there are in the deployment
     private static final int WORKER_CONTAINERS = 3;
 
     private String olt_queue_host;
