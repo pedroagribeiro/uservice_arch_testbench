@@ -20,7 +20,7 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-run_orchestrator:1.0
           imagePullPolicy: Always
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
               name: http-req-port
       restartPolicy: Always
 
@@ -235,7 +235,7 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-worker:1.0
           args: ["1"]
           imagePullPolicy: Always
-        - name: worker-queue0
+        - name: worker-queue1
           image: rabbitmq:3.9.13-management
           ports:
             - containerPort: 5672
@@ -279,7 +279,7 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-worker:1.0
           args: ["2"]
           imagePullPolicy: Always
-        - name: worker-queue0
+        - name: worker-queue2
           image: rabbitmq:3.9.13-management
           ports:
             - containerPort: 5672
@@ -298,6 +298,94 @@ spec:
     app: uservices-arch-testbench-worker2-bundle
   ports:
     - name: wk2-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 3 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker3-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker3-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker3-bundle
+    spec:
+      containers:
+        - name: worker3
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["3"]
+          imagePullPolicy: Always
+        - name: worker-queue3
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue3
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker3-bundle
+  ports:
+    - name: wk3-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 4 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker4-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker4-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker4-bundle
+    spec:
+      containers:
+        - name: worker4
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["4"]
+          imagePullPolicy: Always
+        - name: worker-queue4
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue4
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker4-bundle
+  ports:
+    - name: wk4-queue-port
       port: 5672
       targetPort: 5672
 
@@ -433,6 +521,321 @@ spec:
     app: uservices-arch-testbench-olt2-bundle
   ports:
     - name: olt2-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 3 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt3-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt3-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt3-bundle
+    spec:
+      containers:
+        - name: olt3
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["3"]
+          imagePullPolicy: Always
+        - name: olt-queue2
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt3-queue-port
+            - containerPort: 15672
+              name: olt3-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue3
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt3-bundle
+  ports:
+    - name: olt3-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 4 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt4-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt4-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt4-bundle
+    spec:
+      containers:
+        - name: olt4
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["4"]
+          imagePullPolicy: Always
+        - name: olt-queue4
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt4-queue-port
+            - containerPort: 15672
+              name: olt4-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue4
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt4-bundle
+  ports:
+    - name: olt4-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 5 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt5-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt5-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt5-bundle
+    spec:
+      containers:
+        - name: olt5
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["5"]
+          imagePullPolicy: Always
+        - name: olt-queue5
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt5-queue-port
+            - containerPort: 15672
+              name: olt5-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue5
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt5-bundle
+  ports:
+    - name: olt5-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 6 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt6-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt6-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt6-bundle
+    spec:
+      containers:
+        - name: olt6
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["6"]
+          imagePullPolicy: Always
+        - name: olt-queue6
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt6-queue-port
+            - containerPort: 15672
+              name: olt6-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue6
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt6-bundle
+  ports:
+    - name: olt6-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 7 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt7-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt7-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt7-bundle
+    spec:
+      containers:
+        - name: olt7
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["7"]
+          imagePullPolicy: Always
+        - name: olt-queue7
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt7-queue-port
+            - containerPort: 15672
+              name: olt7-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue7
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt7-bundle
+  ports:
+    - name: olt7-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 8 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt8-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt8-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt8-bundle
+    spec:
+      containers:
+        - name: olt8
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["8"]
+          imagePullPolicy: Always
+        - name: olt-queue8
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt8-queue-port
+            - containerPort: 15672
+              name: olt8-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue8
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt8-bundle
+  ports:
+    - name: olt8-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: OLT 9 bundle: olt + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-olt9-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-olt9-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-olt9-bundle
+    spec:
+      containers:
+        - name: olt9
+          image: 10.112.106.236:32500/ztp-onu-olt:1.0
+          args: ["9"]
+          imagePullPolicy: Always
+        - name: olt-queue9
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: olt9-queue-port
+            - containerPort: 15672
+              name: olt9-queue-mngt
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: olt-queue9
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-olt9-bundle
+  ports:
+    - name: olt9-queue-port
       port: 5672
       targetPort: 5672
 

@@ -33,7 +33,7 @@ public class App {
     private static boolean containerized;
 
     // This should be set to how many OLT containers there are in the deployment
-    private static final int OLT_CONTAINERS = 3;
+    private static final int OLT_CONTAINERS = 10;
 
     private String worker_queue_host;
     private int worker_queue_port;
@@ -331,6 +331,7 @@ public class App {
             establish_olts_queues_channels(orchestration.get_olts());
             setup_message_consumption();
             start_olts_responses_consuming_logic();
+            log.info("Connected to " + this.current_olts_request_channels.size() + " OLT's");
             log.info("SUCCESS: The changes imposed by the orchestration request are now in effect"); 
         };
         try {

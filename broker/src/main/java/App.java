@@ -35,7 +35,7 @@ public class App {
     private static boolean containerized;
 
     // This should be set to how many worker containers there are in the deployment
-    private static final int WORKER_CONTAINERS = 3;
+    private static final int WORKER_CONTAINERS = 5;
 
     private static int current_logic = 1;
 
@@ -96,6 +96,7 @@ public class App {
             establish_broker_queue_channels();
             setup_broker_queue_message_consumption();
         }
+        log.info("Current connected to " + this.workers_queues_message_channels.size() + " workers");
         forward_orchestration_to_workers(orchestration);
         log.info("STATUS: The orchestration changes have been applied - Running algorithm " + App.current_logic);
     };
@@ -302,8 +303,8 @@ public class App {
         byte[] diggested_message = this.digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
         // int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
         int worker_to_forward = (int) new BigInteger(diggested_message).longValue();
-        if(worker_to_forward < 0 || worker_to_forward > 2) {
-            worker_to_forward = new Random().nextInt(3);
+        if(worker_to_forward < 0 || worker_to_forward > this.workers_queues_message_channels.size() - 1) {
+            worker_to_forward = new Random().nextInt(this.workers_queues_message_channels.size());
         }
         m.set_enqueued_at_worker(new Date().getTime());
         try {
