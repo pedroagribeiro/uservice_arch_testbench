@@ -389,6 +389,226 @@ spec:
       port: 5672
       targetPort: 5672
 
+# Componente: Worker 5 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker5-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker5-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker5-bundle
+    spec:
+      containers:
+        - name: worker5
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["5"]
+          imagePullPolicy: Always
+        - name: worker-queue5
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue5
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker5-bundle
+  ports:
+    - name: wk4-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 6 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker6-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker6-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker6-bundle
+    spec:
+      containers:
+        - name: worker6
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["6"]
+          imagePullPolicy: Always
+        - name: worker-queue6
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue6
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker6-bundle
+  ports:
+    - name: wk6-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 7 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker7-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker7-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker7-bundle
+    spec:
+      containers:
+        - name: worker7
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["7"]
+          imagePullPolicy: Always
+        - name: worker-queue7
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue7
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker7-bundle
+  ports:
+    - name: wk7-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 8 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker8-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker8-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker8-bundle
+    spec:
+      containers:
+        - name: worker8
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["8"]
+          imagePullPolicy: Always
+        - name: worker-queue8
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue8
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker8-bundle
+  ports:
+    - name: wk8-queue-port
+      port: 5672
+      targetPort: 5672
+
+# Componente: Worker 9 bundle: worker + queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-test-worker9-bundle
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-worker9-bundle
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-worker9-bundle
+    spec:
+      containers:
+        - name: worker9
+          image: 10.112.106.236:32500/ztp-onu-worker:1.0
+          args: ["9"]
+          imagePullPolicy: Always
+        - name: worker-queue9
+          image: rabbitmq:3.9.13-management
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mngt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-queue9
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-worker9-bundle
+  ports:
+    - name: wk9-queue-port
+      port: 5672
+      targetPort: 5672
+
 # Componente: OLT 0 bundle: olt + queue
 ---
 apiVersion: apps/v1

@@ -35,7 +35,7 @@ public class App {
     private static boolean containerized;
 
     // This should be set to how many worker containers there are in the deployment
-    private static final int WORKER_CONTAINERS = 5;
+    private static final int WORKER_CONTAINERS = 10;
 
     private static int current_logic = 1;
 
