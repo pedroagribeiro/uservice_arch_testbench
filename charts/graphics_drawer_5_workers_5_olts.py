@@ -40,7 +40,7 @@ def average_time_total_chart_random_42():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam no sistema (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_42/average_time_total_chart.png")
+    plt.savefig("output/random_seed_42/5_workers_5_olts/average_time_total_chart.png")
     plt.close()
 
 def average_time_broker_queue_chart_random_42():
@@ -51,7 +51,7 @@ def average_time_broker_queue_chart_random_42():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue do broker (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_42/average_time_broker_queue_chart.png")
+    plt.savefig("output/random_seed_42/5_workers_5_olts/average_time_broker_queue_chart.png")
     plt.close()
 
 def average_time_worker_queue_chart_random_42():
@@ -62,7 +62,7 @@ def average_time_worker_queue_chart_random_42():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue do worker (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_42/average_time_worker_queue_chart.png")
+    plt.savefig("output/random_seed_42/5_workers_5_olts/average_time_worker_queue_chart.png")
     plt.close()
 
 def average_time_olt_queue_chart_random_42():
@@ -73,7 +73,7 @@ def average_time_olt_queue_chart_random_42():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue da OLT (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_42/average_time_olt_queue_chart.png")
+    plt.savefig("output/random_seed_42/5_workers_5_olts/average_time_olt_queue_chart.png")
     plt.close()
 
 def timedout_percentage_chart_random_42():
@@ -84,7 +84,7 @@ def timedout_percentage_chart_random_42():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Percetagem de pedidos timedout")
     plt.legend()
-    plt.savefig("output/random_seed_42/timedout_percentage_chart.png")
+    plt.savefig("output/random_seed_42/5_workers_5_olts/timedout_percentage_chart.png")
     plt.close()
 
 # Seed 2: 7
@@ -124,7 +124,7 @@ def average_time_total_chart_random_7():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam no sistema (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_7/average_time_total_chart.png")
+    plt.savefig("output/random_seed_7/5_workers_5_olts/average_time_total_chart.png")
     plt.close()
 
 def average_time_broker_queue_chart_random_7():
@@ -135,7 +135,7 @@ def average_time_broker_queue_chart_random_7():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue do broker (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_7/average_time_broker_queue_chart.png")
+    plt.savefig("output/random_seed_7/5_workers_5_olts/average_time_broker_queue_chart.png")
     plt.close()
 
 def average_time_worker_queue_chart_random_7():
@@ -146,7 +146,7 @@ def average_time_worker_queue_chart_random_7():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue do worker (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_7/average_time_worker_queue_chart.png")
+    plt.savefig("output/random_seed_7/5_workers_5_olts/average_time_worker_queue_chart.png")
     plt.close()
 
 def average_time_olt_queue_chart_random_7():
@@ -157,7 +157,7 @@ def average_time_olt_queue_chart_random_7():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue da OLT (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_7/average_time_olt_queue_chart.png")
+    plt.savefig("output/random_seed_7/5_workers_5_olts/average_time_olt_queue_chart.png")
     plt.close()
 
 def timedout_percentage_chart_random_7():
@@ -168,37 +168,37 @@ def timedout_percentage_chart_random_7():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Percetagem de pedidos timedout")
     plt.legend()
-    plt.savefig("output/random_seed_7/timedout_percentage_chart.png")
+    plt.savefig("output/random_seed_7/5_workers_5_olts/timedout_percentage_chart.png")
     plt.close()
 
 # Seed 3: 34
 
 number_of_requests_random_34 = [50, 100, 500, 1000, 2000]
 
-avg_time_total_algorithm_1_random_34 = [14595.0, 58628.0, 249483.0, 452312.0, 952082.0]
-avg_time_total_algorithm_2_random_34 = [16367.0, 68849.0, 214793.0, 452081.0, 986418.0]
-avg_time_total_algorithm_3_random_34 = [17349.0, 72169.0, 246215.0, 521745.0, 1020718.0]
-avg_time_total_algorithm_4_random_34 = [22635.0, 71911.0, 258507.0, 470040.0, 970580.0]
+avg_time_total_algorithm_1_random_34 = [8943.0, 19331.0, 64374.0, 127285.0, 266661.0]
+avg_time_total_algorithm_2_random_34 = [9599.0, 29328.0, 96757.0, 148901.0, 295588.0]
+avg_time_total_algorithm_3_random_34 = [10156.0, 28603.0, 84829.0, 150557.0, 274801.0]
+avg_time_total_algorithm_4_random_34 = [7804.0, 28768.0, 64262.0, 141516.0, 270607.0]
 
-avg_time_broker_queue_algorithm_1_random_34 = [5.0, 5.0, 5.0, 5.0, 4.0]
-avg_time_broker_queue_algorithm_2_random_34 = [7.0, 6.0, 5.0, 5.0, 4.0]
-avg_time_broker_queue_algorithm_3_random_34 = [12561.0, 65679.0, 240209.0, 515180.0, 1014531.0]
-avg_time_broker_queue_algorithm_4_random_34 = [17503.0, 65537.0, 252059.0, 463131.0, 963344.0]
+avg_time_broker_queue_algorithm_1_random_34 = [3.0, 1.0, 1.0, 1.0, 1.0]
+avg_time_broker_queue_algorithm_2_random_34 = [2.0, 2.0, 1.0, 1.0, 1.0]
+avg_time_broker_queue_algorithm_3_random_34 = [5349.0, 19629.0, 76947.0, 142932.0, 267111.0]
+avg_time_broker_queue_algorithm_4_random_34 = [3727.0, 18992.0, 57608.0, 134074.0, 263131.0]
 
-avg_time_worker_queue_algorithm_1_random_34 = [11257.0, 51868.0, 242520.0, 445536.0, 945258.0]
-avg_time_worker_queue_algorithm_2_random_34 = [11919.0, 61709.0, 208655.0, 445368.0, 979313.0]
+avg_time_worker_queue_algorithm_1_random_34 = [5123.0, 15625.0, 57482.0, 120167.0, 259901.0]
+avg_time_worker_queue_algorithm_2_random_34 = [5616.0, 19792.0, 88995.0, 141596.0, 287837.0]
 avg_time_worker_queue_algorithm_3_random_34 = [0.0, 0.0, 0.0, 0.0, 0.0]
 avg_time_worker_queue_algorithm_4_random_34 = [0.0, 0.0, 0.0, 0.0, 0.0]
 
-avg_time_olt_queue_algorithm_1_random_34 = [274.0, 3475.0, 3543.0, 3275.0, 3333.0]
-avg_time_olt_queue_algorithm_2_random_34 = [1387.0, 3861.0, 2724.0, 3216.0, 3618.0]
-avg_time_olt_queue_algorithm_3_random_34 = [144.0, 828.0, 325.0, 480.0, 415.0]
-avg_time_olt_queue_algorithm_4_random_34 = [4.0, 673.0, 702.0, 3421.0, 3760.0]
+avg_time_olt_queue_algorithm_1_random_34 = [764.0, 438.0, 3491.0, 3635.0, 3286.0]
+avg_time_olt_queue_algorithm_2_random_34 = [934.0, 6268.0, 4361.0, 3823.0, 4278.0]
+avg_time_olt_queue_algorithm_3_random_34 = [2.0, 5709.0, 4484.0, 4145.0, 4219.0]
+avg_time_olt_queue_algorithm_4_random_34 = [1032.0, 6511.0, 3255.0, 3961.0, 4004.0]
 
-timedout_percentage_algorithm_1_random_34 = [0.02, 0.1, 0.1, 0.083, 0.0835]
-timedout_percentage_algorithm_2_random_34 = [0.04, 0.09, 0.072, 0.08, 0.0875]
-timedout_percentage_algorithm_3_random_34 = [0.02, 0.03, 0.01, 0.019, 0.014]
-timedout_percentage_algorithm_4_random_34 = [0.02, 0.03, 0.02, 0.081, 0.0915]
+timedout_percentage_algorithm_1_random_34 = [0.04, 0.03, 0.098, 0.097, 0.085]
+timedout_percentage_algorithm_2_random_34 = [0.02, 0.14, 0.102, 0.109, 0.108]
+timedout_percentage_algorithm_3_random_34 = [0.00, 0.14, 0.12, 0.116, 0.1]
+timedout_percentage_algorithm_4_random_34 = [0.02, 0.14, 0.08, 0.092, 0.105]
 
 def average_time_total_chart_random_34():
     plt.plot(number_of_requests_random_34, avg_time_total_algorithm_1_random_34, label = "Algoritmo 1")
@@ -208,7 +208,7 @@ def average_time_total_chart_random_34():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam no sistema (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_34/average_time_total_chart.png")
+    plt.savefig("output/random_seed_34/5_workers_5_olts/average_time_total_chart.png")
     plt.close()
 
 def average_time_broker_queue_chart_random_34():
@@ -219,7 +219,7 @@ def average_time_broker_queue_chart_random_34():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue do broker (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_34/average_time_broker_queue_chart.png")
+    plt.savefig("output/random_seed_34/5_workers_5_olts/average_time_broker_queue_chart.png")
     plt.close()
 
 def average_time_worker_queue_chart_random_34():
@@ -230,7 +230,7 @@ def average_time_worker_queue_chart_random_34():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue do worker (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_34/average_time_worker_queue_chart.png")
+    plt.savefig("output/random_seed_34/5_workers_5_olts/average_time_worker_queue_chart.png")
     plt.close()
 
 def average_time_olt_queue_chart_random_34():
@@ -241,7 +241,7 @@ def average_time_olt_queue_chart_random_34():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Tempo total que os pedidos passam na queue da OLT (em ms)")
     plt.legend()
-    plt.savefig("output/random_seed_34/average_time_olt_queue_chart.png")
+    plt.savefig("output/random_seed_34/5_workers_5_olts/average_time_olt_queue_chart.png")
     plt.close()
 
 def timedout_percentage_chart_random_34():
@@ -252,7 +252,7 @@ def timedout_percentage_chart_random_34():
     plt.xlabel("Número de pedidos")
     plt.ylabel("Percetagem de pedidos timedout")
     plt.legend()
-    plt.savefig("output/random_seed_34/timedout_percentage_chart.png")
+    plt.savefig("output/random_seed_34/5_workers_5_olts/timedout_percentage_chart.png")
     plt.close()
 
 
@@ -260,17 +260,17 @@ def timedout_percentage_chart_random_34():
 
 if __name__ == "__main__":
     # Seed 1: 42
-    average_time_total_chart_random_42()
-    average_time_broker_queue_chart_random_42()
-    average_time_worker_queue_chart_random_42()
-    average_time_olt_queue_chart_random_42()
-    timedout_percentage_chart_random_42()
+    # average_time_total_chart_random_42()
+    # average_time_broker_queue_chart_random_42()
+    # average_time_worker_queue_chart_random_42()
+    # average_time_olt_queue_chart_random_42()
+    # timedout_percentage_chart_random_42()
     # Seed 2: 7
-    average_time_total_chart_random_7()
-    average_time_broker_queue_chart_random_7()
-    average_time_worker_queue_chart_random_7()
-    average_time_olt_queue_chart_random_7()
-    timedout_percentage_chart_random_7()
+    # average_time_total_chart_random_7()
+    # average_time_broker_queue_chart_random_7()
+    # average_time_worker_queue_chart_random_7()
+    # average_time_olt_queue_chart_random_7()
+    # timedout_percentage_chart_random_7()
     # Seed 3: 34
     average_time_total_chart_random_34()
     average_time_broker_queue_chart_random_34()
