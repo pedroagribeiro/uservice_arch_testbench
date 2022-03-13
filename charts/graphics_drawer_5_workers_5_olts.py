@@ -7,30 +7,31 @@ import numpy as np
 # Seed 1: 42
 number_of_requests_random_42 = [50, 100, 500, 1000, 2000]
 
-avg_time_total_algorithm_1_random_42 = [14149.0, 65094.0, 248557.0, 499626.0, 984517.0]
-avg_time_total_algorithm_2_random_42 = [18498.0, 48789.0, 233915.0, 485337.0, 990788.0]
-avg_time_total_algorithm_3_random_42 = [14707.0, 47254.0, 497120.0, 556622.0, 1065379.0]
-avg_time_total_algorithm_4_random_42 = [14728.0, 46161.0, 236146.0, 521052.0, 1140963.0]
+avg_time_total_algorithm_1_random_42 = [3834.0, 14299.0, 55295.0, 116800.0, 300992.0]
+avg_time_total_algorithm_2_random_42 = [5644.0, 22598.0, 68332.0, 178580.0, 320601.0]
+avg_time_total_algorithm_3_random_42 = [3714.0, 13516.0, 16704.0, 33141.0, 41546.0]
+avg_time_total_algorithm_4_random_42 = [4015.0, 13027.0, 17219.0, 39115.0, 52048.0]
 
-avg_time_broker_queue_algorithm_1_random_42 = [7.0, 7.0, 5.0, 5.0, 4.0]
-avg_time_broker_queue_algorithm_2_random_42 = [7.0, 7.0, 5.0, 4.0, 4.0]
-avg_time_broker_queue_algorithm_3_random_42 = [10738.0, 41544.0, 497120.0, 550147.0, 1059004.0]
-avg_time_broker_queue_algorithm_4_random_42 = [10752.0, 40643.0, 230106.0, 513865.0, 1134370.0]
+avg_time_broker_queue_algorithm_1_random_42 = [1.0, 1.0, 1.0, 1.0, 1.0]
+avg_time_broker_queue_algorithm_2_random_42 = [2.0, 1.0, 1.0, 1.0, 1.0]
+avg_time_broker_queue_algorithm_3_random_42 = [28.0, 4915.0, 6498.0, 19137.0, 27447.0]
+avg_time_broker_queue_algorithm_4_random_42 = [231.0, 4870.0, 6526.0, 25587.0, 37598.0]
 
-avg_time_worker_queue_algorithm_1_random_42 = [10452.0, 57635.0, 240176.0, 492509.0, 977886.0]
-avg_time_worker_queue_algorithm_2_random_42 = [14366.0, 42590.0, 227496.0, 478119.0, 983877.0]
+avg_time_worker_queue_algorithm_1_random_42 = [1104.0, 10111.0, 49507.0, 110369.0, 293323.0]
+avg_time_worker_queue_algorithm_2_random_42 = [2293.0, 16428.0, 60987.0, 170120.0, 312967.0]
 avg_time_worker_queue_algorithm_3_random_42 = [0.0, 0.0, 0.0, 0.0, 0.0]
 avg_time_worker_queue_algorithm_4_random_42 = [0.0, 0.0, 0.0, 0.0, 0.0]
 
-avg_time_olt_queue_algorithm_1_random_42 = [1027.0, 3639.0, 3778.0, 3652.0, 3125.0]
-avg_time_olt_queue_algorithm_2_random_42 = [1471.0, 2888.0, 2814.0, 3758.0, 3411.0]
-avg_time_olt_queue_algorithm_3_random_42 = [103.0, 345.0, 400.0, 488.0, 577.0]
-avg_time_olt_queue_algorithm_4_random_42 = [4.0, 199.0, 227.0, 3738.0, 477.0]
+avg_time_olt_queue_algorithm_1_random_42 = [84.0, 771.0, 2367.0, 2985.0, 4182.0]
+avg_time_olt_queue_algorithm_2_random_42 = [703.0, 2753.0, 3926.0, 5015.0, 4147.0]
+avg_time_olt_queue_algorithm_3_random_42 = [1041.0, 5186.0, 6788.0, 10561.0, 10614.0]
+avg_time_olt_queue_algorithm_4_random_42 = [1139.0, 4743.0, 7275.0, 10125.0, 10695.0]
 
-timedout_percentage_algorithm_1_random_42 = [0.0, 0.06, 0.076, 0.095, 0.0815]
-timedout_percentage_algorithm_2_random_42 = [0.0, 0.06, 0.064, 0.093, 0.091]
-timedout_percentage_algorithm_3_random_42 = [0.0, 0.02, 0.018, 0.016, 0.0195]
-timedout_percentage_algorithm_4_random_42 = [0.0, 0.02, 0.016, 0.092, 0.019]
+timedout_percentage_algorithm_1_random_42 = [0.0, 0.03, 0.064, 0.071, 0.102]
+timedout_percentage_algorithm_2_random_42 = [0.0, 0.06, 0.086, 0.113, 0.096]
+timedout_percentage_algorithm_3_random_42 = [0.0, 0.14, 0.144, 0.229, 0.239]
+timedout_percentage_algorithm_4_random_42 = [0.0, 0.13, 0.156, 0.24, 0.232]
+
 
 def average_time_total_chart_random_42():
     plt.plot(number_of_requests_random_42, avg_time_total_algorithm_1_random_42, label = "Algoritmo 1")
@@ -260,11 +261,11 @@ def timedout_percentage_chart_random_34():
 
 if __name__ == "__main__":
     # Seed 1: 42
-    # average_time_total_chart_random_42()
-    # average_time_broker_queue_chart_random_42()
-    # average_time_worker_queue_chart_random_42()
-    # average_time_olt_queue_chart_random_42()
-    # timedout_percentage_chart_random_42()
+    average_time_total_chart_random_42()
+    average_time_broker_queue_chart_random_42()
+    average_time_worker_queue_chart_random_42()
+    average_time_olt_queue_chart_random_42()
+    timedout_percentage_chart_random_42()
     # Seed 2: 7
     # average_time_total_chart_random_7()
     # average_time_broker_queue_chart_random_7()
