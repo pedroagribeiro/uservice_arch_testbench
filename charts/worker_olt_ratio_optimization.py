@@ -34,6 +34,9 @@ def average_time_total_ratio_comparison():
     total_time_averages_array_0_5 = []
     total_time_average_array_1_0 = []
     total_time_average_array_2_0 = []
+    percentual_deviation_0_5 = 0
+    percentual_deviation_1_0 = 0
+    percentual_deviation_2_0 = 0
     for i in range(0, len(number_of_requests)):
         avg_total_time_element_0_5 = (avg_time_total_seed_42_ratio_0_5[i] + avg_time_total_seed_7_ratio_0_5[i] + avg_time_total_seed_34_ratio_0_5[i]) / 3
         avg_total_time_element_1_0 = (avg_time_total_seed_42_ratio_1_0[i] + avg_time_total_seed_7_ratio_1_0[i] + avg_time_total_seed_34_ratio_1_0[i]) / 3
@@ -41,6 +44,14 @@ def average_time_total_ratio_comparison():
         total_time_averages_array_0_5.append(avg_total_time_element_0_5)
         total_time_average_array_1_0.append(avg_total_time_element_1_0)
         total_time_average_array_2_0.append(avg_total_time_element_2_0)
+        # deviation calculus
+        min_time = min([avg_total_time_element_0_5, avg_total_time_element_1_0, avg_total_time_element_2_0])
+        deviation_0_5 = (avg_total_time_element_0_5 - min_time) / min_time
+        deviation_1_0 = (avg_total_time_element_1_0 - min_time) / min_time
+        deviation_2_0 = (avg_total_time_element_2_0 - min_time) / min_time
+        percentual_deviation_0_5 += deviation_0_5
+        percentual_deviation_1_0 += deviation_1_0
+        percentual_deviation_2_0 += deviation_2_0
     plt.plot(number_of_requests, total_time_averages_array_0_5, label = "Ratio 0.5")
     plt.plot(number_of_requests, total_time_average_array_1_0, label = "Ratio 1.0")
     plt.plot(number_of_requests, total_time_average_array_2_0, label = "Ratio 2.0")
@@ -49,11 +60,15 @@ def average_time_total_ratio_comparison():
     plt.legend()
     plt.savefig("output/ratio_comparisons/total_average_time_by_ratio.png")
     plt.close()
+    return percentual_deviation_0_5, percentual_deviation_1_0, percentual_deviation_2_0
 
 def timedout_percentage_ratio_comparison():
     timedout_percentage_averages_array_0_5 = []
     timedout_percentage_averages_array_1_0 = []
     timedout_percentage_averages_array_2_0 = []
+    percentual_deviation_0_5 = 0
+    percentual_deviation_1_0 = 0
+    percentual_deviation_2_0 = 0
     for i in range(0, len(number_of_requests)):
         avg_timedout_percentage_element_0_5 = (timedout_percentage_seed_42_ratio_0_5[i] + timedout_percentage_seed_7_ratio_0_5[i] + timedout_percentage_seed_34_ratio_0_5[i]) / 3
         avg_timedout_percentage_element_1_0 = (timedout_percentage_seed_42_ratio_1_0[i] + timedout_percentage_seed_7_ratio_1_0[i] + timedout_percentage_seed_34_ratio_1_0[i]) / 3
@@ -61,6 +76,14 @@ def timedout_percentage_ratio_comparison():
         timedout_percentage_averages_array_0_5.append(avg_timedout_percentage_element_0_5)
         timedout_percentage_averages_array_1_0.append(avg_timedout_percentage_element_1_0)
         timedout_percentage_averages_array_2_0.append(avg_timedout_percentage_element_2_0)
+        # deviation calculus
+        min_percentage = min([avg_timedout_percentage_element_0_5, avg_timedout_percentage_element_1_0, avg_timedout_percentage_element_2_0])
+        deviation_0_5 = (avg_timedout_percentage_element_0_5 - min_percentage) / min_percentage
+        deviation_1_0 = (avg_timedout_percentage_element_1_0 - min_percentage) / min_percentage
+        deviation_2_0 = (avg_timedout_percentage_element_2_0 - min_percentage) / min_percentage
+        percentual_deviation_0_5 += deviation_0_5
+        percentual_deviation_1_0 += deviation_1_0
+        percentual_deviation_2_0 += deviation_2_0
     plt.plot(number_of_requests, timedout_percentage_averages_array_0_5, label = "Ratio 0.5")
     plt.plot(number_of_requests, timedout_percentage_averages_array_1_0, label = "Ratio 1.0")
     plt.plot(number_of_requests, timedout_percentage_averages_array_2_0, label = "Ratio 2.0")
@@ -69,7 +92,20 @@ def timedout_percentage_ratio_comparison():
     plt.legend()
     plt.savefig("output/ratio_comparisons/timedout_percentage_by_ratio.png")
     plt.close()
+    return percentual_deviation_0_5, percentual_deviation_1_0, percentual_deviation_2_0
 
 if __name__ == "__main__":
-    average_time_total_ratio_comparison()
-    timedout_percentage_ratio_comparison()
+    tpd_0_5, tpd_1_0, tpd_2_0 = average_time_total_ratio_comparison()
+    toutpd_0_5, toutpd_1_0, toutpd_2_0 = timedout_percentage_ratio_comparison()
+    percentage_deviation_0_5 = tpd_0_5 + toutpd_0_5
+    percentage_deviation_1_0 = tpd_1_0 + toutpd_1_0
+    percentage_deviation_2_0 = tpd_2_0 + toutpd_2_0
+    print("Ratio 0.5 deviation from optimal is: " + str(percentage_deviation_0_5))
+    print("Ratio 1.0 deviation from optimal is: " + str(percentage_deviation_1_0))
+    print("Ratio 2.0 deviation from optimal is: " + str(percentage_deviation_2_0))
+    if(percentage_deviation_0_5 < percentage_deviation_1_0 and percentage_deviation_0_5 < percentage_deviation_2_0):
+        print("Ratio 0.5 is optimal")
+    if(percentage_deviation_1_0 < percentage_deviation_0_5 and percentage_deviation_1_0 < percentage_deviation_2_0):
+        print("Ratio 1.0 is optimal")
+    if(percentage_deviation_2_0 < percentage_deviation_0_5 and percentage_deviation_2_0 < percentage_deviation_1_0):
+        print("Ratio 2.0 is optimal")
