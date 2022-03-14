@@ -1,7 +1,4 @@
-from unicodedata import numeric
-import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 # Seed 1: 42
