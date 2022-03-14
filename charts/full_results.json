@@ -1,120 +1,122 @@
-[{'run': 27, 'algorithm': 4, 'avg_time_total': 13205.0, 'avg_time_broker_queue': 4359.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 5432.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.15, 'status': 'completed'},
-    {'run': 0, 'algorithm': 1, 'avg_time_total': 3458.0, 'avg_time_broker_queue': 3.0, 'avg_time_worker_queue': 775.0,
-    'avg_time_olt_queue': 25.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    1, 'algorithm': 2, 'avg_time_total': 5483.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 2363.0,
-    'avg_time_olt_queue': 471.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    44, 'algorithm': 1, 'avg_time_total': 11913.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 7665.0,
-    'avg_time_olt_queue': 832.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.03, 'status': 'completed'},
-    {'run': 2, 'algorithm': 3, 'avg_time_total': 3285.0, 'avg_time_broker_queue': 52.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 2.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    28, 'algorithm': 1, 'avg_time_total': 56224.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 49453.0,
-    'avg_time_olt_queue': 3352.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.084, 'status': 'completed'},
-    {'run': 3, 'algorithm': 4, 'avg_time_total': 3201.0, 'avg_time_broker_queue': 29.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 526.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    4, 'algorithm': 1, 'avg_time_total': 12320.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 8283.0,
-    'avg_time_olt_queue': 619.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.03, 'status': 'completed'},
-    {'run': 5, 'algorithm': 2, 'avg_time_total': 17305.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 12135.0,
-    'avg_time_olt_queue': 1752.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.05, 'status': 'completed'},
-    {'run': 29, 'algorithm': 2, 'avg_time_total': 76550.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 69078.0,
-    'avg_time_olt_queue': 4054.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.092, 'status': 'completed'},
-    {'run': 6, 'algorithm': 3, 'avg_time_total': 8346.0, 'avg_time_broker_queue': 1839.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 3092.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.07, 'status': 'completed'},
-    {'run': 7, 'algorithm': 4, 'avg_time_total': 8836.0, 'avg_time_broker_queue': 2059.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 3361.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.09, 'status': 'completed'},
-    {'run': 59, 'algorithm': 4, 'avg_time_total': None, 'avg_time_broker_queue': None, 'avg_time_worker_queue': None,
-    'avg_time_olt_queue': None, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': None, 'status': 'on_going'}, {'run':
-    8, 'algorithm': 1, 'avg_time_total': 20777.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 16214.0,
-    'avg_time_olt_queue': 1142.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.038, 'status': 'completed'},
-    {'run': 30, 'algorithm': 3, 'avg_time_total': 16808.0, 'avg_time_broker_queue': 6576.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 6814.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.144, 'status': 'completed'},
-    {'run': 9, 'algorithm': 2, 'avg_time_total': 26693.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 21491.0,
-    'avg_time_olt_queue': 1781.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.056, 'status': 'completed'},
-    {'run': 10, 'algorithm': 3, 'avg_time_total': 8357.0, 'avg_time_broker_queue': 2192.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 2745.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.086, 'status': 'completed'},
-    {'run': 45, 'algorithm': 2, 'avg_time_total': 14711.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 6351.0,
-    'avg_time_olt_queue': 4943.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.15, 'status': 'completed'},
-    {'run': 11, 'algorithm': 4, 'avg_time_total': 8504.0, 'avg_time_broker_queue': 2231.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 2853.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.088, 'status': 'completed'},
-    {'run': 31, 'algorithm': 4, 'avg_time_total': 17090.0, 'avg_time_broker_queue': 6518.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 7155.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.152, 'status': 'completed'},
-    {'run': 12, 'algorithm': 1, 'avg_time_total': 32930.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 27925.0,
-    'avg_time_olt_queue': 1557.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.044, 'status': 'completed'},
-    {'run': 13, 'algorithm': 2, 'avg_time_total': 65590.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 59518.0,
-    'avg_time_olt_queue': 2625.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.069, 'status': 'completed'},
-    {'run': 14, 'algorithm': 3, 'avg_time_total': 8783.0, 'avg_time_broker_queue': 2158.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 3179.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.089, 'status': 'completed'},
-    {'run': 32, 'algorithm': 1, 'avg_time_total': 133272.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 126372.0,
-    'avg_time_olt_queue': 3454.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.09, 'status': 'completed'},
-    {'run': 15, 'algorithm': 4, 'avg_time_total': 8771.0, 'avg_time_broker_queue': 2265.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 3061.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.082, 'status': 'completed'},
-    {'run': 16, 'algorithm': 1, 'avg_time_total': 50357.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 45352.0,
-    'avg_time_olt_queue': 1517.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.0515, 'status': 'completed'},
-    {'run': 54, 'algorithm': 3, 'avg_time_total': 32026.0, 'avg_time_broker_queue': 18581.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 9999.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.228, 'status': 'completed'},
-    {'run': 17, 'algorithm': 2, 'avg_time_total': 66343.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 60606.0,
-    'avg_time_olt_queue': 2249.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.0685, 'status': 'completed'},
-    {'run': 33, 'algorithm': 2, 'avg_time_total': 156212.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 148257.0,
-    'avg_time_olt_queue': 4510.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.108, 'status': 'completed'},
-    {'run': 18, 'algorithm': 3, 'avg_time_total': 9334.0, 'avg_time_broker_queue': 2850.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 2998.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.092, 'status': 'completed'},
-    {'run': 19, 'algorithm': 4, 'avg_time_total': 9859.0, 'avg_time_broker_queue': 3396.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 2977.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.0905, 'status': 'completed'},
-    {'run': 46, 'algorithm': 3, 'avg_time_total': 13518.0, 'avg_time_broker_queue': 4917.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 5185.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.14, 'status': 'completed'},
-    {'run': 20, 'algorithm': 1, 'avg_time_total': 4015.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 1268.0,
-    'avg_time_olt_queue': 101.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    34, 'algorithm': 3, 'avg_time_total': 32052.0, 'avg_time_broker_queue': 17905.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 10703.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.231, 'status': 'completed'},
-    {'run': 21, 'algorithm': 2, 'avg_time_total': 5318.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 2073.0,
-    'avg_time_olt_queue': 599.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    22, 'algorithm': 3, 'avg_time_total': 3715.0, 'avg_time_broker_queue': 28.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 1042.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    23, 'algorithm': 4, 'avg_time_total': 3931.0, 'avg_time_broker_queue': 135.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 1152.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    35, 'algorithm': 4, 'avg_time_total': 45973.0, 'avg_time_broker_queue': 32418.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 10111.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.244, 'status': 'completed'},
-    {'run': 24, 'algorithm': 1, 'avg_time_total': 15420.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 11172.0,
-    'avg_time_olt_queue': 831.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.03, 'status': 'completed'}, {'run':
-    25, 'algorithm': 2, 'avg_time_total': 22574.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 16208.0,
-    'avg_time_olt_queue': 2950.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.07, 'status': 'completed'},
-    {'run': 26, 'algorithm': 3, 'avg_time_total': 13517.0, 'avg_time_broker_queue': 4917.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 5186.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.14, 'status': 'completed'},
-    {'run': 47, 'algorithm': 4, 'avg_time_total': 13046.0, 'avg_time_broker_queue': 4454.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 5176.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.15, 'status': 'completed'},
-    {'run': 36, 'algorithm': 1, 'avg_time_total': 290624.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 283083.0,
-    'avg_time_olt_queue': 4054.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.0935, 'status': 'completed'},
-    {'run': 37, 'algorithm': 2, 'avg_time_total': 310249.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 302017.0,
-    'avg_time_olt_queue': 4744.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.1155, 'status': 'completed'},
-    {'run': 38, 'algorithm': 3, 'avg_time_total': 46211.0, 'avg_time_broker_queue': 32560.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 10165.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.2305, 'status': 'completed'},
-    {'run': 48, 'algorithm': 1, 'avg_time_total': 19813.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 14421.0,
-    'avg_time_olt_queue': 1970.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.056, 'status': 'completed'},
-    {'run': 39, 'algorithm': 4, 'avg_time_total': 47125.0, 'avg_time_broker_queue': 34058.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 9582.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.213, 'status': 'completed'},
-    {'run': 40, 'algorithm': 1, 'avg_time_total': 3694.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 1046.0,
-    'avg_time_olt_queue': 1.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    55, 'algorithm': 4, 'avg_time_total': 38874.0, 'avg_time_broker_queue': 25823.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 9605.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.257, 'status': 'completed'},
-    {'run': 41, 'algorithm': 2, 'avg_time_total': 4728.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 802.0,
-    'avg_time_olt_queue': 1279.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    49, 'algorithm': 2, 'avg_time_total': 27389.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 17623.0,
-    'avg_time_olt_queue': 6344.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.134, 'status': 'completed'},
-    {'run': 42, 'algorithm': 3, 'avg_time_total': 3715.0, 'avg_time_broker_queue': 28.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 1042.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    43, 'algorithm': 4, 'avg_time_total': 3968.0, 'avg_time_broker_queue': 220.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 1103.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'}, {'run':
-    50, 'algorithm': 3, 'avg_time_total': 16717.0, 'avg_time_broker_queue': 6513.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 6785.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.144, 'status': 'completed'},
-    {'run': 56, 'algorithm': 1, 'avg_time_total': 72716.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 63410.0,
-    'avg_time_olt_queue': 5817.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.1445, 'status': 'completed'},
-    {'run': 51, 'algorithm': 4, 'avg_time_total': 17409.0, 'avg_time_broker_queue': 6777.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 7212.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.158, 'status': 'completed'},
-    {'run': 52, 'algorithm': 1, 'avg_time_total': 30631.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 23910.0,
-    'avg_time_olt_queue': 3273.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.071, 'status': 'completed'},
-    {'run': 53, 'algorithm': 2, 'avg_time_total': 41629.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 28918.0,
-    'avg_time_olt_queue': 9263.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.195, 'status': 'completed'},
-    {'run': 57, 'algorithm': 2, 'avg_time_total': 72008.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 57571.0,
-    'avg_time_olt_queue': 10949.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.244, 'status': 'completed'},
-    {'run': 58, 'algorithm': 3, 'avg_time_total': 45435.0, 'avg_time_broker_queue': 31029.0, 'avg_time_worker_queue': 0.0,
-    'avg_time_olt_queue': 10921.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.2405, 'status': 'completed'}]
+[
+    {'run': 27, 'algorithm': 4, 'avg_time_total': 13205.0, 'avg_time_broker_queue': 4359.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 5432.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.15, 'status': 'completed'
+    },
+    {'run': 0, 'algorithm': 1, 'avg_time_total': 3458.0, 'avg_time_broker_queue': 3.0, 'avg_time_worker_queue': 775.0, 'avg_time_olt_queue': 25.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 1, 'algorithm': 2, 'avg_time_total': 5483.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 2363.0, 'avg_time_olt_queue': 471.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 44, 'algorithm': 1, 'avg_time_total': 11913.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 7665.0, 'avg_time_olt_queue': 832.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.03, 'status': 'completed'
+    },
+    {'run': 2, 'algorithm': 3, 'avg_time_total': 3285.0, 'avg_time_broker_queue': 52.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 2.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 28, 'algorithm': 1, 'avg_time_total': 56224.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 49453.0, 'avg_time_olt_queue': 3352.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.084, 'status': 'completed'
+    },
+    {'run': 3, 'algorithm': 4, 'avg_time_total': 3201.0, 'avg_time_broker_queue': 29.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 526.0, 'olts': 10, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 4, 'algorithm': 1, 'avg_time_total': 12320.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 8283.0, 'avg_time_olt_queue': 619.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.03, 'status': 'completed'
+    },
+    {'run': 5, 'algorithm': 2, 'avg_time_total': 17305.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 12135.0, 'avg_time_olt_queue': 1752.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.05, 'status': 'completed'
+    },
+    {'run': 29, 'algorithm': 2, 'avg_time_total': 76550.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 69078.0, 'avg_time_olt_queue': 4054.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.092, 'status': 'completed'
+    },
+    {'run': 6, 'algorithm': 3, 'avg_time_total': 8346.0, 'avg_time_broker_queue': 1839.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 3092.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.07, 'status': 'completed'
+    },
+    {'run': 7, 'algorithm': 4, 'avg_time_total': 8836.0, 'avg_time_broker_queue': 2059.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 3361.0, 'olts': 10, 'workers': 5, 'requests': 100, 'timedout': 0.09, 'status': 'completed'
+    },
+    {'run': 8, 'algorithm': 1, 'avg_time_total': 20777.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 16214.0, 'avg_time_olt_queue': 1142.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.038, 'status': 'completed'
+    },
+    {'run': 30, 'algorithm': 3, 'avg_time_total': 16808.0, 'avg_time_broker_queue': 6576.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 6814.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.144, 'status': 'completed'
+    },
+    {'run': 9, 'algorithm': 2, 'avg_time_total': 26693.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 21491.0, 'avg_time_olt_queue': 1781.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.056, 'status': 'completed'
+    },
+    {'run': 10, 'algorithm': 3, 'avg_time_total': 8357.0, 'avg_time_broker_queue': 2192.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 2745.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.086, 'status': 'completed'
+    },
+    {'run': 45, 'algorithm': 2, 'avg_time_total': 14711.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 6351.0, 'avg_time_olt_queue': 4943.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.15, 'status': 'completed'
+    },
+    {'run': 11, 'algorithm': 4, 'avg_time_total': 8504.0, 'avg_time_broker_queue': 2231.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 2853.0, 'olts': 10, 'workers': 5, 'requests': 500, 'timedout': 0.088, 'status': 'completed'
+    },
+    {'run': 31, 'algorithm': 4, 'avg_time_total': 17090.0, 'avg_time_broker_queue': 6518.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 7155.0, 'olts': 5, 'workers': 5, 'requests': 500, 'timedout': 0.152, 'status': 'completed'
+    },
+    {'run': 12, 'algorithm': 1, 'avg_time_total': 32930.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 27925.0, 'avg_time_olt_queue': 1557.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.044, 'status': 'completed'
+    },
+    {'run': 13, 'algorithm': 2, 'avg_time_total': 65590.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 59518.0, 'avg_time_olt_queue': 2625.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.069, 'status': 'completed'
+    },
+    {'run': 14, 'algorithm': 3, 'avg_time_total': 8783.0, 'avg_time_broker_queue': 2158.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 3179.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.089, 'status': 'completed'
+    },
+    {'run': 32, 'algorithm': 1, 'avg_time_total': 133272.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 126372.0, 'avg_time_olt_queue': 3454.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.09, 'status': 'completed'
+    },
+    {'run': 15, 'algorithm': 4, 'avg_time_total': 8771.0, 'avg_time_broker_queue': 2265.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 3061.0, 'olts': 10, 'workers': 5, 'requests': 1000, 'timedout': 0.082, 'status': 'completed'
+    },
+    {'run': 16, 'algorithm': 1, 'avg_time_total': 50357.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 45352.0, 'avg_time_olt_queue': 1517.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.0515, 'status': 'completed'
+    },
+    {'run': 54, 'algorithm': 3, 'avg_time_total': 32026.0, 'avg_time_broker_queue': 18581.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 9999.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.228, 'status': 'completed'
+    },
+    {'run': 17, 'algorithm': 2, 'avg_time_total': 66343.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 60606.0, 'avg_time_olt_queue': 2249.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.0685, 'status': 'completed'
+    },
+    {'run': 33, 'algorithm': 2, 'avg_time_total': 156212.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 148257.0, 'avg_time_olt_queue': 4510.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.108, 'status': 'completed'
+    },
+    {'run': 18, 'algorithm': 3, 'avg_time_total': 9334.0, 'avg_time_broker_queue': 2850.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 2998.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.092, 'status': 'completed'
+    },
+    {'run': 19, 'algorithm': 4, 'avg_time_total': 9859.0, 'avg_time_broker_queue': 3396.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 2977.0, 'olts': 10, 'workers': 5, 'requests': 2000, 'timedout': 0.0905, 'status': 'completed'
+    },
+    {'run': 46, 'algorithm': 3, 'avg_time_total': 13518.0, 'avg_time_broker_queue': 4917.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 5185.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.14, 'status': 'completed'
+    },
+    {'run': 20, 'algorithm': 1, 'avg_time_total': 4015.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 1268.0, 'avg_time_olt_queue': 101.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 34, 'algorithm': 3, 'avg_time_total': 32052.0, 'avg_time_broker_queue': 17905.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 10703.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.231, 'status': 'completed'
+    },
+    {'run': 21, 'algorithm': 2, 'avg_time_total': 5318.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 2073.0, 'avg_time_olt_queue': 599.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 22, 'algorithm': 3, 'avg_time_total': 3715.0, 'avg_time_broker_queue': 28.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 1042.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 23, 'algorithm': 4, 'avg_time_total': 3931.0, 'avg_time_broker_queue': 135.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 1152.0, 'olts': 5, 'workers': 5, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 35, 'algorithm': 4, 'avg_time_total': 45973.0, 'avg_time_broker_queue': 32418.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 10111.0, 'olts': 5, 'workers': 5, 'requests': 1000, 'timedout': 0.244, 'status': 'completed'
+    },
+    {'run': 24, 'algorithm': 1, 'avg_time_total': 15420.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 11172.0, 'avg_time_olt_queue': 831.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.03, 'status': 'completed'
+    },
+    {'run': 25, 'algorithm': 2, 'avg_time_total': 22574.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 16208.0, 'avg_time_olt_queue': 2950.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.07, 'status': 'completed'
+    },
+    {'run': 26, 'algorithm': 3, 'avg_time_total': 13517.0, 'avg_time_broker_queue': 4917.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 5186.0, 'olts': 5, 'workers': 5, 'requests': 100, 'timedout': 0.14, 'status': 'completed'
+    },
+    {'run': 47, 'algorithm': 4, 'avg_time_total': 13046.0, 'avg_time_broker_queue': 4454.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 5176.0, 'olts': 5, 'workers': 10, 'requests': 100, 'timedout': 0.15, 'status': 'completed'
+    },
+    {'run': 36, 'algorithm': 1, 'avg_time_total': 290624.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 283083.0, 'avg_time_olt_queue': 4054.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.0935, 'status': 'completed'
+    },
+    {'run': 37, 'algorithm': 2, 'avg_time_total': 310249.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 302017.0, 'avg_time_olt_queue': 4744.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.1155, 'status': 'completed'
+    },
+    {'run': 59, 'algorithm': 4, 'avg_time_total': 60471.0, 'avg_time_broker_queue': 44662.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 12324.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.2495, 'status': 'completed'
+    },
+    {'run': 38, 'algorithm': 3, 'avg_time_total': 46211.0, 'avg_time_broker_queue': 32560.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 10165.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.2305, 'status': 'completed'
+    },
+    {'run': 48, 'algorithm': 1, 'avg_time_total': 19813.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 14421.0, 'avg_time_olt_queue': 1970.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.056, 'status': 'completed'
+    },
+    {'run': 39, 'algorithm': 4, 'avg_time_total': 47125.0, 'avg_time_broker_queue': 34058.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 9582.0, 'olts': 5, 'workers': 5, 'requests': 2000, 'timedout': 0.213, 'status': 'completed'
+    },
+    {'run': 40, 'algorithm': 1, 'avg_time_total': 3694.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 1046.0, 'avg_time_olt_queue': 1.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 55, 'algorithm': 4, 'avg_time_total': 38874.0, 'avg_time_broker_queue': 25823.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 9605.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.257, 'status': 'completed'
+    },
+    {'run': 41, 'algorithm': 2, 'avg_time_total': 4728.0, 'avg_time_broker_queue': 2.0, 'avg_time_worker_queue': 802.0, 'avg_time_olt_queue': 1279.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 49, 'algorithm': 2, 'avg_time_total': 27389.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 17623.0, 'avg_time_olt_queue': 6344.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.134, 'status': 'completed'
+    },
+    {'run': 42, 'algorithm': 3, 'avg_time_total': 3715.0, 'avg_time_broker_queue': 28.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 1042.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 43, 'algorithm': 4, 'avg_time_total': 3968.0, 'avg_time_broker_queue': 220.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 1103.0, 'olts': 5, 'workers': 10, 'requests': 50, 'timedout': 0.0, 'status': 'completed'
+    },
+    {'run': 50, 'algorithm': 3, 'avg_time_total': 16717.0, 'avg_time_broker_queue': 6513.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 6785.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.144, 'status': 'completed'
+    },
+    {'run': 56, 'algorithm': 1, 'avg_time_total': 72716.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 63410.0, 'avg_time_olt_queue': 5817.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.1445, 'status': 'completed'
+    },
+    {'run': 51, 'algorithm': 4, 'avg_time_total': 17409.0, 'avg_time_broker_queue': 6777.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 7212.0, 'olts': 5, 'workers': 10, 'requests': 500, 'timedout': 0.158, 'status': 'completed'
+    },
+    {'run': 52, 'algorithm': 1, 'avg_time_total': 30631.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 23910.0, 'avg_time_olt_queue': 3273.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.071, 'status': 'completed'
+    },
+    {'run': 53, 'algorithm': 2, 'avg_time_total': 41629.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 28918.0, 'avg_time_olt_queue': 9263.0, 'olts': 5, 'workers': 10, 'requests': 1000, 'timedout': 0.195, 'status': 'completed'
+    },
+    {'run': 57, 'algorithm': 2, 'avg_time_total': 72008.0, 'avg_time_broker_queue': 1.0, 'avg_time_worker_queue': 57571.0, 'avg_time_olt_queue': 10949.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.244, 'status': 'completed'
+    },
+    {'run': 58, 'algorithm': 3, 'avg_time_total': 45435.0, 'avg_time_broker_queue': 31029.0, 'avg_time_worker_queue': 0.0, 'avg_time_olt_queue': 10921.0, 'olts': 5, 'workers': 10, 'requests': 2000, 'timedout': 0.2405, 'status': 'completed'
+    }
+]
