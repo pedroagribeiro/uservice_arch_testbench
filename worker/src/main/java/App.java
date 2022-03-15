@@ -403,6 +403,9 @@ public class App {
             await().atMost(m.get_timeout(), TimeUnit.MILLISECONDS).until(request_satisfied(m.get_id()));
         } catch(Exception e) {
             log.info("TIMEOUT: The request " + m.get_id() + " timedout");
+            try(Jedis jedis = this.redis_database_pool.getResource()) {
+                jedis.del(String.valueOf(m.get_olt()));
+            }
         }
     }
 
