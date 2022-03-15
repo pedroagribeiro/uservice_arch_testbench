@@ -265,7 +265,8 @@ public class App {
         // Seed 1: 42
         // Seed 2: 7
         // Seed 3: 34
-        Random r = new Random(42);
+        int seed = 34;
+        Random r = new Random(34);
         List<Integer> longer_than_timeouts_order_numbers = new ArrayList<>();
         for(int i = 0; i < longer_than_timeout; i++) {
             int order_number = r.nextInt(orchestration.get_messages());
@@ -311,6 +312,7 @@ public class App {
                 e.printStackTrace();
             }
         }
+        log.info("Used seed: " + seed);
     }
 
     public List<Response> generate_run_results(Orchestration orchestration) {
