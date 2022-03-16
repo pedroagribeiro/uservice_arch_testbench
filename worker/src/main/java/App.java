@@ -315,12 +315,14 @@ public class App {
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
             this.received_responses.set(0);
             if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
-                if(this.current_consumption == WORKER_QUEUE) {
-                    this.current_consumption = BROKER_QUEUE;
-                    establish_current_consuming_channel();
-                } 
-                if(orchestration.get_algorithm() == 4) {
-                    this.wait = false;
+                if(App.worker_id <= orchestration.get_workers() - 1) {
+                    if(this.current_consumption == WORKER_QUEUE) {
+                        this.current_consumption = BROKER_QUEUE;
+                        establish_current_consuming_channel();
+                    } 
+                    if(orchestration.get_algorithm() == 4) {
+                        this.wait = false;
+                    }
                 }
             } else {
                 if(this.current_consumption == BROKER_QUEUE) {
