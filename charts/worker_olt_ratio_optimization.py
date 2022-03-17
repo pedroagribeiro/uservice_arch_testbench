@@ -7,12 +7,19 @@ number_of_requests = [50, 100, 500, 1000, 2000]
 # 10 workers; 5 olts => ratio = 2.0
 
 # Seed 42
-avg_time_total_seed_42_ratio_0_5 = [3451.0, 13077.0, 21670.0, 39786.0, 59386.0]
-avg_time_total_seed_42_ratio_1_0 = [3834.0, 14299.0, 55295.0, 116800.0, 300992.0]
-avg_time_total_seed_42_ratio_2_0 = [3697.0, 12006.0, 19863.0, 41622.0, 52385.0]
-timedout_percentage_seed_42_ratio_0_5 = [0.0, 0.03, 0.036, 0.035, 0.051]
-timedout_percentage_seed_42_ratio_1_0 = [0.0, 0.03, 0.064, 0.071, 0.102]
-timedout_percentage_seed_42_ratio_2_0 = [0.0, 0.03, 0.058, 0.125, 0.087]
+# avg_time_total_seed_42_ratio_0_5 = [3451.0, 13077.0, 21670.0, 39786.0, 59386.0]
+# avg_time_total_seed_42_ratio_1_0 = [3834.0, 14299.0, 55295.0, 116800.0, 300992.0]
+# avg_time_total_seed_42_ratio_2_0 = [3697.0, 12006.0, 19863.0, 41622.0, 52385.0]
+# timedout_percentage_seed_42_ratio_0_5 = [0.0, 0.03, 0.036, 0.035, 0.051]
+# timedout_percentage_seed_42_ratio_1_0 = [0.0, 0.03, 0.064, 0.071, 0.102]
+# timedout_percentage_seed_42_ratio_2_0 = [0.0, 0.03, 0.058, 0.125, 0.087]
+
+avg_time_total_seed_42_ratio_0_5 = [3518.0, 12944.0, 18710.0, 30321.0, 66337.0]
+avg_time_total_seed_42_ratio_1_0 = [3838.0, 14062.0, 53571.0, 124913.0, 310665.0] 
+avg_time_total_seed_42_ratio_2_0 = [3700.0, 11901.0, 16889.0, 31579.0, 62130.0]
+timedout_percentage_seed_42_ratio_0_5 = [0.0, 0.03, 0.04, 0.045, 0.058] 
+timedout_percentage_seed_42_ratio_1_0 = [0.0, 0.03, 0.062, 0.086, 0.1075]
+timedout_percentage_seed_42_ratio_2_0 = [0.0, 0.03, 0.046, 0.073, 0.119]
 
 # Seed 7
 avg_time_total_seed_7_ratio_0_5 = [3458.0, 12320.0, 20777.0, 32390.0, 50357.0]
@@ -23,12 +30,18 @@ timedout_percentage_seed_7_ratio_1_0 = [0.0, 0.03, 0.084, 0.09, 0.0935]
 timedout_percentage_seed_7_ratio_2_0 = [0.0, 0.03, 0.056, 0.071, 0.1445]
 
 # Seed 34
-avg_time_total_seed_34_ratio_0_5 = [4920.0, 11121.0, 28612.0, 32281.0, 27087.0]
-avg_time_total_seed_34_ratio_1_0 = [8943.0, 19331.0, 64374.0, 127285.0, 266661.0]
-avg_time_total_seed_34_ratio_2_0 = [5975.0, 15037.0, 22742.0, 39602.0, 44048.0]
-timedout_percentage_seed_34_ratio_0_5 = [0.02, 0.04, 0.042, 0.04, 0.0415]
-timedout_percentage_seed_34_ratio_1_0 = [0.04, 0.03, 0.098, 0.097, 0.085]
-timedout_percentage_seed_34_ratio_2_0 = [0.02, 0.04, 0.066, 0.084, 0.0765]
+# avg_time_total_seed_34_ratio_0_5 = [4920.0, 11121.0, 28612.0, 32281.0, 27087.0]
+# avg_time_total_seed_34_ratio_1_0 = [8943.0, 19331.0, 64374.0, 127285.0, 266661.0]
+# avg_time_total_seed_34_ratio_2_0 = [5975.0, 15037.0, 22742.0, 39602.0, 44048.0]
+# timedout_percentage_seed_34_ratio_0_5 = [0.02, 0.04, 0.042, 0.04, 0.0415]
+# timedout_percentage_seed_34_ratio_1_0 = [0.04, 0.03, 0.098, 0.097, 0.085]
+# timedout_percentage_seed_34_ratio_2_0 = [0.02, 0.04, 0.066, 0.084, 0.0765]
+avg_time_total_seed_34_ratio_0_5 = [4842.0, 11898.0, 27418.0, 35507.0, 35484.0] 
+avg_time_total_seed_34_ratio_1_0 = [8907.0, 20321.0, 88059.0, 128813.0, 243105.0]
+avg_time_total_seed_34_ratio_2_0 = [5939.0, 15868.0, 24680.0, 32576.0, 46682.0] 
+timedout_percentage_seed_34_ratio_0_5 = [0.02, 0.04, 0.052, 0.052, 0.044]
+timedout_percentage_seed_34_ratio_1_0 = [0.04, 0.03, 0.106, 0.08, 0.0885]
+timedout_percentage_seed_34_ratio_2_0 = [0.02, 0.05, 0.106, 0.085, 0.157]
 
 def average_time_total_ratio_comparison():
     total_time_averages_array_0_5 = []

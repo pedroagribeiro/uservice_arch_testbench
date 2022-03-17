@@ -1,18 +1,5 @@
 [
   {
-    "run": 27,
-    "algorithm": 4,
-    "avg_time_total": 27681.0,
-    "avg_time_broker_queue": 19656.0,
-    "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 4761.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 100,
-    "timedout": 0.13,
-    "status": "completed"
-  },
-  {
     "run": 0,
     "algorithm": 1,
     "avg_time_total": 4842.0,
@@ -22,8 +9,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.02,
-    "status": "completed"
+    "timedout": 0.02
   },
   {
     "run": 1,
@@ -35,21 +21,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.04,
-    "status": "completed"
-  },
-  {
-    "run": 44,
-    "algorithm": 1,
-    "avg_time_total": 15868.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 11471.0,
-    "avg_time_olt_queue": 1131.0,
-    "olts": 5,
-    "workers": 10,
-    "requests": 100,
-    "timedout": 0.05,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 2,
@@ -61,21 +33,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.02,
-    "status": "completed"
-  },
-  {
-    "run": 28,
-    "algorithm": 1,
-    "avg_time_total": 88059.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 80452.0,
-    "avg_time_olt_queue": 4207.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 500,
-    "timedout": 0.106,
-    "status": "completed"
+    "timedout": 0.02
   },
   {
     "run": 3,
@@ -87,8 +45,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.02,
-    "status": "completed"
+    "timedout": 0.02
   },
   {
     "run": 4,
@@ -100,8 +57,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.04,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 5,
@@ -113,21 +69,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.05,
-    "status": "completed"
-  },
-  {
-    "run": 29,
-    "algorithm": 2,
-    "avg_time_total": 97426.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 90136.0,
-    "avg_time_olt_queue": 3890.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 500,
-    "timedout": 0.092,
-    "status": "completed"
+    "timedout": 0.05
   },
   {
     "run": 6,
@@ -139,8 +81,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.04,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 7,
@@ -152,8 +93,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.04,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 8,
@@ -165,21 +105,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 500,
-    "timedout": 0.052,
-    "status": "completed"
-  },
-  {
-    "run": 30,
-    "algorithm": 3,
-    "avg_time_total": 84630.0,
-    "avg_time_broker_queue": 76746.0,
-    "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 4486.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 500,
-    "timedout": 0.118,
-    "status": "completed"
+    "timedout": 0.052
   },
   {
     "run": 9,
@@ -191,8 +117,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 500,
-    "timedout": 0.052,
-    "status": "completed"
+    "timedout": 0.052
   },
   {
     "run": 10,
@@ -204,21 +129,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 500,
-    "timedout": 0.058,
-    "status": "completed"
-  },
-  {
-    "run": 45,
-    "algorithm": 2,
-    "avg_time_total": 17830.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 6807.0,
-    "avg_time_olt_queue": 7757.0,
-    "olts": 5,
-    "workers": 10,
-    "requests": 100,
-    "timedout": 0.16,
-    "status": "completed"
+    "timedout": 0.058
   },
   {
     "run": 11,
@@ -230,21 +141,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 500,
-    "timedout": 0.074,
-    "status": "completed"
-  },
-  {
-    "run": 31,
-    "algorithm": 4,
-    "avg_time_total": 74263.0,
-    "avg_time_broker_queue": 67038.0,
-    "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 3827.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 500,
-    "timedout": 0.1,
-    "status": "completed"
+    "timedout": 0.074
   },
   {
     "run": 12,
@@ -256,8 +153,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 1000,
-    "timedout": 0.052,
-    "status": "completed"
+    "timedout": 0.052
   },
   {
     "run": 13,
@@ -269,8 +165,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 1000,
-    "timedout": 0.047,
-    "status": "completed"
+    "timedout": 0.047
   },
   {
     "run": 14,
@@ -282,21 +177,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 1000,
-    "timedout": 0.064,
-    "status": "completed"
-  },
-  {
-    "run": 32,
-    "algorithm": 1,
-    "avg_time_total": 128813.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 122160.0,
-    "avg_time_olt_queue": 3170.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 1000,
-    "timedout": 0.08,
-    "status": "completed"
+    "timedout": 0.064
   },
   {
     "run": 15,
@@ -308,8 +189,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 1000,
-    "timedout": 0.059,
-    "status": "completed"
+    "timedout": 0.059
   },
   {
     "run": 16,
@@ -321,8 +201,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.044,
-    "status": "completed"
+    "timedout": 0.044
   },
   {
     "run": 17,
@@ -334,21 +213,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.0645,
-    "status": "completed"
-  },
-  {
-    "run": 33,
-    "algorithm": 2,
-    "avg_time_total": 143386.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 136291.0,
-    "avg_time_olt_queue": 3613.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 1000,
-    "timedout": 0.081,
-    "status": "completed"
+    "timedout": 0.0645
   },
   {
     "run": 18,
@@ -360,8 +225,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.067,
-    "status": "completed"
+    "timedout": 0.067
   },
   {
     "run": 19,
@@ -373,21 +237,7 @@
     "olts": 10,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.06,
-    "status": "completed"
-  },
-  {
-    "run": 46,
-    "algorithm": 3,
-    "avg_time_total": 16665.0,
-    "avg_time_broker_queue": 3942.0,
-    "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 9459.0,
-    "olts": 5,
-    "workers": 10,
-    "requests": 100,
-    "timedout": 0.16,
-    "status": "completed"
+    "timedout": 0.06
   },
   {
     "run": 20,
@@ -399,21 +249,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.04,
-    "status": "completed"
-  },
-  {
-    "run": 34,
-    "algorithm": 3,
-    "avg_time_total": 136431.0,
-    "avg_time_broker_queue": 128937.0,
-    "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 4013.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 1000,
-    "timedout": 0.106,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 21,
@@ -425,8 +261,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.06,
-    "status": "completed"
+    "timedout": 0.06
   },
   {
     "run": 22,
@@ -438,8 +273,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.02,
-    "status": "completed"
+    "timedout": 0.02
   },
   {
     "run": 23,
@@ -451,21 +285,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 50,
-    "timedout": 0.02,
-    "status": "completed"
-  },
-  {
-    "run": 35,
-    "algorithm": 4,
-    "avg_time_total": 127845.0,
-    "avg_time_broker_queue": 120507.0,
-    "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 3858.0,
-    "olts": 5,
-    "workers": 5,
-    "requests": 1000,
-    "timedout": 0.094,
-    "status": "completed"
+    "timedout": 0.02
   },
   {
     "run": 24,
@@ -477,8 +297,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.03,
-    "status": "completed"
+    "timedout": 0.03
   },
   {
     "run": 25,
@@ -490,8 +309,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.17,
-    "status": "completed"
+    "timedout": 0.17
   },
   {
     "run": 26,
@@ -503,21 +321,115 @@
     "olts": 5,
     "workers": 5,
     "requests": 100,
-    "timedout": 0.14,
-    "status": "completed"
+    "timedout": 0.14
   },
   {
-    "run": 47,
+    "run": 27,
     "algorithm": 4,
-    "avg_time_total": 16681.0,
-    "avg_time_broker_queue": 4507.0,
+    "avg_time_total": 27681.0,
+    "avg_time_broker_queue": 19656.0,
     "avg_time_worker_queue": 0.0,
-    "avg_time_olt_queue": 8910.0,
+    "avg_time_olt_queue": 4761.0,
     "olts": 5,
-    "workers": 10,
+    "workers": 5,
     "requests": 100,
-    "timedout": 0.16,
-    "status": "completed"
+    "timedout": 0.13
+  },
+  {
+    "run": 28,
+    "algorithm": 1,
+    "avg_time_total": 88059.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 80452.0,
+    "avg_time_olt_queue": 4207.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 500,
+    "timedout": 0.106
+  },
+  {
+    "run": 29,
+    "algorithm": 2,
+    "avg_time_total": 97426.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 90136.0,
+    "avg_time_olt_queue": 3890.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 500,
+    "timedout": 0.092
+  },
+  {
+    "run": 30,
+    "algorithm": 3,
+    "avg_time_total": 84630.0,
+    "avg_time_broker_queue": 76746.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 4486.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 500,
+    "timedout": 0.118
+  },
+  {
+    "run": 31,
+    "algorithm": 4,
+    "avg_time_total": 74263.0,
+    "avg_time_broker_queue": 67038.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 3827.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 500,
+    "timedout": 0.1
+  },
+  {
+    "run": 32,
+    "algorithm": 1,
+    "avg_time_total": 128813.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 122160.0,
+    "avg_time_olt_queue": 3170.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 1000,
+    "timedout": 0.08
+  },
+  {
+    "run": 33,
+    "algorithm": 2,
+    "avg_time_total": 143386.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 136291.0,
+    "avg_time_olt_queue": 3613.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 1000,
+    "timedout": 0.081
+  },
+  {
+    "run": 34,
+    "algorithm": 3,
+    "avg_time_total": 136431.0,
+    "avg_time_broker_queue": 128937.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 4013.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 1000,
+    "timedout": 0.106
+  },
+  {
+    "run": 35,
+    "algorithm": 4,
+    "avg_time_total": 127845.0,
+    "avg_time_broker_queue": 120507.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 3858.0,
+    "olts": 5,
+    "workers": 5,
+    "requests": 1000,
+    "timedout": 0.094
   },
   {
     "run": 36,
@@ -529,8 +441,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.0885,
-    "status": "completed"
+    "timedout": 0.0885
   },
   {
     "run": 37,
@@ -542,8 +453,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.1085,
-    "status": "completed"
+    "timedout": 0.1085
   },
   {
     "run": 38,
@@ -555,21 +465,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.1,
-    "status": "completed"
-  },
-  {
-    "run": 48,
-    "algorithm": 1,
-    "avg_time_total": 24680.0,
-    "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 17546.0,
-    "avg_time_olt_queue": 3734.0,
-    "olts": 5,
-    "workers": 10,
-    "requests": 500,
-    "timedout": 0.106,
-    "status": "completed"
+    "timedout": 0.1
   },
   {
     "run": 39,
@@ -581,8 +477,7 @@
     "olts": 5,
     "workers": 5,
     "requests": 2000,
-    "timedout": 0.1045,
-    "status": "completed"
+    "timedout": 0.1045
   },
   {
     "run": 40,
@@ -594,21 +489,7 @@
     "olts": 5,
     "workers": 10,
     "requests": 50,
-    "timedout": 0.02,
-    "status": "completed"
-  },
-  {
-    "run": 49,
-    "algorithm": 2,
-    "avg_time_total": "None",
-    "avg_time_broker_queue": "None",
-    "avg_time_worker_queue": "None",
-    "avg_time_olt_queue": "None",
-    "olts": 5,
-    "workers": 10,
-    "requests": 500,
-    "timedout": "None",
-    "status": "on_going"
+    "timedout": 0.02
   },
   {
     "run": 41,
@@ -620,8 +501,7 @@
     "olts": 5,
     "workers": 10,
     "requests": 50,
-    "timedout": 0.04,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 42,
@@ -633,8 +513,7 @@
     "olts": 5,
     "workers": 10,
     "requests": 50,
-    "timedout": 0.04,
-    "status": "completed"
+    "timedout": 0.04
   },
   {
     "run": 43,
@@ -646,7 +525,66 @@
     "olts": 5,
     "workers": 10,
     "requests": 50,
-    "timedout": 0.04,
-    "status": "completed"
+    "timedout": 0.04
+  },
+  {
+    "run": 44,
+    "algorithm": 1,
+    "avg_time_total": 15868.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 11471.0,
+    "avg_time_olt_queue": 1131.0,
+    "olts": 5,
+    "workers": 10,
+    "requests": 100,
+    "timedout": 0.05
+  },
+  {
+    "run": 45,
+    "algorithm": 2,
+    "avg_time_total": 17830.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 6807.0,
+    "avg_time_olt_queue": 7757.0,
+    "olts": 5,
+    "workers": 10,
+    "requests": 100,
+    "timedout": 0.16
+  },
+  {
+    "run": 46,
+    "algorithm": 3,
+    "avg_time_total": 16665.0,
+    "avg_time_broker_queue": 3942.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 9459.0,
+    "olts": 5,
+    "workers": 10,
+    "requests": 100,
+    "timedout": 0.16
+  },
+  {
+    "run": 47,
+    "algorithm": 4,
+    "avg_time_total": 16681.0,
+    "avg_time_broker_queue": 4507.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 8910.0,
+    "olts": 5,
+    "workers": 10,
+    "requests": 100,
+    "timedout": 0.16
+  },
+  {
+    "run": 48,
+    "algorithm": 1,
+    "avg_time_total": 24680.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 17546.0,
+    "avg_time_olt_queue": 3734.0,
+    "olts": 5,
+    "workers": 10,
+    "requests": 500,
+    "timedout": 0.106
   }
 ]
