@@ -56,10 +56,35 @@ def timedout_percentage_chart(x_array, y_array, seed, workers, olts, ratio_id):
     plt.savefig("output/random_seed_" + str(seed) + "/" + str(workers) + "_workers_" + str(olts) + "_olts/timedout_percentage_chart.png")
     plt.close()
 
+def avg_time_total_by_ratio(x_array, y_array, seed):
+    # This methods uses the 2000 request runs
+    plt.plot(x_array, [y_array['avg_time_total_algorithm_1'][0][4], y_array['avg_time_total_algorithm_1'][1][4], y_array['avg_time_total_algorithm_1'][2][4]], label = "Algoritmo 1")
+    plt.plot(x_array, [y_array['avg_time_total_algorithm_2'][0][4], y_array['avg_time_total_algorithm_2'][1][4], y_array['avg_time_total_algorithm_2'][2][4]], label = "Algoritmo 2")
+    plt.plot(x_array, [y_array['avg_time_total_algorithm_3'][0][4], y_array['avg_time_total_algorithm_3'][1][4], y_array['avg_time_total_algorithm_3'][2][4]], label = "Algoritmo 3")
+    plt.plot(x_array, [y_array['avg_time_total_algorithm_4'][0][4], y_array['avg_time_total_algorithm_4'][1][4], y_array['avg_time_total_algorithm_4'][2][4]], label = "Algoritmo 4")
+    plt.xlabel("Ratio entre workers e olts")
+    plt.ylabel("Tempo médio que cada pedido passa no ambiente de simulação (em ms)")
+    plt.legend()
+    plt.savefig("output/ratio_comparisons/random_seed_" + str(seed) + "/total_average_time_by_ratio.png")
+    plt.close()
+
+def timedout_percentage_by_ratio(x_array, y_array, seed):
+    # This methods uses the 2000 request runs
+    plt.plot(x_array, [y_array['timedout_percentage_algorithm_1'][0][4], y_array['timedout_percentage_algorithm_1'][1][4], y_array['timedout_percentage_algorithm_1'][2][4]], label = "Algoritmo 1")
+    plt.plot(x_array, [y_array['timedout_percentage_algorithm_2'][0][4], y_array['timedout_percentage_algorithm_2'][1][4], y_array['timedout_percentage_algorithm_2'][2][4]], label = "Algoritmo 2")
+    plt.plot(x_array, [y_array['timedout_percentage_algorithm_3'][0][4], y_array['timedout_percentage_algorithm_3'][1][4], y_array['timedout_percentage_algorithm_3'][2][4]], label = "Algoritmo 3")
+    plt.plot(x_array, [y_array['timedout_percentage_algorithm_4'][0][4], y_array['timedout_percentage_algorithm_4'][1][4], y_array['timedout_percentage_algorithm_4'][2][4]], label = "Algoritmo 4")
+    plt.xlabel("Ratio entre workers e olts")
+    plt.ylabel("Percentagem de pedidos timedout")
+    plt.legend()
+    plt.savefig("output/ratio_comparisons/random_seed_" + str(seed) + "/timedout_percentage_by_ratio.png")
+    plt.close()
+
 number_of_requests = [50, 100, 500, 1000, 2000]
 run_results_42 = results_file_parser("results/random_seed_42/results_new_run.json")
 run_results_7 = results_file_parser("results/random_seed_7/results_new_run.json")
 run_results_34 = results_file_parser("results/random_seed_34/results_new_run.json")
+ratios = [0.5, 1.0, 2.0]
 
 if __name__ == "__main__":
     # 5 workers; 10 olts => Ratio 0.5
@@ -119,4 +144,20 @@ if __name__ == "__main__":
     average_time_worker_queue_chart(number_of_requests, run_results_34, 34, 10, 5, 2)
     average_time_olt_queue_chart(number_of_requests, run_results_34, 34, 10, 5, 2)
     timedout_percentage_chart(number_of_requests, run_results_34, 34, 10, 5, 2)
+
+    # Ratio comparisons
+
+        # -- Seed 42
+    avg_time_total_by_ratio(ratios, run_results_42, 42) 
+    timedout_percentage_by_ratio(ratios, run_results_42, 42)
+
+        # -- Seed 7
+    avg_time_total_by_ratio(ratios, run_results_7, 7) 
+    timedout_percentage_by_ratio(ratios, run_results_7, 7)
+
+        # -- Seed 34
+    avg_time_total_by_ratio(ratios, run_results_34, 34) 
+    timedout_percentage_by_ratio(ratios, run_results_34, 34)
+
+
 
