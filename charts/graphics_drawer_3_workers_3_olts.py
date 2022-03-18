@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 
-
 # Seed 1: 42
 number_of_requests_random_42 = [50, 100, 500, 1000, 2000]
 
