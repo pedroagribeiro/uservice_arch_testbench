@@ -1,0 +1,50 @@
+[
+  {
+    "run": 0,
+    "algorithm": 1,
+    "avg_time_total": 49900.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 42815.0,
+    "avg_time_olt_queue": 3576.0,
+    "olts": 5,
+    "workers": 7,
+    "requests": 500,
+    "timedout": 0.112
+  },
+  {
+    "run": 1,
+    "algorithm": 2,
+    "avg_time_total": 56369.0,
+    "avg_time_broker_queue": 1.0,
+    "avg_time_worker_queue": 45352.0,
+    "avg_time_olt_queue": 7508.0,
+    "olts": 5,
+    "workers": 7,
+    "requests": 500,
+    "timedout": 0.202
+  },
+  {
+    "run": 2,
+    "algorithm": 3,
+    "avg_time_total": 57777.0,
+    "avg_time_broker_queue": 46727.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 7543.0,
+    "olts": 5,
+    "workers": 7,
+    "requests": 500,
+    "timedout": 0.2
+  },
+  {
+    "run": 3,
+    "algorithm": 4,
+    "avg_time_total": 40148.0,
+    "avg_time_broker_queue": 30873.0,
+    "avg_time_worker_queue": 0.0,
+    "avg_time_olt_queue": 5767.0,
+    "olts": 5,
+    "workers": 7,
+    "requests": 500,
+    "timedout": 0.162
+  }
+]
