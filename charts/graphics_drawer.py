@@ -59,10 +59,19 @@ def timedout_percentage_chart(x_array, y_array, seed, workers, olts):
 
 def avg_time_total_by_ratio(x_array, y_array, seed):
     # This methods uses the 2000 request runs
-    plt.plot(x_array, [y_array[0]['avg_time_total_algorithm_1'][4], y_array[1]['avg_time_total_algorithm_1'][4], y_array[2]['avg_time_total_algorithm_1'][4], y_array[3]['avg_time_total_algorithm_1'][4], y_array[4]['avg_time_total_algorithm_1'][4], y_array[5]['avg_time_total_algorithm_1'][4], y_array[6]['avg_time_total_algorithm_1'][4]], label = "Algoritmo 1")
-    plt.plot(x_array, [y_array[0]['avg_time_total_algorithm_2'][4], y_array[1]['avg_time_total_algorithm_2'][4], y_array[2]['avg_time_total_algorithm_2'][4], y_array[3]['avg_time_total_algorithm_2'][4], y_array[4]['avg_time_total_algorithm_2'][4], y_array[5]['avg_time_total_algorithm_2'][4], y_array[6]['avg_time_total_algorithm_2'][4]], label = "Algoritmo 2")
-    plt.plot(x_array, [y_array[0]['avg_time_total_algorithm_3'][4], y_array[1]['avg_time_total_algorithm_3'][4], y_array[2]['avg_time_total_algorithm_3'][4], y_array[3]['avg_time_total_algorithm_3'][4], y_array[4]['avg_time_total_algorithm_3'][4], y_array[5]['avg_time_total_algorithm_3'][4], y_array[6]['avg_time_total_algorithm_3'][4]], label = "Algoritmo 3")
-    plt.plot(x_array, [y_array[0]['avg_time_total_algorithm_4'][4], y_array[1]['avg_time_total_algorithm_4'][4], y_array[2]['avg_time_total_algorithm_4'][4], y_array[3]['avg_time_total_algorithm_4'][4], y_array[4]['avg_time_total_algorithm_4'][4], y_array[5]['avg_time_total_algorithm_4'][4], y_array[6]['avg_time_total_algorithm_4'][4]], label = "Algoritmo 4")
+    algorithm_1 = []
+    algorithm_2 = []
+    algorithm_3 = []
+    algorithm_4 = []
+    for i in range(0, len(y_array)):
+        algorithm_1.append(y_array[i]['avg_time_total_algorithm_1'][4])
+        algorithm_2.append(y_array[i]['avg_time_total_algorithm_2'][4])
+        algorithm_3.append(y_array[i]['avg_time_total_algorithm_3'][4])
+        algorithm_4.append(y_array[i]['avg_time_total_algorithm_4'][4])
+    plt.plot(x_array, algorithm_1, label = "Algoritmo 1")
+    plt.plot(x_array, algorithm_2, label = "Algoritmo 2")
+    plt.plot(x_array, algorithm_3, label = "Algoritmo 3")
+    plt.plot(x_array, algorithm_4, label = "Algoritmo 4")
     plt.xlabel("Ratio entre workers e olts")
     plt.ylabel("Tempo médio que cada pedido passa no ambiente de simulação (em ms)")
     plt.legend()
@@ -71,10 +80,19 @@ def avg_time_total_by_ratio(x_array, y_array, seed):
 
 def timedout_percentage_by_ratio(x_array, y_array, seed):
     # This methods uses the 2000 request runs
-    plt.plot(x_array, [y_array[0]['timedout_percentage_algorithm_1'][4], y_array[1]['timedout_percentage_algorithm_1'][4], y_array[2]['timedout_percentage_algorithm_1'][4], y_array[3]['timedout_percentage_algorithm_1'][4], y_array[4]['timedout_percentage_algorithm_1'][4], y_array[5]['timedout_percentage_algorithm_1'][4], y_array[6]['timedout_percentage_algorithm_1'][4]], label = "Algoritmo 1")
-    plt.plot(x_array, [y_array[0]['timedout_percentage_algorithm_2'][4], y_array[1]['timedout_percentage_algorithm_2'][4], y_array[2]['timedout_percentage_algorithm_2'][4], y_array[3]['timedout_percentage_algorithm_2'][4], y_array[4]['timedout_percentage_algorithm_2'][4], y_array[5]['timedout_percentage_algorithm_2'][4], y_array[6]['timedout_percentage_algorithm_2'][4]], label = "Algoritmo 2")
-    plt.plot(x_array, [y_array[0]['timedout_percentage_algorithm_3'][4], y_array[1]['timedout_percentage_algorithm_3'][4], y_array[2]['timedout_percentage_algorithm_3'][4], y_array[3]['timedout_percentage_algorithm_3'][4], y_array[4]['timedout_percentage_algorithm_3'][4], y_array[5]['timedout_percentage_algorithm_3'][4], y_array[6]['timedout_percentage_algorithm_3'][4]], label = "Algoritmo 3")
-    plt.plot(x_array, [y_array[0]['timedout_percentage_algorithm_4'][4], y_array[1]['timedout_percentage_algorithm_4'][4], y_array[2]['timedout_percentage_algorithm_4'][4], y_array[3]['timedout_percentage_algorithm_4'][4], y_array[4]['timedout_percentage_algorithm_4'][4], y_array[5]['timedout_percentage_algorithm_4'][4], y_array[6]['timedout_percentage_algorithm_4'][4]], label = "Algoritmo 4")
+    algorithm_1 = []
+    algorithm_2 = []
+    algorithm_3 = []
+    algorithm_4 = []
+    for i in range(0, len(y_array)):
+        algorithm_1.append(y_array[i]['timedout_percentage_algorithm_1'][4])
+        algorithm_2.append(y_array[i]['timedout_percentage_algorithm_2'][4])
+        algorithm_3.append(y_array[i]['timedout_percentage_algorithm_3'][4])
+        algorithm_4.append(y_array[i]['timedout_percentage_algorithm_4'][4])
+    plt.plot(x_array, algorithm_1, label = "Algoritmo 1")
+    plt.plot(x_array, algorithm_2, label = "Algoritmo 2")
+    plt.plot(x_array, algorithm_3, label = "Algoritmo 3")
+    plt.plot(x_array, algorithm_4, label = "Algoritmo 4")
     plt.xlabel("Ratio entre workers e olts")
     plt.ylabel("Percentagem de pedidos timedout")
     plt.legend()
@@ -82,7 +100,6 @@ def timedout_percentage_by_ratio(x_array, y_array, seed):
     plt.close()
 
 number_of_requests = [50, 100, 500, 1000, 2000]
-
 
 if __name__ == "__main__":
     # 1 workers; 5 olts => Ratio 0.2
@@ -148,12 +165,34 @@ if __name__ == "__main__":
     average_time_olt_queue_chart(number_of_requests, run_results_34_5_workers_5_olts, 34, 5, 5)
     timedout_percentage_chart(number_of_requests, run_results_34_5_workers_5_olts, 34, 5, 5)
     # 6 workers; 5 olts => Ratio 1.2
+        # -- Seed 34
     run_results_34_6_workers_5_olts = load_run_results(34, 6, 5)
     average_time_total_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
     average_time_broker_queue_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
     average_time_worker_queue_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
     average_time_olt_queue_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
     timedout_percentage_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
+    # 7 workers: 5 olts => Ratio 1.4
+    run_results_34_7_workers_5_olts = load_run_results(34, 7, 5)
+    average_time_total_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
+    timedout_percentage_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
+    # 8 workers; 5 olts => Ratio 1.6
+    run_results_34_8_workers_5_olts = load_run_results(34, 8, 5)
+    average_time_total_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
+    timedout_percentage_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
+    # 9 workers; 5 olts => Ratio 1.8
+    run_results_34_9_workers_5_olts = load_run_results(34, 9, 5)
+    average_time_total_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
+    timedout_percentage_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
     # 10 workers; 5 olts => Ratio 2.0
         # -- Seed 42
     run_results_42_10_workers_5_olts = load_run_results(42, 10, 5)
@@ -190,9 +229,9 @@ if __name__ == "__main__":
     # timedout_percentage_by_ratio(ratios, [run_results_7_5_workers_5_olts, run_results_7_10_workers_5_olts], 7)
 
         # -- Seed 34
-    own_ratios = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 2.0]
-    avg_time_total_by_ratio(own_ratios, [run_results_34_1_workers_5_olts, run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_10_workers_5_olts], 34) 
-    timedout_percentage_by_ratio(own_ratios, [run_results_34_1_workers_5_olts, run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_10_workers_5_olts], 34)
+    own_ratios = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+    avg_time_total_by_ratio(own_ratios, [run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_7_workers_5_olts, run_results_34_8_workers_5_olts, run_results_34_9_workers_5_olts, run_results_34_10_workers_5_olts], 34) 
+    timedout_percentage_by_ratio(own_ratios, [run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_7_workers_5_olts, run_results_34_8_workers_5_olts, run_results_34_9_workers_5_olts, run_results_34_10_workers_5_olts], 34)
 
 
 

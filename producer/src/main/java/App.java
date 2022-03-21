@@ -266,7 +266,7 @@ public class App {
         // Seed 2: 7
         // Seed 3: 34
         int seed = 34;
-        Random r = new Random(34);
+        Random r = new Random(seed);
         List<Integer> longer_than_timeouts_order_numbers = new ArrayList<>();
         for(int i = 0; i < longer_than_timeout; i++) {
             int order_number = r.nextInt(orchestration.get_messages());
