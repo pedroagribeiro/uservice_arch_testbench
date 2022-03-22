@@ -9,9 +9,7 @@ import io.prometheus.client.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -25,8 +23,6 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-// @Component
-// @Scope("application")
 @Service
 public class ProducerLogic implements Runnable {
 

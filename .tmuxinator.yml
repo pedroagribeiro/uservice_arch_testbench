@@ -15,8 +15,8 @@ windows:
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd producer_spring
-            - mvn spring-boot:run
+            - cd producer
+            - ../bin/producer
   - broker:
       layout: main-vertical
       panes:
