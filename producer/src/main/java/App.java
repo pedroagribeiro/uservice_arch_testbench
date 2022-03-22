@@ -27,6 +27,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
+import io.prometheus.client.Counter;
+
 public class App {
 
     @Parameter(names = { "-containerized" }, description = "Describes if the running environment if fully containerized")
@@ -57,6 +59,8 @@ public class App {
     private Channel broker_queue_messaging_channel;
     private Channel broker_queue_orchestrationg_channel;
     private java.sql.Connection run_results_database_connection;
+
+    private static final Counter requests = Counter.build().name("total_requests").help("Total requests.").register();
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -301,6 +305,7 @@ public class App {
             }
             try {
                 this.broker_queue_messaging_channel.basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
+                requests.inc();
             } catch (IOException e) {
                 log.info("FAILURE: Something went wrong while publishing a new message on the \"message_queue\" channel of the broker queue");
             }
