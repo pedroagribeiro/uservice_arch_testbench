@@ -104,6 +104,12 @@ number_of_requests = [50, 100, 500, 1000, 2000]
 if __name__ == "__main__":
     # 1 workers; 5 olts => Ratio 0.2
         # -- Seed 42
+    run_results_42_1_workers_5_olts = load_run_results(42, 1, 5)
+    average_time_total_chart(number_of_requests, run_results_42_1_workers_5_olts, 42, 1, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_1_workers_5_olts, 42, 1, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_1_workers_5_olts, 42, 1, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_1_workers_5_olts, 42, 1, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_1_workers_5_olts, 42, 1, 5)
         # -- Seed 7 
         # -- Seed 34 
     run_results_34_1_workers_5_olts = load_run_results(34, 1, 5)
@@ -114,6 +120,12 @@ if __name__ == "__main__":
     timedout_percentage_chart(number_of_requests, run_results_34_1_workers_5_olts, 34, 1, 5)
     # 2 workers; 5 olts => Ratio 0.4
         # -- Seed 42
+    run_results_42_2_workers_5_olts = load_run_results(42, 2, 5)
+    average_time_total_chart(number_of_requests, run_results_42_2_workers_5_olts, 42, 2, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_2_workers_5_olts, 42, 2, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_2_workers_5_olts, 42, 2, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_2_workers_5_olts, 42, 2, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_2_workers_5_olts, 42, 2, 5)
         # -- Seed 7 
         # -- Seed 34 
     run_results_34_2_workers_5_olts = load_run_results(34, 2, 5)
@@ -124,6 +136,12 @@ if __name__ == "__main__":
     timedout_percentage_chart(number_of_requests, run_results_34_2_workers_5_olts, 34, 2, 5)
     # 3 workers; 5 olts => Ratio 0.6
         # -- Seed 42
+    run_results_42_3_workers_5_olts = load_run_results(42, 3, 5)
+    average_time_total_chart(number_of_requests, run_results_42_3_workers_5_olts, 42, 3, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_3_workers_5_olts, 42, 3, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_3_workers_5_olts, 42, 3, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_3_workers_5_olts, 42, 3, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_3_workers_5_olts, 42, 3, 5)
         # -- Seed 7
         # -- Seed 34
     run_results_34_3_workers_5_olts = load_run_results(34, 3, 5)
@@ -134,6 +152,12 @@ if __name__ == "__main__":
     timedout_percentage_chart(number_of_requests, run_results_34_3_workers_5_olts, 34, 3, 5)
     # 4 workers; 5 olts => Ratio 0.8
         # -- Seed 42
+    run_results_42_4_workers_5_olts = load_run_results(42, 4, 5)
+    average_time_total_chart(number_of_requests, run_results_42_4_workers_5_olts, 42, 4, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_4_workers_5_olts, 42, 4, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_4_workers_5_olts, 42, 4, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_4_workers_5_olts, 42, 4, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_4_workers_5_olts, 42, 4, 5)
         # -- Seed 7
         # -- Seed 34
     run_results_34_4_workers_5_olts = load_run_results(34, 4, 5)
