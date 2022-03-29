@@ -1,5 +1,8 @@
 package pt.testbench.broker_spring.model;
 
+import lombok.Data;
+
+@Data
 public class Orchestration {
 
     private int id;

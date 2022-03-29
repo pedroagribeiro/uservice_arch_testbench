@@ -1,22 +1,56 @@
 package pt.testbench.broker_spring.model;
 
+import lombok.Data;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 import java.util.Objects;
 
+@Data
+@Entity
+@Table(name = "messages")
 public class Message {
 
+    @Id
     private int id;
+
+    @Column(name = "olt", nullable = false)
     private String olt;
+
+    @Column(name = "processing_time", nullable = false)
     private long processing_time;
+
+    @Column(name = "timeout", nullable = false)
     private long timeout;
+
+    @Column(name = "issued_at", nullable = false)
     private long issued_at;
+
+    @Column(name = "worker", nullable = false)
     private int worker;
+
+    @Column(name = "enqueued_at_broker", nullable = false)
     private long enqueued_at_broker;
+
+    @Column(name = "dequeued_at_broker", nullable = false)
     private long dequeued_at_broker;
+
+    @Column(name = "enqueued_at_worker", nullable = false)
     private long enqueued_at_worker;
+
+    @Column(name = "dequeued_at_worker", nullable = false)
     private long dequeued_at_worker;
+
+    @Column(name = "enqueued_at_olt", nullable = false)
     private long enqueued_at_olt;
+
+    @Column(name = "dequeued_at_olt", nullable = false)
     private long dequeued_at_olt;
+
+    @Column(name = "completed", nullable = false)
     private long completed;
 
     public Message(final int id, final String olt, final long processing_time, final long timeout) {
@@ -32,6 +66,10 @@ public class Message {
         this.enqueued_at_olt = -1;
         this.dequeued_at_olt = -1;
         this.completed = -1;
+    }
+
+    public Message() {
+
     }
 
     public void set_id(final int id) {
@@ -188,5 +226,4 @@ public class Message {
                 completed
         );
     }
-
 }
