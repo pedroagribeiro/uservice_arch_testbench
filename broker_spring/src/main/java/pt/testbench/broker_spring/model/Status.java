@@ -74,4 +74,5 @@ public class Status {
     public void setLastChosenWorker(int last_chosen_worker) {
         this.last_chosen_worker = last_chosen_worker;
     }
+
 }

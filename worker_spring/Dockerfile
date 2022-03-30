@@ -1,7 +1,6 @@
 FROM ubuntu:18.04
-ARG ID
 
-# Install the necessary packages
+# Install necessary packages
 RUN apt update && apt -y upgrade
 RUN apt -y install openjdk-11-jdk
 RUN apt -y install maven
@@ -14,10 +13,10 @@ RUN export PATH=$JAVA_HOME/bin:$PATH
 RUN mkdir /app
 
 # Copy the .jar to the container
-COPY target/olt-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
+COPY target/worker_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar /app/
 
 # Switch directory context to /app
 WORKDIR /app
 
 # Run the application
-ENTRYPOINT ["java", "-cp", "olt-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized", "-id"]
+ENTRYPOINT ["java", "-cp", "worker_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "WorkerSpringApplication"]

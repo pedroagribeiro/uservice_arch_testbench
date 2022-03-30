@@ -1,17 +1,7 @@
 version: "3"
 
 services:
-  run_orchestrator:
-    build: ./run_orchestrator/
-    container_name: orchestrator
-    ports:
-      - "8000:8000"
-    networks:
-      - private_network
-    depends_on:
-      - producer_orchestration_queue
-      - run_results_database
-  producer_orchestration_queue:
+  producer_queue:
     image: rabbitmq:3.9.13-management
     container_name: orch-queue
     ports:
@@ -29,126 +19,115 @@ services:
     networks:
       - private_network
   producer:
-    build: ./producer/
+    build:
+      context: ./producer_spring/
+    command: '-Dspring-boot.run.arguments="--server.port=8080 --spring.rabbitmq.host=producer_queue --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --broker.host=broker --base_worker.host=worker- --base_olt.host=olt-"'
     container_name: producer
     depends_on:
-      - producer_orchestration_queue
+      - producer_queue
       - broker_queue
     networks:
       - private_network
   broker:
-    build: ./broker/
+    build:
+      context: ./broker_spring/
+    command: '-Dspring-boot.run.arguments="--server.port=8081 --spring.rabbitmq.host=broker_queue --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --producer.host=producer --base_worker.host=worker- --base_olt.host=olt-"'
     container_name: broker
     depends_on:
       - broker_queue
     networks:
       - private_network
-  worker0:
+  worker_0:
     build:
-      context: ./worker/
-    command: "0"
-    container_name: worker0
+      context: ./worker_spring/
+    command: '-Dspring-boot.run.arguments="--server.port=8500 --spring.rabbitmq.host=worker-queue-0 --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --broker.host=broker --base_worker.host=worker- --base_olt.host=olt- --worker.id=0"'
+    container_name: worker-0
     networks:
       - private_network
-  worker1:
+  worker_1:
     build:
-      context: ./worker/
-    command: "1"
-    container_name: worker1
+      context: ./worker_spring/
+    command: '-Dspring-boot.run.arguments="--server.port=8501 --spring.rabbitmq.host=worker-queue-1 --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --broker.host=broker --base_worker.host=worker- --base_olt.host=olt- --worker.id=1"'
+    container_name: worker-1
     networks:
       - private_network
   worker2:
     build:
-      context: ./worker/
-    command: "2"
-    container_name: worker2
+      context: ./worker_spring/
+    command: '-Dspring-boot.run.arguments="--server.port=8502 --spring.rabbitmq.host=worker-queue-2 --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --broker.host=broker --base_worker.host=worker- --base_olt.host=olt- --worker.id=2"'
+    container_name: worker-2
     networks:
       - private_network
-  olt0:
+  olt_0:
     build:
-      context: ./olt/
-    command: "0"
-    container_name: olt0
+      context: ./olt_spring/
+    command: '-Dspring-boot.run.arguments="--server.port=9000 --spring.rabbitmq.host=olt-queue-0 --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --base_worker.host=worker-"'
+    container_name: olt-0
     networks:
       - private_network
-  olt1:
+  olt_1:
     build:
-      context: ./olt/
-    command: "1"
-    container_name: olt1
+      context: ./olt_spring/
+    command: '-Dspring-boot.run.arguments="--server-port=9001 --spring.rabbitmq.host=olt-queue-1 --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --base_worker.host=worker-"'
+    container_name: olt-1
     networks:
       - private_network
-  olt2:
+  olt_2:
     build:
-      context: ./olt/
-    command: "2"
-    container_name: olt2
+      context: ./olt_spring/
+    command: '-Dspring-boot.run.arguments="--server-port=9002 --spring.rabbitmq.host=olt-queue-2 --spring.rabbitmq.port=5672 --spring.datasource.url=jdbc:postgresql://run-results-db:5432/results --base_worker.host=worker-"'
+    container_name: olt-2
     networks:
       - private_network
-  worker0_queue:
+  worker_queue_0:
     image: rabbitmq:3.9.13-management
-    container_name: worker-queue0
+    container_name: worker-queue-0
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
       - private_network
-  worker1_queue:
+  worker_queue_1:
     image: rabbitmq:3.9.13-management
-    container_name: worker-queue1
+    container_name: worker-queue-1
     ports:
       - "5673:5672"
       - "15673:15672"
     networks:
       - private_network
-  worker2_queue:
+  worker_queue_2:
     image: rabbitmq:3.9.13-management
-    container_name: worker-queue2
+    container_name: worker-queue-2
     ports:
       - "5674:5672"
       - "15674:15672"
     networks:
       - private_network
-
-  olt0_queue:
+  olt_queue_0:
     image: rabbitmq:3.9.13-management
-    container_name: olt-queue0
+    container_name: olt-queue-0
     ports:
       - "5676:5672"
       - "15676:15672"
     networks:
       - private_network
-  olt1_queue:
+  olt_queue_1:
     image: rabbitmq:3.9.13-management
-    container_name: olt-queue1
+    container_name: olt-queue-1
     ports:
       - "5677:5672"
       - "15677:15672"
     networks:
       - private_network
-  olt2_queue:
+  olt_queue_2:
     image: rabbitmq:3.9.13-management
-    container_name: olt-queue2
+    container_name: olt-queue-2
     ports:
       - "5678:5672"
       - "15678:15672"
     networks:
       - private_network
-  redis_database:
-    image: redis:latest
-    container_name: redis-db
-    ports:
-      - "6379:6379"
-    networks:
-      - private_network
-  results_database:
-    image: redis:latest
-    container_name: results-db
-    ports:
-      - "6380:6379"
-    networks:
-      - private_network
-  run_results_database:
+  relational_database:
     build:
       context: ./run_results_database/
     container_name: run-results-db

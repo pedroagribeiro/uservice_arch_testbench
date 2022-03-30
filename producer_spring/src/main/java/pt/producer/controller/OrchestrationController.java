@@ -24,7 +24,6 @@ public class OrchestrationController {
 
     private final RabbitTemplate rabbitTemplate;
     private static final Gson converter = new Gson();
-
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired private ResultRepository resultRepository;

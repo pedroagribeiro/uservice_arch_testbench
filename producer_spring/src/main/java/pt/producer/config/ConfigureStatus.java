@@ -7,12 +7,8 @@ import pt.producer.model.Status;
 @Configuration
 public class ConfigureStatus {
 
-    private boolean containerized;
-
     @Bean
     Status createStatus() {
-        Status status = new Status();
-        status.set_environment(containerized);
-        return status;
+        return new Status();
     }
 }

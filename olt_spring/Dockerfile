@@ -1,5 +1,4 @@
 FROM ubuntu:18.04
-ARG ID
 
 # Install necessary packages
 RUN apt update && apt -y upgrade
@@ -14,12 +13,10 @@ RUN export PATH=$JAVA_HOME/bin:$PATH
 RUN mkdir /app
 
 # Copy the .jar to the container
-COPY target/worker-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
+COPY target/olt_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar /app/
 
 # Switch directory context to /app
 WORKDIR /app
 
-RUN echo "$ID" > teste.txt 
-
 # Run the application
-ENTRYPOINT ["java", "-cp", "worker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized", "-id"]
+ENTRYPOINT ["java", "-cp", "olt_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "OltSpringApplication"]

@@ -13,10 +13,10 @@ RUN export PATH=$JAVA_HOME/bin:$PATH
 RUN mkdir /app
 
 # Copy the .jar to the container
-COPY target/broker-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
+COPY target/broker_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar /app/
 
-# Swith directory context to /app
+# Switch directory context to /app/
 WORKDIR /app
 
 # Run the application
-CMD ["java", "-cp", "broker-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized"]
+ENTRYPOINT ["java", "-cp", "broker_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "BrokerSpringApplication", "-Dspring-boot.run.arguments="--server.port=8081 --spring.rabbitmq.host="broker_queue" --spring.rabbitmq.port=5672"]

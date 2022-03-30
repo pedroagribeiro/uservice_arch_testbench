@@ -4,65 +4,59 @@ root: <%= ENV["PWD"] %>
 startup_window: producer
 
 windows:
-  - orchestrator:
-      layout: main-vertical
-      panes:
-        - app:
-            - cd run_orchestrator
-            - python3 app.py --no-containerized
   - producer:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd producer
-            - ../bin/producer
+            - cd producer_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--sever.port=8080 --spring.rabbitmq.port=5679"
   - broker:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd broker
-            - ../bin/broker
+            - cd broker_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8081 --spring.rabbitmq.port=5675"
   - worker_id_0:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd worker
-            - ../bin/worker 0
+            - cd worker_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--worker.id=0 --server.port=8500 --spring.rabbitmq.port=5672"
   - worker_id_1:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd worker
-            - ../bin/worker 1
+            - cd worker_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--worker.id=1 --server.port=8501 --spring.rabbitmq.port=5673"
   - worker_id_2:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd worker
-            - ../bin/worker 2
+            - cd worker_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--worker.id=2 --server.port=8502 --spring.rabbitmq.port=5674"
   - olt_0:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd olt
-            - ../bin/olt 0
+            - cd olt_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=9000 --spring.rabbitmq.port=5676"
   - olt_1:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd olt
-            - ../bin/olt 1
+            - cd olt_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=9001 --spring.rabbitmq.port=5677"
   - olt_2:
       layout: main-vertical
       panes:
         - app:
             - cd ~/Code/uservice_arch_testbench
-            - cd olt
-            - ../bin/olt 2
+            - cd olt_spring
+            - mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=9002 --spring.rabbitmq.port=5678"

@@ -3,6 +3,7 @@ package pt.testbench.olt_spring.handlers;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,12 +23,17 @@ public class ReceiveMessageHandler {
 
     @Autowired private MessageRepository messageRepository;
 
-    private void send_response_to_worker(Response r, String host, int worker) {
+    @Value("${spring.base_worker.host}")
+    private String base_worker_host;
+
+    private void send_response_to_worker(Response r, int worker) {
+        String worker_host = base_worker_host;
+        if(!worker_host.equals("localhost")) worker_host = worker_host + worker;
         int worker_port = 8500 + worker;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Response> entity = new HttpEntity<>(r, headers);
-        String cenas = "http://" + host + ":" + worker_port + "/response";
+        String cenas = "http://" + worker_host + ":" + worker_port + "/response";
         ResponseEntity<?> response = restTemplate.exchange(cenas, HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The response could not be sent back to the worker, something went wrong!");
@@ -53,6 +59,6 @@ public class ReceiveMessageHandler {
         m.set_completed(new Date().getTime());
         log.info("Finished processing message " + m.get_id());
         r.set_ended_handling(new Date().getTime());
-        send_response_to_worker(r, "localhost", m.get_worker());
+        send_response_to_worker(r, m.get_worker());
     }
 }

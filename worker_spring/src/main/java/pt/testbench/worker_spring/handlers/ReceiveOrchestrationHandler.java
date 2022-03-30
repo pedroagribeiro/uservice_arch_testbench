@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,13 +30,19 @@ public class ReceiveOrchestrationHandler {
     @Autowired
     private Status status;
 
-    private Message fetch_message_from_broker(String host) {
+    @Value("${spring.broker.host}")
+    private String broker_host;
+
+    @Value("${spring.base_olt.host}")
+    private String base_olt_host;
+
+    private Message fetch_message_from_broker() {
         Message m = null;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":8081/message", HttpMethod.GET, entity, String.class);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/message", HttpMethod.GET, entity, String.class);
             String message_json = (String) response.getBody();
             log.info("Actually fetched: " + message_json);
             m = converter.fromJson(message_json, Message.class);
@@ -47,12 +54,14 @@ public class ReceiveOrchestrationHandler {
     }
 
 
-    private void perform_olt_request(Message m, String host, String olt) {
+    private void perform_olt_request(Message m, String olt) {
+        String olt_base_host = base_olt_host;
+        if(!olt_base_host.equals("localhost")) olt_base_host = olt_base_host + olt;
         int olt_port = 9000 + Integer.parseInt(olt);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Message> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + olt_base_host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The message could not be sent to the OLT, something went wrong!");
         } else {
@@ -62,14 +71,14 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
-    private int ask_oracle_if_anyone_is_using_olt(String host, String olt) {
+    private int ask_oracle_if_anyone_is_using_olt(String olt) {
         int broker_port = 8081;
         int worker = -1;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + broker_port + "/management?olt={olt}", HttpMethod.GET, entity, String.class, olt);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":" + broker_port + "/management?olt={olt}", HttpMethod.GET, entity, String.class, olt);
             String worker_json = (String) response.getBody();
             worker = Integer.parseInt(worker_json);
         } catch(HttpClientErrorException.NotFound e) {
@@ -91,23 +100,23 @@ public class ReceiveOrchestrationHandler {
         boolean auto_consume = status.isOnGoingRun() && (status.getArchitecture() == 1 || status.getArchitecture() == 2);
         if(auto_consume) {
             while(status.isOnGoingRun()) {
-                Message m = fetch_message_from_broker("localhost");
+                Message m = fetch_message_from_broker();
                 if(status.getArchitecture() == 2) {
-                    int worker = ask_oracle_if_anyone_is_using_olt("localhost", m.get_olt());
+                    int worker = ask_oracle_if_anyone_is_using_olt(m.get_olt());
                     while(worker != -1) {
                        try {
                            Thread.sleep(1000);
                        } catch(InterruptedException e) {
                            e.printStackTrace();
                        }
-                       worker = ask_oracle_if_anyone_is_using_olt("localhost", m.get_olt());
+                       worker = ask_oracle_if_anyone_is_using_olt(m.get_olt());
                     }
                 }
                 if(m != null) {
                     status.setCurrentActiveRequest(m.get_id());
                     status.getRequestSatisfied().put(m.get_id(), false);
                     log.info("Message that I got: " + converter.toJson(m));
-                    perform_olt_request(m, "localhost", m.get_olt());
+                    perform_olt_request(m, m.get_olt());
                     try {
                         Awaitility.await().atMost(m.get_timeout(), TimeUnit.MILLISECONDS).until(request_satisfied(m.get_id()));
                     } catch(Exception e) {

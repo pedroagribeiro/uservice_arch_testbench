@@ -3,7 +3,6 @@ package pt.producer.model;
 public class Status {
 
     private boolean on_going_run;
-    private boolean containerized;
     private int current_message_id;
 
     public Status() {
@@ -31,7 +30,4 @@ public class Status {
         this.on_going_run = false;
     }
 
-    public void set_environment(final Boolean containerized) {
-        this.containerized = containerized;
-    }
 }

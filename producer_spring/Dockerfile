@@ -13,16 +13,10 @@ RUN export PATH=$JAVA_HOME/bin:$PATH
 RUN mkdir /app
 
 # Copy the .jar to the container
-COPY target/producer-1.0-SNAPSHOT-jar-with-dependencies.jar /app/
+COPY target/producer-0.0.1-SNAPSHOT-jar-with-dependencies.jar /app/
 
-# Copy the start script
-COPY start.sh /app/
-
-# Make the script executable
-RUN chmod +x /app/start.sh
-
-# Switch directory context to /app
+# Switch directory context to /app/
 WORKDIR /app
 
 # Run the application
-ENTRYPOINT [ "java", "-cp", "producer-1.0-SNAPSHOT-jar-with-dependencies.jar", "App", "-containerized" ]
+ENTRYPOINT ["java", "-cp", "producer-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "ProducerApplication", "-Dspring-boot.run.arguments="--server.port=8080 --spring.rabbitmq.host="producer_queue" --spring.rabbitmq.port=5672"]

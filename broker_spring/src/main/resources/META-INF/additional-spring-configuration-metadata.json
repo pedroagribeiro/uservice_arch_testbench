@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "name": "spring.producer.host",
+      "type": "java.lang.String",
+      "description": "Description for spring.producer.host."
+    },
+    {
+      "name": "spring.base_worker.host",
+      "type": "java.lang.String",
+      "description": "Description for spring.base_worker.host"
+    },
+    {
+      "name": "spring.base_olt.host",
+      "type": "java.lang.String",
+      "description": "Description for spring.base_olt.host."
+    }
+  ] }

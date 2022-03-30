@@ -3,6 +3,7 @@ package pt.producer.handlers;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +28,12 @@ public class ReceiveOrchestrationHandler {
 
     @Autowired private Status current_status;
 
+    @Value("${broker.host}")
+    private String broker_host;
+
+    @Value("${base_worker.host}")
+    private String worker_base_host;
+
     private void forward_orchestration_to_component(Orchestration orchestration, String host, int port) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -43,11 +50,16 @@ public class ReceiveOrchestrationHandler {
 
     private void forward_orchestration_to_other_components(Orchestration orchestration, int workers) {
         // forward to the broker
-        forward_orchestration_to_component(orchestration, "localhost", 8081);
+        forward_orchestration_to_component(orchestration, this.broker_host, 8081);
         // forward to the workers
         for(int i = 0; i < workers; i++) {
             int port = 8500 + i;
-            forward_orchestration_to_component(orchestration, "localhost", port);
+            if(this.worker_base_host.equals("localhost")) {
+                forward_orchestration_to_component(orchestration, "localhost", port);
+            } else {
+                String worker_host = this.worker_base_host + i;
+                forward_orchestration_to_component(orchestration, worker_host, port);
+            }
         }
     }
 
@@ -98,11 +110,15 @@ public class ReceiveOrchestrationHandler {
 
     private void inform_workers_of_target(int target, int workers) {
         for(int i = 0; i < workers; i++) {
+            String worker_host = "localhost";
+            if(!this.worker_base_host.equals("localhost")) {
+                worker_host = this.worker_base_host + i;
+            }
             int port = 8500 + i;
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            ResponseEntity<?> response = restTemplate.exchange("http://localhost:" + port + "/run/target?target={target}", HttpMethod.POST, entity, String.class, target);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":" + port + "/run/target?target={target}", HttpMethod.POST, entity, String.class, target);
             if (response.getStatusCode().isError()) {
                 log.info("Could not inform the workers of the run target, something went wrong!");
             } else {
