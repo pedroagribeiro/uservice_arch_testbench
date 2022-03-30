@@ -15,6 +15,17 @@ run_results_34_8_workers_5_olts = load_run_results(34, 8, 5)
 run_results_34_9_workers_5_olts = load_run_results(34, 9, 5)
 run_results_34_10_workers_5_olts = load_run_results(34, 10, 5)
 
+run_results_42_1_workers_5_olts = load_run_results(42, 1, 5)
+run_results_42_2_workers_5_olts = load_run_results(42, 2, 5)
+run_results_42_3_workers_5_olts = load_run_results(42, 3, 5)
+run_results_42_4_workers_5_olts = load_run_results(42, 4, 5)
+run_results_42_5_workers_5_olts = load_run_results(42, 5, 5)
+run_results_42_6_workers_5_olts = load_run_results(42, 6, 5)
+run_results_42_7_workers_5_olts = load_run_results(42, 7, 5)
+run_results_42_8_workers_5_olts = load_run_results(42, 8, 5)
+run_results_42_9_workers_5_olts = load_run_results(42, 9, 5)
+run_results_42_10_workers_5_olts = load_run_results(42, 10, 5)
+
 # 1 workers; 5 olts => ratio = 0.2
 # 2 workers; 5 olts => ratio = 0.4
 # 3 workers; 5 olts => ratio = 0.6
@@ -24,6 +35,29 @@ run_results_34_10_workers_5_olts = load_run_results(34, 10, 5)
 # 10 workers; 5 olts => ratio = 2.0
 
 # ---> Algorithm 1
+# Seed 42
+avg_time_total_seed_42_1_workers_5_olts_algorithm_1 = run_results_42_1_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_2_workers_5_olts_algorithm_1 = run_results_42_2_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_3_workers_5_olts_algorithm_1 = run_results_42_3_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_4_workers_5_olts_algorithm_1 = run_results_42_4_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_5_workers_5_olts_algorithm_1 = run_results_42_5_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_6_workers_5_olts_algorithm_1 = run_results_42_6_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_7_workers_5_olts_algorithm_1 = run_results_42_7_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_8_workers_5_olts_algorithm_1 = run_results_42_8_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_9_workers_5_olts_algorithm_1 = run_results_42_9_workers_5_olts['avg_time_total_algorithm_1']
+avg_time_total_seed_42_10_workers_5_olts_algorithm_1 = run_results_42_10_workers_5_olts['avg_time_total_algorithm_1']
+timedout_percentage_seed_42_1_workers_5_olts_algorithm_1 = run_results_42_1_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_2_workers_5_olts_algorithm_1 = run_results_42_2_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_3_workers_5_olts_algorithm_1 = run_results_42_3_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_4_workers_5_olts_algorithm_1 = run_results_42_4_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_5_workers_5_olts_algorithm_1 = run_results_42_5_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_6_workers_5_olts_algorithm_1 = run_results_42_6_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_7_workers_5_olts_algorithm_1 = run_results_42_7_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_8_workers_5_olts_algorithm_1 = run_results_42_8_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_9_workers_5_olts_algorithm_1 = run_results_42_9_workers_5_olts['timedout_percentage_algorithm_1']
+timedout_percentage_seed_42_10_workers_5_olts_algorithm_1 = run_results_42_10_workers_5_olts['timedout_percentage_algorithm_1']
+
+
 # Seed 34
 avg_time_total_seed_34_1_workers_5_olts_algorithm_1 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_34_2_workers_5_olts_algorithm_1 = run_results_34_2_workers_5_olts['avg_time_total_algorithm_1']
@@ -138,15 +172,15 @@ def average_time_total_ratio_comparison_algorithm_1():
     percentual_deviation_10_workers_5_olts = 0
     for i in range(0, len(number_of_requests)):
         # avg_total_time_element_1_workers_5_olts = avg_time_total_seed_34_1_workers_5_olts_algorithm_1[i] 
-        avg_total_time_element_2_workers_5_olts = avg_time_total_seed_34_2_workers_5_olts_algorithm_1[i]
-        avg_total_time_element_3_workers_5_olts = avg_time_total_seed_34_3_workers_5_olts_algorithm_1[i]
-        avg_total_time_element_4_workers_5_olts = avg_time_total_seed_34_4_workers_5_olts_algorithm_1[i]
-        avg_total_time_element_5_workers_5_olts = avg_time_total_seed_34_5_workers_5_olts_algorithm_1[i]
-        avg_total_time_element_6_workers_5_olts = avg_time_total_seed_34_6_workers_5_olts_algorithm_1[i] 
-        avg_total_time_element_7_workers_5_olts = avg_time_total_seed_34_7_workers_5_olts_algorithm_1[i] 
-        avg_total_time_element_8_workers_5_olts = avg_time_total_seed_34_8_workers_5_olts_algorithm_1[i] 
-        avg_total_time_element_9_workers_5_olts = avg_time_total_seed_34_9_workers_5_olts_algorithm_1[i] 
-        avg_total_time_element_10_workers_5_olts = avg_time_total_seed_34_10_workers_5_olts_algorithm_1[i] 
+        avg_total_time_element_2_workers_5_olts = (avg_time_total_seed_34_2_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_2_workers_5_olts_algorithm_1[i]) / 2
+        avg_total_time_element_3_workers_5_olts = (avg_time_total_seed_34_3_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_3_workers_5_olts_algorithm_1[i]) / 2
+        avg_total_time_element_4_workers_5_olts = (avg_time_total_seed_34_4_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_4_workers_5_olts_algorithm_1[i]) / 2
+        avg_total_time_element_5_workers_5_olts = (avg_time_total_seed_34_5_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_5_workers_5_olts_algorithm_1[i]) / 2
+        avg_total_time_element_6_workers_5_olts = (avg_time_total_seed_34_6_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_6_workers_5_olts_algorithm_1[i]) / 2
+        avg_total_time_element_7_workers_5_olts = (avg_time_total_seed_34_7_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_7_workers_5_olts_algorithm_1[i]) / 2 
+        avg_total_time_element_8_workers_5_olts = (avg_time_total_seed_34_8_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_8_workers_5_olts_algorithm_1[i]) / 2 
+        avg_total_time_element_9_workers_5_olts = (avg_time_total_seed_34_9_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_9_workers_5_olts_algorithm_1[i]) / 2
+        avg_total_time_element_10_workers_5_olts = (avg_time_total_seed_34_10_workers_5_olts_algorithm_1[i] + avg_time_total_seed_42_10_workers_5_olts_algorithm_1[i]) / 2
         # total_time_average_1_workers_5_olts.append(avg_total_time_element_1_workers_5_olts)
         total_time_average_2_workers_5_olts.append(avg_total_time_element_2_workers_5_olts)
         total_time_average_3_workers_5_olts.append(avg_total_time_element_3_workers_5_olts)
@@ -220,15 +254,15 @@ def timedout_percentage_ratio_comparison_algorithm_1():
     for i in range(0, len(number_of_requests)):
         # change the following to the average when I got the run results
         # avg_timedout_percentage_element_1_workers_5_olts = timedout_percentage_seed_34_1_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_2_workers_5_olts = timedout_percentage_seed_34_2_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_3_workers_5_olts = timedout_percentage_seed_34_3_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_4_workers_5_olts = timedout_percentage_seed_34_4_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_5_workers_5_olts = timedout_percentage_seed_34_5_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_6_workers_5_olts = timedout_percentage_seed_34_6_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_7_workers_5_olts = timedout_percentage_seed_34_7_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_8_workers_5_olts = timedout_percentage_seed_34_8_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_9_workers_5_olts = timedout_percentage_seed_34_9_workers_5_olts_algorithm_1[i]
-        avg_timedout_percentage_element_10_workers_5_olts = timedout_percentage_seed_34_10_workers_5_olts_algorithm_1[i]
+        avg_timedout_percentage_element_2_workers_5_olts = (timedout_percentage_seed_34_2_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_2_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_3_workers_5_olts = (timedout_percentage_seed_34_3_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_3_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_4_workers_5_olts = (timedout_percentage_seed_34_4_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_4_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_5_workers_5_olts = (timedout_percentage_seed_34_5_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_5_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_6_workers_5_olts = (timedout_percentage_seed_34_6_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_6_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_7_workers_5_olts = (timedout_percentage_seed_34_7_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_7_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_8_workers_5_olts = (timedout_percentage_seed_34_8_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_8_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_9_workers_5_olts = (timedout_percentage_seed_34_9_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_9_workers_5_olts_algorithm_1[i]) / 2
+        avg_timedout_percentage_element_10_workers_5_olts = (timedout_percentage_seed_34_10_workers_5_olts_algorithm_1[i] + timedout_percentage_seed_42_10_workers_5_olts_algorithm_1[i]) / 2
         # timedout_percentage_averages_array_1_workers_5_olts.append(avg_timedout_percentage_element_1_workers_5_olts)
         timedout_percentage_averages_array_2_workers_5_olts.append(avg_timedout_percentage_element_2_workers_5_olts)
         timedout_percentage_averages_array_3_workers_5_olts.append(avg_timedout_percentage_element_3_workers_5_olts)

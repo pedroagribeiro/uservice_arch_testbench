@@ -189,6 +189,13 @@ if __name__ == "__main__":
     average_time_olt_queue_chart(number_of_requests, run_results_34_5_workers_5_olts, 34, 5, 5)
     timedout_percentage_chart(number_of_requests, run_results_34_5_workers_5_olts, 34, 5, 5)
     # 6 workers; 5 olts => Ratio 1.2
+        # -- Seed 42
+    run_results_42_6_workers_5_olts = load_run_results(42, 6, 5)
+    average_time_total_chart(number_of_requests, run_results_42_6_workers_5_olts, 42, 6, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_6_workers_5_olts, 42, 6, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_6_workers_5_olts, 42, 6, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_6_workers_5_olts, 42, 6, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_6_workers_5_olts, 42, 6, 5)
         # -- Seed 34
     run_results_34_6_workers_5_olts = load_run_results(34, 6, 5)
     average_time_total_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
@@ -197,6 +204,14 @@ if __name__ == "__main__":
     average_time_olt_queue_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
     timedout_percentage_chart(number_of_requests, run_results_34_6_workers_5_olts, 34, 6, 5)
     # 7 workers: 5 olts => Ratio 1.4
+        # -- Seed 42
+    run_results_42_7_workers_5_olts = load_run_results(42, 7, 5)
+    average_time_total_chart(number_of_requests, run_results_42_7_workers_5_olts, 42, 7, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_7_workers_5_olts, 42, 7, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_7_workers_5_olts, 42, 7, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_7_workers_5_olts, 42, 7, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_7_workers_5_olts, 42, 7, 5)
+        # -- Seed 34
     run_results_34_7_workers_5_olts = load_run_results(34, 7, 5)
     average_time_total_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
     average_time_broker_queue_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
@@ -204,6 +219,14 @@ if __name__ == "__main__":
     average_time_olt_queue_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
     timedout_percentage_chart(number_of_requests, run_results_34_7_workers_5_olts, 34, 7, 5)
     # 8 workers; 5 olts => Ratio 1.6
+        # -- Seed 42
+    run_results_42_8_workers_5_olts = load_run_results(42, 8, 5)
+    average_time_total_chart(number_of_requests, run_results_42_8_workers_5_olts, 42, 8, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_8_workers_5_olts, 42, 8, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_8_workers_5_olts, 42, 8, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_8_workers_5_olts, 42, 8, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_8_workers_5_olts, 42, 8, 5)
+        # -- Seed 34
     run_results_34_8_workers_5_olts = load_run_results(34, 8, 5)
     average_time_total_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
     average_time_broker_queue_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
@@ -211,6 +234,14 @@ if __name__ == "__main__":
     average_time_olt_queue_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
     timedout_percentage_chart(number_of_requests, run_results_34_8_workers_5_olts, 34, 8, 5)
     # 9 workers; 5 olts => Ratio 1.8
+        # -- Seed 42
+    run_results_42_9_workers_5_olts = load_run_results(42, 9, 5)
+    average_time_total_chart(number_of_requests, run_results_42_9_workers_5_olts, 42, 9, 5)
+    average_time_broker_queue_chart(number_of_requests, run_results_42_9_workers_5_olts, 42, 9, 5)
+    average_time_worker_queue_chart(number_of_requests, run_results_42_9_workers_5_olts, 42, 9, 5)
+    average_time_olt_queue_chart(number_of_requests, run_results_42_9_workers_5_olts, 42, 9, 5)
+    timedout_percentage_chart(number_of_requests, run_results_42_9_workers_5_olts, 42, 9, 5)
+        # -- Seed 34
     run_results_34_9_workers_5_olts = load_run_results(34, 9, 5)
     average_time_total_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
     average_time_broker_queue_chart(number_of_requests, run_results_34_9_workers_5_olts, 34, 9, 5)
@@ -245,17 +276,18 @@ if __name__ == "__main__":
     # Ratio comparisons
 
         # -- Seed 42
-    # avg_time_total_by_ratio(ratios, [run_results_42_5_workers_5_olts, run_results_42_10_workers_5_olts], 42) 
-    # timedout_percentage_by_ratio(ratios, [run_results_42_5_workers_5_olts, run_results_42_10_workers_5_olts], 42)
+    own_ratios_42 = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+    avg_time_total_by_ratio(own_ratios_42, [run_results_42_2_workers_5_olts, run_results_42_3_workers_5_olts, run_results_42_4_workers_5_olts, run_results_42_5_workers_5_olts, run_results_42_6_workers_5_olts, run_results_42_7_workers_5_olts, run_results_42_8_workers_5_olts, run_results_42_9_workers_5_olts, run_results_42_10_workers_5_olts], 42) 
+    timedout_percentage_by_ratio(own_ratios_42, [run_results_42_2_workers_5_olts, run_results_42_3_workers_5_olts, run_results_42_4_workers_5_olts, run_results_42_5_workers_5_olts, run_results_42_6_workers_5_olts, run_results_42_7_workers_5_olts, run_results_42_8_workers_5_olts, run_results_42_9_workers_5_olts, run_results_42_10_workers_5_olts], 42)
 
         # -- Seed 7
     # avg_time_total_by_ratio(ratios, [run_results_7_5_workers_5_olts, run_results_7_10_workers_5_olts], 7) 
     # timedout_percentage_by_ratio(ratios, [run_results_7_5_workers_5_olts, run_results_7_10_workers_5_olts], 7)
 
         # -- Seed 34
-    own_ratios = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
-    avg_time_total_by_ratio(own_ratios, [run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_7_workers_5_olts, run_results_34_8_workers_5_olts, run_results_34_9_workers_5_olts, run_results_34_10_workers_5_olts], 34) 
-    timedout_percentage_by_ratio(own_ratios, [run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_7_workers_5_olts, run_results_34_8_workers_5_olts, run_results_34_9_workers_5_olts, run_results_34_10_workers_5_olts], 34)
+    own_ratios_34 = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+    avg_time_total_by_ratio(own_ratios_34, [run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_7_workers_5_olts, run_results_34_8_workers_5_olts, run_results_34_9_workers_5_olts, run_results_34_10_workers_5_olts], 34) 
+    timedout_percentage_by_ratio(own_ratios_34, [run_results_34_2_workers_5_olts, run_results_34_3_workers_5_olts, run_results_34_4_workers_5_olts, run_results_34_5_workers_5_olts, run_results_34_6_workers_5_olts, run_results_34_7_workers_5_olts, run_results_34_8_workers_5_olts, run_results_34_9_workers_5_olts, run_results_34_10_workers_5_olts], 34)
 
 
 
