@@ -26,14 +26,13 @@ public class ReceiveMessageHandler {
     private final MessageDigest digester = MessageDigest.getInstance("SHA-256");
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public ReceiveMessageHandler() throws NoSuchAlgorithmException {
+    }
+
     @Autowired
     private Status status;
 
-    @Value("${spring.base_worker.host")
-    private String base_worker_host;
-
-    public ReceiveMessageHandler() throws NoSuchAlgorithmException {
-    }
+    private String base_worker_host = "worker-";
 
     private void forward_message_to_worker(Message m, int worker, int logic) {
         String worker_host = this.base_worker_host;

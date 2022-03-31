@@ -1,22 +1,19 @@
 package pt.testbench.worker_spring.model;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Status {
 
-    @Value("${worker.id}")
     private int worker_id;
-
     private boolean on_going_run;
     private int target_message_run;
     private int architecture;
     private int current_active_request;
     private Map<Integer, Boolean> request_satisfied;
 
-    public Status() {
+    public Status(final int worker_id) {
+        this.worker_id = worker_id;
         this.on_going_run = false;
         this.target_message_run = 0;
         this.architecture = 1;
@@ -67,4 +64,5 @@ public class Status {
     public void setRequestSatisfied(Map<Integer, Boolean> request_satisfied) {
         this.request_satisfied = request_satisfied;
     }
+
 }

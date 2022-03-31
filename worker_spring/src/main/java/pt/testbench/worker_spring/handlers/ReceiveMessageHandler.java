@@ -27,11 +27,8 @@ public class ReceiveMessageHandler {
     @Autowired
     private Status status;
 
-    @Value("${spring.base_olt.host}")
-    private String base_olt_host;
-
-    @Value("{spring.broker.host}")
-    private String broker_host;
+    private String base_olt_host = "olt-";
+    private String broker_host = "broker";
 
     private void perform_olt_request(Message m, String olt) {
         String olt_host = base_olt_host;

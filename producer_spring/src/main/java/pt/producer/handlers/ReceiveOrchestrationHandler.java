@@ -28,11 +28,8 @@ public class ReceiveOrchestrationHandler {
 
     @Autowired private Status current_status;
 
-    @Value("${broker.host}")
-    private String broker_host;
-
-    @Value("${base_worker.host}")
-    private String worker_base_host;
+    private String broker_host = "broker";
+    private String worker_base_host = "worker-";
 
     private void forward_orchestration_to_component(Orchestration orchestration, String host, int port) {
         HttpHeaders headers = new HttpHeaders();
@@ -138,8 +135,8 @@ public class ReceiveOrchestrationHandler {
             }
         }
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
-        inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.get_messages() - 1, 3);
-        forward_orchestration_to_other_components(orchestration, 3);
+        inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.get_messages() - 1, orchestration.get_workers());
+        forward_orchestration_to_other_components(orchestration, orchestration.get_workers());
         this.current_status.start_run();
         int new_current_message_id = this.message_generator.generate_messages(current_status.getCurrentMessageId(), orchestration);
         log.info("Waiting for run results to be ready...");

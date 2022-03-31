@@ -70,7 +70,7 @@ public class Generator {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Message> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://localhost:8081/message", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://broker:8081/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.error("The message could not be sent to the broker, something went wrong!");
         } else {

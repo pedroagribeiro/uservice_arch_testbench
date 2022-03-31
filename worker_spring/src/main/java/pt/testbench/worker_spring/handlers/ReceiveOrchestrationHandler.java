@@ -30,11 +30,8 @@ public class ReceiveOrchestrationHandler {
     @Autowired
     private Status status;
 
-    @Value("${spring.broker.host}")
-    private String broker_host;
-
-    @Value("${spring.base_olt.host}")
-    private String base_olt_host;
+    private String broker_host = "broker";
+    private String base_olt_host = "olt-";
 
     private Message fetch_message_from_broker() {
         Message m = null;

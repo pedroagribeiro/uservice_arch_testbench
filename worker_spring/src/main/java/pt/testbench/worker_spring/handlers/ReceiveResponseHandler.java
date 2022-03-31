@@ -25,11 +25,8 @@ public class ReceiveResponseHandler {
     @Autowired
     private Status status;
 
-    @Value("${spring.producer.host}")
-    private String producer_host;
-
-    @Value("${spring.base_worker.host}")
-    private String base_worker_host;
+    private String producer_host = "producer";
+    private String base_worker_host = "worker-";
 
     private void inform_producer_run_is_over() {
         HttpHeaders headers = new HttpHeaders();

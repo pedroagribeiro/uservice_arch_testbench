@@ -1,30 +1,19 @@
 package pt.testbench.olt_spring.model;
 
-import javax.persistence.*;
 import java.util.Objects;
 
-@Entity
-@Table(name = "responses")
 public class Response {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
-    @Column(name = "status", nullable = false)
     private int status;
 
-    @Column(name = "started_handling", nullable = false)
     private long started_handling;
 
-    @Column(name = "ended_handling", nullable = false)
     private long ended_handling;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
     private Message origin_message;
 
-    @Column(name = "timedout", nullable = false)
     private boolean timedout;
 
     public Response() {}

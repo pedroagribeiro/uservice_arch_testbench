@@ -13,10 +13,10 @@ RUN export PATH=$JAVA_HOME/bin:$PATH
 RUN mkdir /app
 
 # Copy the .jar to the container
-COPY target/worker_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar /app/
+COPY target/worker_spring-0.0.1-SNAPSHOT.jar /app/
 
 # Switch directory context to /app
 WORKDIR /app
 
 # Run the application
-ENTRYPOINT ["java", "-cp", "worker_spring-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "WorkerSpringApplication"]
+ENTRYPOINT ["java", "-jar", "worker_spring-0.0.1-SNAPSHOT.jar"]

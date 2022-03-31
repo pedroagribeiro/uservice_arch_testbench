@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.testbench.olt_spring.model.Message;
 import pt.testbench.olt_spring.model.Response;
-import pt.testbench.olt_spring.repository.MessageRepository;
 
 import java.util.Collections;
 import java.util.Date;
@@ -21,10 +20,7 @@ public class ReceiveMessageHandler {
     private static final Gson converter = new Gson();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Autowired private MessageRepository messageRepository;
-
-    @Value("${spring.base_worker.host}")
-    private String base_worker_host;
+    private String base_worker_host = "worker-";
 
     private void send_response_to_worker(Response r, int worker) {
         String worker_host = base_worker_host;
@@ -50,7 +46,6 @@ public class ReceiveMessageHandler {
         log.info("Received message: " + converter.toJson(m));
         log.info("Processing message " + m.get_id());
         Response r = new Response(200, new Date().getTime(), -1, m);
-        // process the incoming message
         try {
             Thread.sleep(m.get_processing_time());
         } catch(InterruptedException e) {
