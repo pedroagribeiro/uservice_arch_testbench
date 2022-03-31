@@ -48,7 +48,6 @@ public class ReceiveMessageHandler {
     }
 
     private void inform_oracle_of_handling(String olt) {
-        if(!broker_host.equals("localhost")) broker_host = broker_host + olt;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -63,7 +62,6 @@ public class ReceiveMessageHandler {
     }
 
     private void inform_oracle_of_handling_end(String olt) {
-        if(!broker_host.equals("localhost")) broker_host = broker_host + olt;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);

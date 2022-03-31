@@ -1,3 +1,43 @@
+# Relational Database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uservices-arch-testbench-results-relational-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: uservices-arch-testbench-results-relational-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uservices-arch-testbench-results-relational-database
+    spec:
+      containers:
+        - name: relational-db
+          image: 10.112.106.236:32500/ztp-onu-relational_database:1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+              name: results-port
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relational-db
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: uservices-arch-testbench-results-relational-database
+  ports:
+    - name: relat-db-port
+      port: 5432
+      targetPort: 5432
+
 # Componente: Producer
 ---
 apiVersion: apps/v1
@@ -17,10 +57,10 @@ spec:
     spec:
       containers:
         - name: producer
-          image: 10.112.106.236:32500/ztp-onu-run_producer_spring:1.0
+          image: 10.112.106.236:32500/ztp-onu-producer_spring:1.0
           imagePullPolicy: Always
           ports:
-            - containerPort: 8000
+            - containerPort: 8080
               name: http-req-port
       restartPolicy: Always
 
@@ -103,13 +143,16 @@ spec:
         - name: broker
           image: 10.112.106.236:32500/ztp-onu-broker_spring:1.0
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+              name: http-req-port
       restartPolicy: Always
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: uservices-arch-testbench-broker
+  name: broker
   namespace: dsr-onu-ztp
 spec:
   selector:
@@ -166,7 +209,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uservices-arch-test-worker0-bundle
+  name: uservices-arch-testbench-worker0-bundle
   namespace: dsr-onu-ztp
 spec:
   selector:
@@ -188,6 +231,9 @@ spec:
               "--worker.id=0",
             ]
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8500
+              name: http-req-port
         - name: worker-queue-0
           image: rabbitmq:3.9.13-management
           ports:
@@ -195,7 +241,7 @@ spec:
               name: queue-port
             - containerPort: 15672
               name: queue-mngt
-      restartPolicy: always
+      restartPolicy: Always
 
 ---
 apiVersion: v1
@@ -205,7 +251,7 @@ metadata:
   namespace: dsr-onu-ztp
 spec:
   selector:
-    app: uservices-arch-test-worker0-bundle
+    app: uservices-arch-testbench-worker0-bundle
   ports:
     - name: wk0-port
       port: 8500
@@ -230,7 +276,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uservices-arch-test-worker1-bundle
+  name: uservices-arch-testbench-worker1-bundle
   namespace: dsr-onu-ztp
 spec:
   selector:
@@ -252,6 +298,9 @@ spec:
               "--worker.id=1",
             ]
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8501
+              name: http-req-port
         - name: worker-queue-1
           image: rabbitmq:3.9.13-management
           ports:
@@ -259,7 +308,7 @@ spec:
               name: queue-port
             - containerPort: 15672
               name: queue-mngt
-      restartPolicy: always
+      restartPolicy: Always
 
 ---
 apiVersion: v1
@@ -269,7 +318,7 @@ metadata:
   namespace: dsr-onu-ztp
 spec:
   selector:
-    app: uservices-arch-test-worker1-bundle
+    app: uservices-arch-testbench-worker1-bundle
   ports:
     - name: wk1-port
       port: 8501
@@ -294,7 +343,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uservices-arch-test-worker2-bundle
+  name: uservices-arch-testbench-worker2-bundle
   namespace: dsr-onu-ztp
 spec:
   selector:
@@ -316,6 +365,9 @@ spec:
               "--worker.id=2",
             ]
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8502
+              name: http-req-port
         - name: worker-queue-2
           image: rabbitmq:3.9.13-management
           ports:
@@ -323,7 +375,7 @@ spec:
               name: queue-port
             - containerPort: 15672
               name: queue-mngt
-      restartPolicy: always
+      restartPolicy: Always
 
 ---
 apiVersion: v1
@@ -333,7 +385,7 @@ metadata:
   namespace: dsr-onu-ztp
 spec:
   selector:
-    app: uservices-arch-test-worker2-bundle
+    app: uservices-arch-testbench-worker2-bundle
   ports:
     - name: wk2-port
       port: 8502
@@ -375,6 +427,9 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-olt_spring:1.0
           args: ["--server.port=9000", "--spring.rabbitmq.host=olt-queue-0"]
           imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+              name: http-req-port
         - name: olt-queue-0
           image: rabbitmq:3.9.13-management
           ports:
@@ -434,6 +489,9 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-olt_spring:1.0
           args: ["--server.port=9001", "--spring.rabbitmq.host=olt-queue-1"]
           imagePullPolicy: Always
+          ports:
+            - containerPort: 9001
+              name: http-req-port
         - name: olt-queue-1
           image: rabbitmq:3.9.13-management
           ports:
@@ -493,6 +551,9 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-olt_spring:1.0
           args: ["--server.port=9002", "--spring.rabbitmq.host=olt-queue-2"]
           imagePullPolicy: Always
+          ports:
+            - containerPort: 9002
+              name: http-req-port
         - name: olt-queue-2
           image: rabbitmq:3.9.13-management
           ports:
@@ -529,43 +590,3 @@ spec:
     - name: olt2-queue-port
       port: 5672
       targetPort: 5672
-
-# Relational Database
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: uservices-arch-testbench-results-relational-database
-  namespace: dsr-onu-ztp
-spec:
-  selector:
-    matchLabels:
-      app: uservices-arch-testbench-results-relational-database
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: uservices-arch-testbench-results-relational-database
-    spec:
-      containers:
-        - name: relational-db
-          image: 10.112.106.236:32500/ztp-onu-relational_database:1.0
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 5432
-              name: results-port
-      restartPolicy: Always
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: relational-db
-  namespace: dsr-onu-ztp
-spec:
-  selector:
-    app: uservices-arch-testbench-results-relational-database
-  ports:
-    - name: relat-db-port
-      port: 5432
-      targetPort: 5432
