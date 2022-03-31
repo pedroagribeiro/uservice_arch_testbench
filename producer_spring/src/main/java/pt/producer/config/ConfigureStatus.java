@@ -8,7 +8,7 @@ import pt.producer.model.Status;
 public class ConfigureStatus {
 
     @Bean
-    Status createStatus() {
+    Status currentStatus() {
         return new Status();
     }
 }

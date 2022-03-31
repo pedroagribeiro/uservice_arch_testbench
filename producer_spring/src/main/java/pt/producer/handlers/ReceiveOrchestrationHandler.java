@@ -26,7 +26,9 @@ public class ReceiveOrchestrationHandler {
 
     @Autowired private ResultRepository resultRepository;
 
-    @Autowired private Status current_status;
+    @Autowired
+    @Qualifier("currentStatus")
+    private Status current_status;
 
     private String broker_host = "broker";
     private String worker_base_host = "worker-";
@@ -140,7 +142,7 @@ public class ReceiveOrchestrationHandler {
         this.current_status.start_run();
         int new_current_message_id = this.message_generator.generate_messages(current_status.getCurrentMessageId(), orchestration);
         log.info("Waiting for run results to be ready...");
-        while(this.current_status.isOnGoingRun());
+        while(current_status.isOnGoingRun()) {}
         calculate_run_results(orchestration.get_id(), current_status.getCurrentMessageId(), new_current_message_id - 1);
         log.info("The run is finished and the result has been submitted to the database");
         this.current_status.setCurrentMessageId(new_current_message_id + 1);
