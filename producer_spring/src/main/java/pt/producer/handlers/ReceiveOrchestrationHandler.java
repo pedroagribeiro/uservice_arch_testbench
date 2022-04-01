@@ -3,7 +3,7 @@ package pt.producer.handlers;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,7 +20,7 @@ public class ReceiveOrchestrationHandler {
 
     private final Gson converter = new Gson();
     private final Generator message_generator = new Generator();
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired private ResponseRepository responseRepository;
 
@@ -30,8 +30,8 @@ public class ReceiveOrchestrationHandler {
     @Qualifier("currentStatus")
     private Status current_status;
 
-    private String broker_host = "broker";
-    private String worker_base_host = "worker-";
+    private final String broker_host = "broker";
+    private final String worker_base_host = "worker-";
 
     private void forward_orchestration_to_component(Orchestration orchestration, String host, int port) {
         HttpHeaders headers = new HttpHeaders();
@@ -53,12 +53,8 @@ public class ReceiveOrchestrationHandler {
         // forward to the workers
         for(int i = 0; i < workers; i++) {
             int port = 8500 + i;
-            if(this.worker_base_host.equals("localhost")) {
-                forward_orchestration_to_component(orchestration, "localhost", port);
-            } else {
-                String worker_host = this.worker_base_host + i;
-                forward_orchestration_to_component(orchestration, worker_host, port);
-            }
+            String worker_host = this.worker_base_host + i;
+            forward_orchestration_to_component(orchestration, worker_host, port);
         }
     }
 
@@ -109,10 +105,7 @@ public class ReceiveOrchestrationHandler {
 
     private void inform_workers_of_target(int target, int workers) {
         for(int i = 0; i < workers; i++) {
-            String worker_host = "localhost";
-            if(!this.worker_base_host.equals("localhost")) {
-                worker_host = this.worker_base_host + i;
-            }
+            String worker_host = this.worker_base_host + i;
             int port = 8500 + i;
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -128,7 +121,7 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
-    public void handleOrchestration(String body) {
+    private void wait_for_current_run_to_finish() {
         while(this.current_status.isOnGoingRun()) {
             try {
                 Thread.sleep(1000);
@@ -136,13 +129,17 @@ public class ReceiveOrchestrationHandler {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void handleOrchestration(String body) {
+        wait_for_current_run_to_finish();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
-        inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.get_messages() - 1, orchestration.get_workers());
+        inform_workers_of_target(this.current_status.getCurrentMessageId() + orchestration.get_messages() - 1, orchestration.get_workers());
         forward_orchestration_to_other_components(orchestration, orchestration.get_workers());
         this.current_status.start_run();
-        int new_current_message_id = this.message_generator.generate_messages(current_status.getCurrentMessageId(), orchestration);
+        int new_current_message_id = this.message_generator.generate_messages(this.current_status.getCurrentMessageId(), orchestration);
         log.info("Waiting for run results to be ready...");
-        while(current_status.isOnGoingRun()) {}
+        wait_for_current_run_to_finish();
         calculate_run_results(orchestration.get_id(), current_status.getCurrentMessageId(), new_current_message_id - 1);
         log.info("The run is finished and the result has been submitted to the database");
         this.current_status.setCurrentMessageId(new_current_message_id + 1);

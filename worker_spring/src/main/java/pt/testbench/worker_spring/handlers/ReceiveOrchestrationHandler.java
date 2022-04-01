@@ -17,6 +17,7 @@ import pt.testbench.worker_spring.model.Orchestration;
 import pt.testbench.worker_spring.model.Status;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -98,6 +99,9 @@ public class ReceiveOrchestrationHandler {
         if(auto_consume) {
             while(status.isOnGoingRun()) {
                 Message m = fetch_message_from_broker();
+                long instant = new Date().getTime();
+                m.set_enqueued_at_worker(instant);
+                m.set_dequeued_at_worker(instant);
                 if(status.getArchitecture() == 2) {
                     int worker = ask_oracle_if_anyone_is_using_olt(m.get_olt());
                     while(worker != -1) {
