@@ -58,7 +58,7 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
-    private void calculate_run_results(int run_id, int lower_bound, int upper_bound) {
+    private void calculate_run_results(int run_id, int lower_bound, int upper_bound, long end_instant) {
         int total_requests = upper_bound - lower_bound;
         List<Response> responses = this.responseRepository.findAllResponsesBetweenGivenIds(lower_bound, upper_bound);
         List<RequestReport> reports = new ArrayList<>();
@@ -92,11 +92,14 @@ public class ReceiveOrchestrationHandler {
         double percentage_of_timedout_requests = (double) timedout_requests / (double) total_requests;
         Optional<Result> r = this.resultRepository.findById(run_id);
         if(r.isPresent()) {
+            double avg_time_total_2 = (end_instant - r.get().getStart_instant()) / total_requests;
             Result result = r.get();
             result.setAvg_time_total(avg_time_total);
             result.setAvg_time_broker_queue(avg_time_broker_queue);
             result.setAvg_time_worker_queue(avg_time_worker_queue);
             result.setAvg_time_olt_queue(avg_time_olt_queue);
+            result.setEnd_instant(end_instant);
+            result.setAvg_time_total_2(avg_time_total_2);
             result.setTimedout(percentage_of_timedout_requests);
             result.setStatus("FINISHED");
             this.resultRepository.save(result);
@@ -140,7 +143,7 @@ public class ReceiveOrchestrationHandler {
         int new_current_message_id = this.message_generator.generate_messages(this.current_status.getCurrentMessageId(), orchestration);
         log.info("Waiting for run results to be ready...");
         wait_for_current_run_to_finish();
-        calculate_run_results(orchestration.get_id(), current_status.getCurrentMessageId(), new_current_message_id - 1);
+        calculate_run_results(orchestration.get_id(), current_status.getCurrentMessageId(), new_current_message_id - 1, new Date().getTime());
         log.info("The run is finished and the result has been submitted to the database");
         this.current_status.setCurrentMessageId(new_current_message_id + 1);
     }

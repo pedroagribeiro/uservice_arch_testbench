@@ -1,6 +1,7 @@
 package pt.producer.controller;
 
 import com.google.gson.Gson;
+import java.util.Date;
 import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class OrchestrationController {
 
     @PostMapping("")
     public ResponseEntity<?> sendOrchestration(@RequestBody OrchestrationNoId orchestration) {
-        Result r = new Result(orchestration);
+        Result r = new Result(orchestration, new Date().getTime());
         this.resultRepository.save(r);
         Orchestration o = new Orchestration(r.getRun(), orchestration);
         rabbitTemplate.convertAndSend(ConfigureOrchestrationQueue.EXCHANGE_NAME, ConfigureOrchestrationQueue.QUEUE_NAME, converter.toJson(o));

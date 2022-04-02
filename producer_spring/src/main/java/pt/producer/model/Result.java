@@ -24,6 +24,15 @@ public class Result {
     @Column(name = "avg_time_olt_queue")
     private double avg_time_olt_queue;
 
+    @Column(name = "start_instant")
+    private long start_instant;
+
+    @Column(name = "end_instant")
+    private long end_instant;
+
+    @Column(name = "avg_time_total_2")
+    private double avg_time_total_2;
+
     @Column(name = "olts")
     private int olts;
 
@@ -43,8 +52,9 @@ public class Result {
 
     }
 
-    public Result(OrchestrationNoId orchestration) {
+    public Result(OrchestrationNoId orchestration, long start_instant) {
         this.algorithm = orchestration.get_algorithm();
+        this.start_instant = start_instant;
         this.olts = orchestration.get_olts();
         this.workers = orchestration.get_workers();
         this.requests = orchestration.get_messages();
@@ -104,6 +114,30 @@ public class Result {
 
     public void setAvg_time_olt_queue(double avg_time_olt_queue) {
         this.avg_time_olt_queue = avg_time_olt_queue;
+    }
+
+    public long getStart_instant() {
+        return this.start_instant;
+    }
+
+    public void setStart_instant(long start_instant) {
+        this.start_instant = start_instant;
+    }
+
+    public long getEnd_instant() {
+        return this.end_instant;
+    }
+
+    public void setEnd_instant(long end_instant) {
+        this.end_instant = end_instant;
+    }
+
+    public double getAvg_time_total_2() {
+        return this.avg_time_total_2;
+    }
+
+    public void setAvg_time_total_2(double avg_time_total_2) {
+        this.avg_time_total_2 = avg_time_total_2;
     }
 
     public int getOlts() {
