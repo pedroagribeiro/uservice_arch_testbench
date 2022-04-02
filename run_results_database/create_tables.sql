@@ -5,6 +5,8 @@ CREATE TABLE results (
     avg_time_broker_queue   double precision            ,
     avg_time_worker_queue   double precision            ,
     avg_time_olt_queue      double precision            ,
+    start_instant           double precision            ,
+    end_instant             double precision            ,
     olts                    integer             NOT NULL,
     workers                 integer             NOT NULL,
     requests                integer             NOT NULL,

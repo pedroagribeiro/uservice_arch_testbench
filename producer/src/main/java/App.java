@@ -339,7 +339,7 @@ public class App {
         return responses;
     }
 
-    private String metrics_calculator(Orchestration orchestration, List<Response> results) {
+    private String metrics_calculator(Orchestration orchestration, List<Response> results, long end_instant) {
         List<RequestReport> reports = new ArrayList<>();
         for(Response r : results) {
             int request_id = r.get_origin_message().get_id();
@@ -376,6 +376,7 @@ public class App {
             sql += "avg_time_broker_queue = " + String.valueOf(avg_time_broker_queue) + ", ";
             sql += "avg_time_worker_queue = " + String.valueOf(avg_time_worker_queue) + ", ";
             sql += "avg_time_olt_queue = " + String.valueOf(avg_time_olt_queue) + ", ";
+            sql += "end_instant = " + String.valueOf(end_instant) + ", ";
             sql += "timedout = " + String.valueOf(percentage_of_timedout_requests) + ", "; 
             sql += "status = \'completed\' WHERE run = " + orchestration.get_id() + ";";
             stmt = this.run_results_database_connection.createStatement();
@@ -405,9 +406,10 @@ public class App {
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
             try {
                 Statement stmt = null;
-                String sql = "INSERT INTO results (RUN, ALGORITHM, OLTS, WORKERS, REQUESTS, STATUS) " +
+                String sql = "INSERT INTO results (run, algorithm, start_instant, olts, workers, requests, status) " +
                     "VALUES (" + String.valueOf(this.run_id++) + 
                     ", " + String.valueOf(orchestration.get_algorithm()) +
+                    ", " + String.valueOf(new Date().getTime()) + 
                     ", " + String.valueOf(orchestration.get_olts()) +
                     ", " + String.valueOf(orchestration.get_workers()) + 
                     ", " + String.valueOf(orchestration.get_messages()) +
@@ -452,7 +454,8 @@ public class App {
         this.on_going_run = true;
         generate_and_send_messages(orchestration);
         List<Response> responses = generate_run_results(orchestration);
-        String results_string = metrics_calculator(orchestration, responses);
+        long end_instant = new Date().getTime();
+        String results_string = metrics_calculator(orchestration, responses, end_instant);
         log.info("RESULTS: " + results_string);
         wipe_redis_databases(results_database_pool, redis_database_pool);
         this.on_going_run = false;
