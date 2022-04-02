@@ -340,7 +340,7 @@ public class App {
         return responses;
     }
 
-    private String metrics_calculator(Orchestration orchestration, List<Response> results, long start_instant, long end_instant) {
+    private String metrics_calculator(Orchestration orchestration, List<Response> results, long end_instant) {
         List<RequestReport> reports = new ArrayList<>();
         for(Response r : results) {
             int request_id = r.get_origin_message().get_id();
