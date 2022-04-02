@@ -7,6 +7,7 @@ CREATE TABLE results (
     avg_time_olt_queue      double precision            ,
     start_instant           double precision            ,
     end_instant             double precision            ,
+    avg_time_total_2        double precision            ,
     olts                    integer             NOT NULL,
     workers                 integer             NOT NULL,
     requests                integer             NOT NULL,

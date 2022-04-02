@@ -37,6 +37,7 @@ public class App {
     private boolean on_going_run = false;
     private static Gson converter = new Gson();
     private int run_id = 0;
+    private long start_instant;
 
     private String queue_host;
     private int queue_port;
@@ -339,7 +340,7 @@ public class App {
         return responses;
     }
 
-    private String metrics_calculator(Orchestration orchestration, List<Response> results, long end_instant) {
+    private String metrics_calculator(Orchestration orchestration, List<Response> results, long start_instant, long end_instant) {
         List<RequestReport> reports = new ArrayList<>();
         for(Response r : results) {
             int request_id = r.get_origin_message().get_id();
@@ -370,12 +371,14 @@ public class App {
         double avg_time_olt_queue = time_olt_queue_total / results.size();
         double percentage_of_timedout_requests = (double) timedout_requests / (double) results.size();
         try {
+            double avg_time_total_2 = (end_instant - this.start_instant) / orchestration.get_messages();
             Statement stmt = null;
             String sql = "UPDATE results SET ";
             sql += "avg_time_total = " + String.valueOf(avg_time_total) + ", ";
             sql += "avg_time_broker_queue = " + String.valueOf(avg_time_broker_queue) + ", ";
             sql += "avg_time_worker_queue = " + String.valueOf(avg_time_worker_queue) + ", ";
             sql += "avg_time_olt_queue = " + String.valueOf(avg_time_olt_queue) + ", ";
+            sql += "avg_time_total_2 = " + String.valueOf(avg_time_total_2) + ", ";
             sql += "end_instant = " + String.valueOf(end_instant) + ", ";
             sql += "timedout = " + String.valueOf(percentage_of_timedout_requests) + ", "; 
             sql += "status = \'completed\' WHERE run = " + orchestration.get_id() + ";";
@@ -404,12 +407,13 @@ public class App {
             log.info("STATUS: Received a request to perform a new run");
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
+            this.start_instant = new Date().getTime();
             try {
                 Statement stmt = null;
                 String sql = "INSERT INTO results (run, algorithm, start_instant, olts, workers, requests, status) " +
                     "VALUES (" + String.valueOf(this.run_id++) + 
                     ", " + String.valueOf(orchestration.get_algorithm()) +
-                    ", " + String.valueOf(new Date().getTime()) + 
+                    ", " + String.valueOf(start_instant) + 
                     ", " + String.valueOf(orchestration.get_olts()) +
                     ", " + String.valueOf(orchestration.get_workers()) + 
                     ", " + String.valueOf(orchestration.get_messages()) +
