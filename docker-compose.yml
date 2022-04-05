@@ -2,7 +2,7 @@ version: "3"
 
 services:
   run_orchestrator:
-    build: ./run_orchestrator/
+    build: ./src/run_orchestrator/
     container_name: orchestrator
     ports:
       - "8000:8000"
@@ -29,7 +29,7 @@ services:
     networks:
       - private_network
   producer:
-    build: ./producer/
+    build: ./src/producer/
     container_name: producer
     depends_on:
       - producer_orchestration_queue
@@ -37,7 +37,7 @@ services:
     networks:
       - private_network
   broker:
-    build: ./broker/
+    build: ./src/broker/
     container_name: broker
     depends_on:
       - broker_queue
@@ -45,21 +45,21 @@ services:
       - private_network
   worker0:
     build:
-      context: ./worker/
+      context: ./src/worker/
     command: "0"
     container_name: worker0
     networks:
       - private_network
   worker1:
     build:
-      context: ./worker/
+      context: ./src/worker/
     command: "1"
     container_name: worker1
     networks:
       - private_network
   worker2:
     build:
-      context: ./worker/
+      context: ./src/worker/
     command: "2"
     container_name: worker2
     networks:
@@ -73,28 +73,28 @@ services:
       - private_network
   olt1:
     build:
-      context: ./olt/
+      context: ./src/olt/
     command: "1"
     container_name: olt1
     networks:
       - private_network
   olt2:
     build:
-      context: ./olt/
+      context: ./src/olt/
     command: "2"
     container_name: olt2
     networks:
       - private_network
   olt3:
     build:
-      context: ./olt/
+      context: ./src/olt/
     command: "3"
     container_name: olt3
     networks:
       - private_network
   olt4:
     build:
-      context: ./olt/
+      context: ./src/olt/
     command: "4"
     container_name: olt4
     networks:
@@ -180,7 +180,7 @@ services:
       - private_network
   run_results_database:
     build:
-      context: ./run_results_database/
+      context: ./src/run_results_database/
     container_name: run-results-db
     ports:
       - "5432:5432"
