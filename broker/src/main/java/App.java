@@ -17,6 +17,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.math.BigInteger;
 
 public class App {
 
@@ -301,11 +301,12 @@ public class App {
 
     private void process_manage_logic_two(Message m) {
         byte[] diggested_message = this.digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
-        // int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
-        int worker_to_forward = (int) new BigInteger(diggested_message).longValue();
+        int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
+        // int worker_to_forward = (int) new BigInteger(diggested_message).longValue();
         if(worker_to_forward < 0 || worker_to_forward > this.workers_queues_message_channels.size() - 1) {
             worker_to_forward = new Random().nextInt(this.workers_queues_message_channels.size());
         }
+        log.info("OLT " + m.get_olt() + " - WORKER " + worker_to_forward);
         m.set_enqueued_at_worker(new Date().getTime());
         try {
             workers_queues_message_channels.get(worker_to_forward).basicPublish("", "message_queue", null, converter.toJson(m).getBytes(StandardCharsets.UTF_8));
