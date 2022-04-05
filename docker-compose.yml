@@ -58,16 +58,16 @@ services:
       - relational_database
     networks:
       - private_network
-  # worker_2:
-  #   build:
-  #     context: ./worker_spring/
-  #   command: "--server.port=8502 --spring.rabbitmq.host=worker-queue-2 --worker.id=2"
-  #   container_name: worker-2
-  #   depends_on:
-  #     - worker_queue_2
-  #     - relational_database
-  #   networks:
-  #     - private_network
+  worker_2:
+    build:
+      context: ./worker_spring/
+    command: "--server.port=8502 --spring.rabbitmq.host=worker-queue-2 --worker.id=2"
+    container_name: worker-2
+    depends_on:
+      - worker_queue_2
+      - relational_database
+    networks:
+      - private_network
   olt_0:
     build:
       context: ./olt_spring/
@@ -86,15 +86,33 @@ services:
       - olt_queue_1
     networks:
       - private_network
-  # olt_2:
-  #   build:
-  #     context: ./olt_spring/
-  #   command: "--server.port=9002 --spring.rabbitmq.host=olt-queue-2"
-  #   container_name: olt-2
-  #   depends_on:
-  #     - olt_queue_2
-  #   networks:
-  #     - private_network
+  olt_2:
+    build:
+      context: ./olt_spring/
+    command: "--server.port=9002 --spring.rabbitmq.host=olt-queue-2"
+    container_name: olt-2
+    depends_on:
+      - olt_queue_2
+    networks:
+      - private_network
+  olt_3:
+    build:
+      context: ./olt_spring/
+    command: "--server.port=9003 --spring.rabbitmq.host=olt-queue-3"
+    container_name: olt-3
+    depends_on:
+      - olt_queue_3
+    networks:
+      - private_network
+  olt_4:
+    build:
+      context: ./olt_spring/
+    command: "--server.port=9004 --spring.rabbitmq.host=olt-queue-4"
+    container_name: olt-4
+    depends_on:
+      - olt_queue_4
+    networks:
+      - private_network
   worker_queue_0:
     image: rabbitmq:3.9.13-management
     container_name: worker-queue-0
@@ -111,14 +129,14 @@ services:
       - "15673:15672"
     networks:
       - private_network
-  # worker_queue_2:
-  #   image: rabbitmq:3.9.13-management
-  #   container_name: worker-queue-2
-  #   ports:
-  #     - "5674:5672"
-  #     - "15674:15672"
-  #   networks:
-  #     - private_network
+  worker_queue_2:
+    image: rabbitmq:3.9.13-management
+    container_name: worker-queue-2
+    ports:
+      - "5674:5672"
+      - "15674:15672"
+    networks:
+      - private_network
   olt_queue_0:
     image: rabbitmq:3.9.13-management
     container_name: olt-queue-0
@@ -135,14 +153,30 @@ services:
       - "15677:15672"
     networks:
       - private_network
-  # olt_queue_2:
-  #   image: rabbitmq:3.9.13-management
-  #   container_name: olt-queue-2
-  #   ports:
-  #     - "5678:5672"
-  #     - "15678:15672"
-  #   networks:
-  #     - private_network
+  olt_queue_2:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue-2
+    ports:
+      - "5678:5672"
+      - "15678:15672"
+    networks:
+      - private_network
+  olt_queue_3:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue-3
+    ports:
+      - "5680:5672"
+      - "15680:15672"
+    networks:
+      - private_network
+  olt_queue_4:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue-4
+    ports:
+      - "5681:5672"
+      - "15681:15672"
+    networks:
+      - private_network
   relational_database:
     build:
       context: ./run_results_database/
