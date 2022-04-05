@@ -27,6 +27,9 @@ public class ReceiveResponseHandler {
 
     private String producer_host = "producer";
     private String base_worker_host = "worker-";
+    private String broker_host = "broker";
+
+    private int workers = 2;
 
     private void inform_producer_run_is_over() {
         HttpHeaders headers = new HttpHeaders();
@@ -42,20 +45,41 @@ public class ReceiveResponseHandler {
         }
     }
 
-    private void inform_workers_run_is_over(String host) {
+    private void inform_workers_run_is_over() {
         String worker_base_host = base_worker_host;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":8080/run/ended", HttpMethod.POST, entity, String.class);
+        for(int i = 0; i < workers; i++) {
+            String host = base_worker_host + i;
+            int port = 8500 + i;
+            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + port + "/run/ended", HttpMethod.POST, entity, String.class);
+            if(response.getStatusCode().isError()) {
+                log.info("Could not inform worker " + i + " that the run is over, something went wrong!");
+            } else {
+                if(response.getStatusCode().is2xxSuccessful()) {
+                    log.info("Informed the worker " + i + " that the run is over!");
+                }
+        }
+
+
+        }
+    }
+
+    private void inform_oracle_of_handling_end(String olt) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
         if(response.getStatusCode().isError()) {
-            log.info("Could not inform the producer that the run is over, something went wrong!");
+            log.info("Could not inform broker of the handling end, something went wrong");
         } else {
             if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Informed the producer that the run is over!");
+                log.info("Informed the broker of the handling ending!");
             }
         }
     }
+
 
 
     public void handleResponse(String body) {
@@ -63,6 +87,7 @@ public class ReceiveResponseHandler {
         status.getRequestSatisfied().put(r.get_origin_message().get_id(), true);
         if(status.getCurrentActiveRequest() == r.get_origin_message().get_id()) {
             r.set_timedout(false);
+            inform_oracle_of_handling_end(r.get_origin_message().get_olt());
         } else {
             r.set_timedout(true);
         }
@@ -71,6 +96,7 @@ public class ReceiveResponseHandler {
         if(r.get_origin_message().get_id() == status.getTargetMessageRun()) {
             status.setIsOnGoingRun(false);
             inform_producer_run_is_over();
+            inform_workers_run_is_over();
             // tell the other workers the run is over
             // tell the broker it is over
             // tell the producer it is over

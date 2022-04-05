@@ -18,19 +18,19 @@ public class RunController {
 
     @PostMapping("/started")
     public ResponseEntity<?> startedRun() {
-        status.setIsOnGoingRun(true);
+        this.status.setIsOnGoingRun(true);
         return new ResponseEntity<>("Ongoing run: " + status.isOnGoingRun(), HttpStatus.OK);
     }
 
     @PostMapping("/ended")
     public ResponseEntity<?> endedRun() {
-        status.setIsOnGoingRun(false);
+        this.status.setIsOnGoingRun(false);
         return new ResponseEntity<>("Ongoing run: " + status.isOnGoingRun(), HttpStatus.OK);
     }
 
     @PostMapping("/target")
     public ResponseEntity<?> updateRunTarget(@RequestParam int target) {
-        status.setTargetMessageRun(target);
+        this.status.setTargetMessageRun(target);
         return new ResponseEntity<>("Target has been updated to: " + target, HttpStatus.OK);
     }
 }
