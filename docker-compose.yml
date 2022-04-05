@@ -85,6 +85,20 @@ services:
     container_name: olt2
     networks:
       - private_network
+  olt3:
+    build:
+      context: ./olt/
+    command: "3"
+    container_name: olt3
+    networks:
+      - private_network
+  olt4:
+    build:
+      context: ./olt/
+    command: "4"
+    container_name: olt4
+    networks:
+      - private_network
   worker0_queue:
     image: rabbitmq:3.9.13-management
     container_name: worker-queue0
@@ -132,6 +146,22 @@ services:
     ports:
       - "5678:5672"
       - "15678:15672"
+    networks:
+      - private_network
+  olt3_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue3
+    ports:
+      - "5680:5672"
+      - "15680:15672"
+    networks:
+      - private_network
+  olt4_queue:
+    image: rabbitmq:3.9.13-management
+    container_name: olt-queue4
+    ports:
+      - "5681:5672"
+      - "15681:15672"
     networks:
       - private_network
   redis_database:

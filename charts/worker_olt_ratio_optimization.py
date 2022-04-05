@@ -4,7 +4,7 @@ from run_parser import results_file_parser, load_run_results
 
 number_of_requests = [50, 100, 500, 1000, 2000]
 
-run_results_34_1_workers_5_olts = load_run_results(34, 1, 5) 
+# run_results_34_1_workers_5_olts = load_run_results(34, 1, 5) 
 run_results_34_2_workers_5_olts = load_run_results(34, 2, 5)
 run_results_34_3_workers_5_olts = load_run_results(34, 3, 5)
 run_results_34_4_workers_5_olts = load_run_results(34, 4, 5)
@@ -15,7 +15,7 @@ run_results_34_8_workers_5_olts = load_run_results(34, 8, 5)
 run_results_34_9_workers_5_olts = load_run_results(34, 9, 5)
 run_results_34_10_workers_5_olts = load_run_results(34, 10, 5)
 
-run_results_42_1_workers_5_olts = load_run_results(42, 1, 5)
+# run_results_42_1_workers_5_olts = load_run_results(42, 1, 5)
 run_results_42_2_workers_5_olts = load_run_results(42, 2, 5)
 run_results_42_3_workers_5_olts = load_run_results(42, 3, 5)
 run_results_42_4_workers_5_olts = load_run_results(42, 4, 5)
@@ -36,7 +36,7 @@ run_results_42_10_workers_5_olts = load_run_results(42, 10, 5)
 
 # ---> Algorithm 1
 # Seed 42
-avg_time_total_seed_42_1_workers_5_olts_algorithm_1 = run_results_42_1_workers_5_olts['avg_time_total_algorithm_1']
+# avg_time_total_seed_42_1_workers_5_olts_algorithm_1 = run_results_42_1_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_42_2_workers_5_olts_algorithm_1 = run_results_42_2_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_42_3_workers_5_olts_algorithm_1 = run_results_42_3_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_42_4_workers_5_olts_algorithm_1 = run_results_42_4_workers_5_olts['avg_time_total_algorithm_1']
@@ -46,7 +46,7 @@ avg_time_total_seed_42_7_workers_5_olts_algorithm_1 = run_results_42_7_workers_5
 avg_time_total_seed_42_8_workers_5_olts_algorithm_1 = run_results_42_8_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_42_9_workers_5_olts_algorithm_1 = run_results_42_9_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_42_10_workers_5_olts_algorithm_1 = run_results_42_10_workers_5_olts['avg_time_total_algorithm_1']
-timedout_percentage_seed_42_1_workers_5_olts_algorithm_1 = run_results_42_1_workers_5_olts['timedout_percentage_algorithm_1']
+# timedout_percentage_seed_42_1_workers_5_olts_algorithm_1 = run_results_42_1_workers_5_olts['timedout_percentage_algorithm_1']
 timedout_percentage_seed_42_2_workers_5_olts_algorithm_1 = run_results_42_2_workers_5_olts['timedout_percentage_algorithm_1']
 timedout_percentage_seed_42_3_workers_5_olts_algorithm_1 = run_results_42_3_workers_5_olts['timedout_percentage_algorithm_1']
 timedout_percentage_seed_42_4_workers_5_olts_algorithm_1 = run_results_42_4_workers_5_olts['timedout_percentage_algorithm_1']
@@ -59,7 +59,7 @@ timedout_percentage_seed_42_10_workers_5_olts_algorithm_1 = run_results_42_10_wo
 
 
 # Seed 34
-avg_time_total_seed_34_1_workers_5_olts_algorithm_1 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_1']
+# avg_time_total_seed_34_1_workers_5_olts_algorithm_1 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_34_2_workers_5_olts_algorithm_1 = run_results_34_2_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_34_3_workers_5_olts_algorithm_1 = run_results_34_3_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_34_4_workers_5_olts_algorithm_1 = run_results_34_4_workers_5_olts['avg_time_total_algorithm_1']
@@ -69,7 +69,7 @@ avg_time_total_seed_34_7_workers_5_olts_algorithm_1 = run_results_34_7_workers_5
 avg_time_total_seed_34_8_workers_5_olts_algorithm_1 = run_results_34_8_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_34_9_workers_5_olts_algorithm_1 = run_results_34_9_workers_5_olts['avg_time_total_algorithm_1']
 avg_time_total_seed_34_10_workers_5_olts_algorithm_1 = run_results_34_10_workers_5_olts['avg_time_total_algorithm_1']
-timedout_percentage_seed_34_1_workers_5_olts_algorithm_1 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_1']
+# timedout_percentage_seed_34_1_workers_5_olts_algorithm_1 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_1']
 timedout_percentage_seed_34_2_workers_5_olts_algorithm_1 = run_results_34_2_workers_5_olts['timedout_percentage_algorithm_1']
 timedout_percentage_seed_34_3_workers_5_olts_algorithm_1 = run_results_34_3_workers_5_olts['timedout_percentage_algorithm_1']
 timedout_percentage_seed_34_4_workers_5_olts_algorithm_1 = run_results_34_4_workers_5_olts['timedout_percentage_algorithm_1']
@@ -82,7 +82,7 @@ timedout_percentage_seed_34_10_workers_5_olts_algorithm_1 = run_results_34_10_wo
 
 # ---> Algorithm 2
 # Seed 34
-avg_time_total_seed_34_1_workers_5_olts_algorithm_2 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_2']
+# avg_time_total_seed_34_1_workers_5_olts_algorithm_2 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_2']
 avg_time_total_seed_34_2_workers_5_olts_algorithm_2 = run_results_34_2_workers_5_olts['avg_time_total_algorithm_2']
 avg_time_total_seed_34_3_workers_5_olts_algorithm_2 = run_results_34_3_workers_5_olts['avg_time_total_algorithm_2']
 avg_time_total_seed_34_4_workers_5_olts_algorithm_2 = run_results_34_4_workers_5_olts['avg_time_total_algorithm_2']
@@ -92,7 +92,7 @@ avg_time_total_seed_34_7_workers_5_olts_algorithm_2 = run_results_34_7_workers_5
 avg_time_total_seed_34_8_workers_5_olts_algorithm_2 = run_results_34_8_workers_5_olts['avg_time_total_algorithm_2']
 avg_time_total_seed_34_9_workers_5_olts_algorithm_2 = run_results_34_9_workers_5_olts['avg_time_total_algorithm_2']
 avg_time_total_seed_34_10_workers_5_olts_algorithm_2 = run_results_34_10_workers_5_olts['avg_time_total_algorithm_2']
-timedout_percentage_seed_34_1_workers_5_olts_algorithm_2 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_2']
+# timedout_percentage_seed_34_1_workers_5_olts_algorithm_2 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_2']
 timedout_percentage_seed_34_2_workers_5_olts_algorithm_2 = run_results_34_2_workers_5_olts['timedout_percentage_algorithm_2']
 timedout_percentage_seed_34_3_workers_5_olts_algorithm_2 = run_results_34_3_workers_5_olts['timedout_percentage_algorithm_2']
 timedout_percentage_seed_34_4_workers_5_olts_algorithm_2 = run_results_34_4_workers_5_olts['timedout_percentage_algorithm_2']
@@ -105,7 +105,7 @@ timedout_percentage_seed_34_10_workers_5_olts_algorithm_2 = run_results_34_10_wo
 
 # ---> Algorithm 3
 # Seed 34
-avg_time_total_seed_34_1_workers_5_olts_algorithm_3 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_3']
+# avg_time_total_seed_34_1_workers_5_olts_algorithm_3 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_3']
 avg_time_total_seed_34_2_workers_5_olts_algorithm_3 = run_results_34_2_workers_5_olts['avg_time_total_algorithm_3']
 avg_time_total_seed_34_3_workers_5_olts_algorithm_3 = run_results_34_3_workers_5_olts['avg_time_total_algorithm_3']
 avg_time_total_seed_34_4_workers_5_olts_algorithm_3 = run_results_34_4_workers_5_olts['avg_time_total_algorithm_3']
@@ -115,7 +115,7 @@ avg_time_total_seed_34_7_workers_5_olts_algorithm_3 = run_results_34_7_workers_5
 avg_time_total_seed_34_8_workers_5_olts_algorithm_3 = run_results_34_8_workers_5_olts['avg_time_total_algorithm_3']
 avg_time_total_seed_34_9_workers_5_olts_algorithm_3 = run_results_34_9_workers_5_olts['avg_time_total_algorithm_3']
 avg_time_total_seed_34_10_workers_5_olts_algorithm_3 = run_results_34_10_workers_5_olts['avg_time_total_algorithm_3']
-timedout_percentage_seed_34_1_workers_5_olts_algorithm_3 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_3']
+# timedout_percentage_seed_34_1_workers_5_olts_algorithm_3 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_3']
 timedout_percentage_seed_34_2_workers_5_olts_algorithm_3 = run_results_34_2_workers_5_olts['timedout_percentage_algorithm_3']
 timedout_percentage_seed_34_3_workers_5_olts_algorithm_3 = run_results_34_3_workers_5_olts['timedout_percentage_algorithm_3']
 timedout_percentage_seed_34_4_workers_5_olts_algorithm_3 = run_results_34_4_workers_5_olts['timedout_percentage_algorithm_3']
@@ -128,7 +128,7 @@ timedout_percentage_seed_34_10_workers_5_olts_algorithm_3 = run_results_34_10_wo
 
 # ---> Algorithm 4
 # Seed 34
-avg_time_total_seed_34_1_workers_5_olts_algorithm_4 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_4']
+# avg_time_total_seed_34_1_workers_5_olts_algorithm_4 = run_results_34_1_workers_5_olts['avg_time_total_algorithm_4']
 avg_time_total_seed_34_2_workers_5_olts_algorithm_4 = run_results_34_2_workers_5_olts['avg_time_total_algorithm_4']
 avg_time_total_seed_34_3_workers_5_olts_algorithm_4 = run_results_34_3_workers_5_olts['avg_time_total_algorithm_4']
 avg_time_total_seed_34_4_workers_5_olts_algorithm_4 = run_results_34_4_workers_5_olts['avg_time_total_algorithm_4']
@@ -138,7 +138,7 @@ avg_time_total_seed_34_7_workers_5_olts_algorithm_4 = run_results_34_7_workers_5
 avg_time_total_seed_34_8_workers_5_olts_algorithm_4 = run_results_34_8_workers_5_olts['avg_time_total_algorithm_4']
 avg_time_total_seed_34_9_workers_5_olts_algorithm_4 = run_results_34_9_workers_5_olts['avg_time_total_algorithm_4']
 avg_time_total_seed_34_10_workers_5_olts_algorithm_4 = run_results_34_10_workers_5_olts['avg_time_total_algorithm_4']
-timedout_percentage_seed_34_1_workers_5_olts_algorithm_4 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_4']
+# timedout_percentage_seed_34_1_workers_5_olts_algorithm_4 = run_results_34_1_workers_5_olts['timedout_percentage_algorithm_4']
 timedout_percentage_seed_34_2_workers_5_olts_algorithm_4 = run_results_34_2_workers_5_olts['timedout_percentage_algorithm_4']
 timedout_percentage_seed_34_3_workers_5_olts_algorithm_4 = run_results_34_3_workers_5_olts['timedout_percentage_algorithm_4']
 timedout_percentage_seed_34_4_workers_5_olts_algorithm_4 = run_results_34_4_workers_5_olts['timedout_percentage_algorithm_4']

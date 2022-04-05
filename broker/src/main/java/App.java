@@ -35,7 +35,7 @@ public class App {
     private static boolean containerized;
 
     // This should be set to how many worker containers there are in the deployment
-    private static final int WORKER_CONTAINERS = 10;
+    private static final int WORKER_CONTAINERS = 3;
 
     private static int current_logic = 1;
 
@@ -281,6 +281,7 @@ public class App {
             int worker_to_forward = 0;
             if(jedis.exists(m.get_olt())) {
                 try {
+                    log.info("WORKER " + jedis.get(m.get_olt()) + " is handling request for " + m.get_olt());
                     worker_to_forward = Integer.parseInt(jedis.get(m.get_olt()));
                 } catch(NumberFormatException e) {
                     log.info("FAILED: Could not parse worker to forward. Defaulted to worker 0");

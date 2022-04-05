@@ -16,24 +16,28 @@ def results_file_parser(file_path):
         run_object = runs_object[i] 
         if i == 0:
             results['avg_time_total_algorithm_1'] = run_object['avg_time_total']
+            results['avg_time_total_2_algorithm_1'] = run_object['avg_time_total_2']
             results['avg_time_broker_queue_algorithm_1'] = run_object['avg_time_broker_queue']
             results['avg_time_worker_queue_algorithm_1'] = run_object['avg_time_worker_queue']
             results['avg_time_olt_queue_algorithm_1'] = run_object['avg_time_olt_queue']
             results['timedout_percentage_algorithm_1'] = run_object['timedout']
         if i == 1:
             results['avg_time_total_algorithm_2'] = run_object['avg_time_total']
+            results['avg_time_total_2_algorithm_2'] = run_object['avg_time_total_2']
             results['avg_time_broker_queue_algorithm_2'] = run_object['avg_time_broker_queue']
             results['avg_time_worker_queue_algorithm_2'] = run_object['avg_time_worker_queue']
             results['avg_time_olt_queue_algorithm_2'] = run_object['avg_time_olt_queue']
             results['timedout_percentage_algorithm_2'] = run_object['timedout']
         if i == 2:
             results['avg_time_total_algorithm_3'] = run_object['avg_time_total']
+            results['avg_time_total_2_algorithm_3'] = run_object['avg_time_total_2']
             results['avg_time_broker_queue_algorithm_3'] = run_object['avg_time_broker_queue']
             results['avg_time_worker_queue_algorithm_3'] = run_object['avg_time_worker_queue']
             results['avg_time_olt_queue_algorithm_3'] = run_object['avg_time_olt_queue']
             results['timedout_percentage_algorithm_3'] = run_object['timedout']
         if i == 3:
             results['avg_time_total_algorithm_4'] = run_object['avg_time_total']
+            results['avg_time_total_2_algorithm_4'] = run_object['avg_time_total_2']
             results['avg_time_broker_queue_algorithm_4'] = run_object['avg_time_broker_queue']
             results['avg_time_worker_queue_algorithm_4'] = run_object['avg_time_worker_queue']
             results['avg_time_olt_queue_algorithm_4'] = run_object['avg_time_olt_queue']
@@ -47,6 +51,10 @@ def build_run_results(res_50_req, res_100_req, res_500_req, res_1000_req, res_20
         "avg_time_total_algorithm_2": [],
         "avg_time_total_algorithm_3": [],
         "avg_time_total_algorithm_4": [],
+        "avg_time_total_2_algorithm_1": [],
+        "avg_time_total_2_algorithm_2": [],
+        "avg_time_total_2_algorithm_3": [],
+        "avg_time_total_2_algorithm_4": [],
         "avg_time_broker_queue_algorithm_1": [],
         "avg_time_broker_queue_algorithm_2": [],
         "avg_time_broker_queue_algorithm_3": [],
@@ -69,6 +77,10 @@ def build_run_results(res_50_req, res_100_req, res_500_req, res_1000_req, res_20
     run_results['avg_time_total_algorithm_2'].append(res_50_req['avg_time_total_algorithm_2'])
     run_results['avg_time_total_algorithm_3'].append(res_50_req['avg_time_total_algorithm_3'])
     run_results['avg_time_total_algorithm_4'].append(res_50_req['avg_time_total_algorithm_4'])
+    run_results['avg_time_total_2_algorithm_1'].append(res_50_req['avg_time_total_2_algorithm_1'])
+    run_results['avg_time_total_2_algorithm_2'].append(res_50_req['avg_time_total_2_algorithm_2'])
+    run_results['avg_time_total_2_algorithm_3'].append(res_50_req['avg_time_total_2_algorithm_3'])
+    run_results['avg_time_total_2_algorithm_4'].append(res_50_req['avg_time_total_2_algorithm_4'])
     run_results['avg_time_broker_queue_algorithm_1'].append(res_50_req['avg_time_broker_queue_algorithm_1'])
     run_results['avg_time_broker_queue_algorithm_2'].append(res_50_req['avg_time_broker_queue_algorithm_2'])
     run_results['avg_time_broker_queue_algorithm_3'].append(res_50_req['avg_time_broker_queue_algorithm_3'])
@@ -90,6 +102,10 @@ def build_run_results(res_50_req, res_100_req, res_500_req, res_1000_req, res_20
     run_results['avg_time_total_algorithm_2'].append(res_100_req['avg_time_total_algorithm_2'])
     run_results['avg_time_total_algorithm_3'].append(res_100_req['avg_time_total_algorithm_3'])
     run_results['avg_time_total_algorithm_4'].append(res_100_req['avg_time_total_algorithm_4'])
+    run_results['avg_time_total_2_algorithm_1'].append(res_100_req['avg_time_total_2_algorithm_1'])
+    run_results['avg_time_total_2_algorithm_2'].append(res_100_req['avg_time_total_2_algorithm_2'])
+    run_results['avg_time_total_2_algorithm_3'].append(res_100_req['avg_time_total_2_algorithm_3'])
+    run_results['avg_time_total_2_algorithm_4'].append(res_100_req['avg_time_total_2_algorithm_4'])
     run_results['avg_time_broker_queue_algorithm_1'].append(res_100_req['avg_time_broker_queue_algorithm_1'])
     run_results['avg_time_broker_queue_algorithm_2'].append(res_100_req['avg_time_broker_queue_algorithm_2'])
     run_results['avg_time_broker_queue_algorithm_3'].append(res_100_req['avg_time_broker_queue_algorithm_3'])
@@ -111,6 +127,10 @@ def build_run_results(res_50_req, res_100_req, res_500_req, res_1000_req, res_20
     run_results['avg_time_total_algorithm_2'].append(res_500_req['avg_time_total_algorithm_2'])
     run_results['avg_time_total_algorithm_3'].append(res_500_req['avg_time_total_algorithm_3'])
     run_results['avg_time_total_algorithm_4'].append(res_500_req['avg_time_total_algorithm_4'])
+    run_results['avg_time_total_2_algorithm_1'].append(res_500_req['avg_time_total_2_algorithm_1'])
+    run_results['avg_time_total_2_algorithm_2'].append(res_500_req['avg_time_total_2_algorithm_2'])
+    run_results['avg_time_total_2_algorithm_3'].append(res_500_req['avg_time_total_2_algorithm_3'])
+    run_results['avg_time_total_2_algorithm_4'].append(res_500_req['avg_time_total_2_algorithm_4'])
     run_results['avg_time_broker_queue_algorithm_1'].append(res_500_req['avg_time_broker_queue_algorithm_1'])
     run_results['avg_time_broker_queue_algorithm_2'].append(res_500_req['avg_time_broker_queue_algorithm_2'])
     run_results['avg_time_broker_queue_algorithm_3'].append(res_500_req['avg_time_broker_queue_algorithm_3'])
@@ -132,6 +152,10 @@ def build_run_results(res_50_req, res_100_req, res_500_req, res_1000_req, res_20
     run_results['avg_time_total_algorithm_2'].append(res_1000_req['avg_time_total_algorithm_2'])
     run_results['avg_time_total_algorithm_3'].append(res_1000_req['avg_time_total_algorithm_3'])
     run_results['avg_time_total_algorithm_4'].append(res_1000_req['avg_time_total_algorithm_4'])
+    run_results['avg_time_total_2_algorithm_1'].append(res_1000_req['avg_time_total_2_algorithm_1'])
+    run_results['avg_time_total_2_algorithm_2'].append(res_1000_req['avg_time_total_2_algorithm_2'])
+    run_results['avg_time_total_2_algorithm_3'].append(res_1000_req['avg_time_total_2_algorithm_3'])
+    run_results['avg_time_total_2_algorithm_4'].append(res_1000_req['avg_time_total_2_algorithm_4'])
     run_results['avg_time_broker_queue_algorithm_1'].append(res_1000_req['avg_time_broker_queue_algorithm_1'])
     run_results['avg_time_broker_queue_algorithm_2'].append(res_1000_req['avg_time_broker_queue_algorithm_2'])
     run_results['avg_time_broker_queue_algorithm_3'].append(res_1000_req['avg_time_broker_queue_algorithm_3'])
@@ -153,6 +177,10 @@ def build_run_results(res_50_req, res_100_req, res_500_req, res_1000_req, res_20
     run_results['avg_time_total_algorithm_2'].append(res_2000_req['avg_time_total_algorithm_2'])
     run_results['avg_time_total_algorithm_3'].append(res_2000_req['avg_time_total_algorithm_3'])
     run_results['avg_time_total_algorithm_4'].append(res_2000_req['avg_time_total_algorithm_4'])
+    run_results['avg_time_total_2_algorithm_1'].append(res_2000_req['avg_time_total_2_algorithm_1'])
+    run_results['avg_time_total_2_algorithm_2'].append(res_2000_req['avg_time_total_2_algorithm_2'])
+    run_results['avg_time_total_2_algorithm_3'].append(res_2000_req['avg_time_total_2_algorithm_3'])
+    run_results['avg_time_total_2_algorithm_4'].append(res_2000_req['avg_time_total_2_algorithm_4'])
     run_results['avg_time_broker_queue_algorithm_1'].append(res_2000_req['avg_time_broker_queue_algorithm_1'])
     run_results['avg_time_broker_queue_algorithm_2'].append(res_2000_req['avg_time_broker_queue_algorithm_2'])
     run_results['avg_time_broker_queue_algorithm_3'].append(res_2000_req['avg_time_broker_queue_algorithm_3'])

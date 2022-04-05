@@ -33,7 +33,7 @@ public class App {
     private static boolean containerized;
 
     // This should be set to how many OLT containers there are in the deployment
-    private static final int OLT_CONTAINERS = 10;
+    private static final int OLT_CONTAINERS = 5;
 
     private String worker_queue_host;
     private int worker_queue_port;
@@ -383,6 +383,8 @@ public class App {
                     boolean handling_request_for_same_olt = jedis.exists(m.get_olt());
                     while(handling_request_for_same_olt) {
                         try {
+
+                            log.info("Waiting... " + " Worker " + jedis.get(m.get_olt()) + " is handling request for olt " + m.get_olt());
                             Thread.sleep(100);
                         } catch(InterruptedException e) {
                             e.printStackTrace();
