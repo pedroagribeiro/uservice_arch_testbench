@@ -20,7 +20,7 @@ services:
       - private_network
   producer:
     build:
-      context: ./producer_spring/
+      context: ../src/producer_spring/
     container_name: producer
     ports:
       - "8080:8080"
@@ -31,7 +31,7 @@ services:
       - private_network
   broker:
     build:
-      context: ./broker_spring/
+      context: ../src/broker_spring/
     container_name: broker
     depends_on:
       - broker_queue
@@ -40,7 +40,7 @@ services:
       - private_network
   worker_0:
     build:
-      context: ./worker_spring/
+      context: ../src/worker_spring/
     command: "--server.port=8500 --spring.rabbitmq.host=worker-queue-0 --worker.id=0"
     container_name: worker-0
     depends_on:
@@ -50,7 +50,7 @@ services:
       - private_network
   worker_1:
     build:
-      context: ./worker_spring/
+      context: ../src/worker_spring/
     command: "--server.port=8501 --spring.rabbitmq.host=worker-queue-1 --worker.id=1"
     container_name: worker-1
     depends_on:
@@ -60,7 +60,7 @@ services:
       - private_network
   worker_2:
     build:
-      context: ./worker_spring/
+      context: ../src/worker_spring/
     command: "--server.port=8502 --spring.rabbitmq.host=worker-queue-2 --worker.id=2"
     container_name: worker-2
     depends_on:
@@ -70,7 +70,7 @@ services:
       - private_network
   olt_0:
     build:
-      context: ./olt_spring/
+      context: ../src/olt_spring/
     command: "--server.port=9000 --spring.rabbitmq.host=olt-queue-0"
     container_name: olt-0
     depends_on:
@@ -79,7 +79,7 @@ services:
       - private_network
   olt_1:
     build:
-      context: ./olt_spring/
+      context: ../src/olt_spring/
     command: "--server.port=9001 --spring.rabbitmq.host=olt-queue-1"
     container_name: olt-1
     depends_on:
@@ -88,7 +88,7 @@ services:
       - private_network
   olt_2:
     build:
-      context: ./olt_spring/
+      context: ../src/olt_spring/
     command: "--server.port=9002 --spring.rabbitmq.host=olt-queue-2"
     container_name: olt-2
     depends_on:
@@ -97,7 +97,7 @@ services:
       - private_network
   olt_3:
     build:
-      context: ./olt_spring/
+      context: ../src/olt_spring/
     command: "--server.port=9003 --spring.rabbitmq.host=olt-queue-3"
     container_name: olt-3
     depends_on:
@@ -106,7 +106,7 @@ services:
       - private_network
   olt_4:
     build:
-      context: ./olt_spring/
+      context: ../src/olt_spring/
     command: "--server.port=9004 --spring.rabbitmq.host=olt-queue-4"
     container_name: olt-4
     depends_on:
@@ -179,7 +179,7 @@ services:
       - private_network
   relational_database:
     build:
-      context: ./run_results_database/
+      context: ../src/run_results_database/
     container_name: relational-db
     ports:
       - "5432:5432"

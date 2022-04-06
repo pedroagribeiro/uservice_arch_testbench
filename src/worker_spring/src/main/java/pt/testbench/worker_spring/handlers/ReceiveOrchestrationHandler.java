@@ -125,13 +125,17 @@ public class ReceiveOrchestrationHandler {
         boolean auto_consume = status.isOnGoingRun() && (status.getArchitecture() == 1 || status.getArchitecture() == 2);
         if(auto_consume) {
             while(status.isOnGoingRun()) {
+                log.info("Running logic: " + status.getArchitecture());
+                log.info("Current target is: " + status.getTargetMessageRun());
                 Message m = fetch_message_from_broker();
                 if(m != null) {
                     long instant = new Date().getTime();
                     m.set_enqueued_at_worker(instant);
                     m.set_dequeued_at_worker(instant);
+                    m.set_worker(status.getWorkerId());
                     if(status.getArchitecture() == 2) {
                         int worker = ask_oracle_if_anyone_is_using_olt(m.get_olt());
+                        log.info("Oracle search result: " + worker);
                         while(worker != -1) {
                             try {
                                 Thread.sleep(1000);

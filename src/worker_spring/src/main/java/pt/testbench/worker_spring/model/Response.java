@@ -11,7 +11,8 @@ import java.util.Objects;
 public class Response {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator="response_id_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "response_id_seq", sequenceName = "response_id_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "status", nullable = false)

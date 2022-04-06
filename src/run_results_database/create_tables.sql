@@ -40,4 +40,6 @@ CREATE TABLE responses (
     timedout                boolean             NOT NULL
 );
 
-CREATE SEQUENCE hibernate_sequence START 1;
+-- CREATE SEQUENCE hibernate_sequence START 1;
+CREATE SEQUENCE result_id_seq START 1;
+CREATE SEQUENCE response_id_seq START 1;

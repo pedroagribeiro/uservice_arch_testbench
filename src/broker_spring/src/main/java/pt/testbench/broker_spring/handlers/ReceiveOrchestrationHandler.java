@@ -29,6 +29,8 @@ public class ReceiveOrchestrationHandler {
        }
        log.info("Received orchestration: " + converter.toJson(orchestration));
        status.setArchitecture(orchestration.get_algorithm());
+       status.setWorkers(orchestration.get_workers());
+       status.setOlts(orchestration.get_olts());
        log.info("Running logic " + status.getArchitecture() + " ...");
     }
 }
