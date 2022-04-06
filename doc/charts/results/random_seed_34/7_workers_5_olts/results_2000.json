@@ -16,19 +16,19 @@
     "status": "completed"
   },
   {
-    "run": 117,
+    "run": 29,
     "algorithm": 2,
-    "avg_time_total": 172430.0,
+    "avg_time_total": 281273.0,
     "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 162890.0,
-    "avg_time_olt_queue": 6070.0,
-    "start_instant": 1649109071575.0,
-    "end_instant": 1649111403348.0,
-    "avg_time_total_2": 1165.0,
+    "avg_time_worker_queue": 276407.0,
+    "avg_time_olt_queue": 1392.0,
+    "start_instant": 1649202904368.0,
+    "end_instant": 1649205962236.0,
+    "avg_time_total_2": 1528.0,
     "olts": 5,
     "workers": 7,
     "requests": 2000,
-    "timedout": 0.154,
+    "timedout": 0.044,
     "status": "completed"
   },
   {

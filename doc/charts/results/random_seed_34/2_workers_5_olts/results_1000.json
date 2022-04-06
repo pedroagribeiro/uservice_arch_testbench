@@ -17,17 +17,18 @@
   {
     "run": 13,
     "algorithm": 2,
-    "avg_time_total": 519749.0,
+    "avg_time_total": 396405.0,
     "avg_time_broker_queue": 1.0,
-    "avg_time_worker_queue": 515101.0,
-    "avg_time_olt_queue": 1164.0,
-    "start_instant": 1648994056003.0,
-    "end_instant": 1648996101973.0,
-    "avg_time_total_2": 2045.0,
+    "avg_time_worker_queue": 392610.0,
+    "avg_time_olt_queue": 314.0,
+    "start_instant": 1649169967679.0,
+    "end_instant": 1649172015585.0,
+    "avg_time_total_2": 2047.0,
     "olts": 5,
     "workers": 2,
     "requests": 1000,
-    "timedout": 0.046
+    "timedout": 0.029,
+    "status": "completed"
   },
   {
     "run": 14,

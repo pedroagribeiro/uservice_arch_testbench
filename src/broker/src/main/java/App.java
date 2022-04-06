@@ -96,7 +96,9 @@ public class App {
             establish_broker_queue_channels();
             setup_broker_queue_message_consumption();
         }
-        log.info("Current connected to " + this.workers_queues_message_channels.size() + " workers");
+        if(this.workers_queues_message_channels != null) {
+            log.info("Current connected to " + this.workers_queues_message_channels.size() + " workers");
+        }
         forward_orchestration_to_workers(orchestration);
         log.info("STATUS: The orchestration changes have been applied - Running algorithm " + App.current_logic);
     };
