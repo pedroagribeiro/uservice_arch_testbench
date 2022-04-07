@@ -314,13 +314,13 @@ public class App {
             String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class);
             this.received_responses.set(0);
-            if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
+            if(orchestration.get_algorithm() == 1 || orchestration.get_algorithm() == 2) {
                 if(App.worker_id <= orchestration.get_workers() - 1) {
                     if(this.current_consumption == WORKER_QUEUE) {
                         this.current_consumption = BROKER_QUEUE;
                         establish_current_consuming_channel();
                     } 
-                    if(orchestration.get_algorithm() == 4) {
+                    if(orchestration.get_algorithm() == 1) {
                         this.wait = false;
                     }
                 }
@@ -346,7 +346,7 @@ public class App {
     public Connection establish_connection_with_consuming_queue(Orchestration orchestration) {
         ConnectionFactory factory = new ConnectionFactory();
         Connection connection = null;
-        if(orchestration.get_algorithm() == 3 || orchestration.get_algorithm() == 4) {
+        if(orchestration.get_algorithm() == 1 || orchestration.get_algorithm() == 2) {
             log.info("STATUS: Connecting to the broker queue");
             factory.setHost(broker_queue_host);
             factory.setPort(broker_queue_port);

@@ -37,7 +37,7 @@ public class App {
     // This should be set to how many worker containers there are in the deployment
     private static final int WORKER_CONTAINERS = 3;
 
-    private static int current_logic = 1;
+    private static int current_logic = 4;
 
     private String broker_queue_host;
     private int broker_queue_port;
@@ -65,7 +65,7 @@ public class App {
         String jsonString = new String(delivery.getBody(), StandardCharsets.UTF_8);
         Orchestration orchestration = converter.fromJson(jsonString, Orchestration.class); 
         App.current_logic = orchestration.get_algorithm();
-        if(App.current_logic == 3 || App.current_logic == 4) {
+        if(App.current_logic == 1 || App.current_logic == 2) {
             try {
                 try {
                     this.broker_queue_message_channel.basicCancel("broker");
@@ -278,7 +278,7 @@ public class App {
         }
     }
 
-    private void process_message_logic_one(Message m) {
+    private void process_message_logic_four(Message m) {
         try(Jedis jedis = this.redis_database_pool.getResource()) { 
             int worker_to_forward = 0;
             if(jedis.exists(m.get_olt())) {
@@ -298,11 +298,11 @@ public class App {
             } catch(IOException e) {
                 log.info("FAILURE: Something has gone wrong while sending the message to worker " + worker_to_forward);
             }
-            log.info("STATUS: Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward + " using logic 1");
+            log.info("STATUS: Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward + " using logic 4");
         }
     }
 
-    private void process_manage_logic_two(Message m) {
+    private void process_message_logic_three(Message m) {
         byte[] diggested_message = this.digester.digest(m.get_olt().getBytes(StandardCharsets.UTF_8));
         int worker_to_forward = ByteBuffer.wrap(diggested_message).getInt() % this.workers_queues_message_channels.size();
         // int worker_to_forward = (int) new BigInteger(diggested_message).longValue();
@@ -316,7 +316,7 @@ public class App {
         } catch(IOException e) {
             log.info("FAILURE: Something has gone wrong while sending the message to worker " + worker_to_forward);
         }
-        log.info("STATUS: Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward + " using logic 2");
+        log.info("STATUS: Forwarded '" + converter.toJson(m) + "' to worker " + worker_to_forward + " using logic 3");
     }
 
     public void forward_orchestration_to_workers(Orchestration orchestration) {
@@ -350,11 +350,11 @@ public class App {
                 Message m = converter.fromJson(jsonString, Message.class);
                 m.set_dequeued_at_broker(new Date().getTime());
                 switch(App.current_logic) {
-                    case 1:
-                        process_message_logic_one(m);
+                    case 3:
+                        process_message_logic_three(m);
                         break;
-                    case 2:
-                        process_manage_logic_two(m);
+                    case 4:
+                        process_message_logic_four(m);
                         break;
                     default:
                         log.info("STATUS: In case this appeared the broker is stealing messages in a logic in which it shouldn't");
