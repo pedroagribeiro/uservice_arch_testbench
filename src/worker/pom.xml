@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>pt-.testbench</groupId>
-    <artifactId>worker_spring</artifactId>
+    <artifactId>worker</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>worker_spring</name>
-    <description>worker_spring</description>
+    <name>worker</name>
+    <description>worker</description>
     <properties>
         <java.version>11</java.version>
     </properties>
