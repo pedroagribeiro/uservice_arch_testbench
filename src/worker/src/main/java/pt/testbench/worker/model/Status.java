@@ -9,8 +9,8 @@ public class Status {
     private boolean on_going_run;
     private int target_message_run;
     private int architecture;
-    private int current_active_request;
-    private Map<Integer, Boolean> request_satisfied;
+    private long current_active_request;
+    private Map<Long, Boolean> request_satisfied;
 
     public Status(final int worker_id) {
         this.worker_id = worker_id;
@@ -41,7 +41,7 @@ public class Status {
         this.architecture = architecture;
     }
 
-    public int getCurrentActiveRequest() {
+    public long getCurrentActiveRequest() {
         return current_active_request;
     }
 
@@ -53,15 +53,15 @@ public class Status {
         this.target_message_run = target_message_run;
     }
 
-    public void setCurrentActiveRequest(int current_active_request) {
+    public void setCurrentActiveRequest(long current_active_request) {
         this.current_active_request = current_active_request;
     }
 
-    public Map<Integer, Boolean> getRequestSatisfied() {
+    public Map<Long, Boolean> getRequestSatisfied() {
         return request_satisfied;
     }
 
-    public void setRequestSatisfied(Map<Integer, Boolean> request_satisfied) {
+    public void setRequestSatisfied(Map<Long, Boolean> request_satisfied) {
         this.request_satisfied = request_satisfied;
     }
 

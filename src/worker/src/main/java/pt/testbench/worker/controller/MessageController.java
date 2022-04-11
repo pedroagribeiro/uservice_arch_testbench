@@ -31,7 +31,6 @@ public class MessageController {
 
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody Message m) {
-        m.set_enqueued_at_worker(new Date().getTime());
         rabbitTemplate.convertAndSend(ConfigureWorkerMessageQueue.EXCHANGE_NAME, ConfigureWorkerMessageQueue.QUEUE_NAME, converter.toJson(m));
         return new ResponseEntity<>("Message submitted", HttpStatus.CREATED);
     }

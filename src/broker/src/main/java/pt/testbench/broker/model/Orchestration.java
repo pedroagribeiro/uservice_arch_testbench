@@ -15,43 +15,43 @@ public class Orchestration {
 
     }
 
-    public int get_id() {
+    public int getId() {
         return this.id;
     }
 
-    public void set_id(final int id) {
+    public void setId(final int id) {
         this.id = id;
     }
 
-    public int get_olts() {
+    public int getOlts() {
         return this.olts;
     }
 
-    public void set_olts(final int olts) {
+    public void setOlts(final int olts) {
         this.olts = olts;
     }
 
-    public int get_messages() {
+    public int getMessages() {
         return this.messages;
     }
 
-    public void set_messages(final int messages) {
+    public void setMessages(final int messages) {
         this.messages = messages;
     }
 
-    public int get_workers() {
+    public int getWorkers() {
         return this.workers;
     }
 
-    public void set_workers(final int workers) {
+    public void setWorkers(final int workers) {
         this.workers = workers;
     }
 
-    public int get_algorithm() {
+    public int getAlgorithm() {
         return this.algorithm;
     }
 
-    public void set_algorithm(final int algorithm) {
+    public void sAAlgorithm(final int algorithm) {
         this.algorithm = algorithm;
     }
 }

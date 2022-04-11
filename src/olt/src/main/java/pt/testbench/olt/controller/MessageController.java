@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pt.testbench.olt.config.ConfigExchangeBean;
 import pt.testbench.olt.config.ConfigOltMessageQueue;
 import pt.testbench.olt.model.Message;
+import pt.testbench.olt.model.OltRequest;
 
 import java.util.Date;
 
@@ -26,9 +27,9 @@ public class MessageController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> sendMessage(@RequestBody Message m) {
-        m.set_enqueued_at_olt(new Date().getTime());
+    public ResponseEntity<?> sendMessage(@RequestBody OltRequest m) {
+        m.setEnqueuedAtOlt(new Date().getTime());
         rabbitTemplate.convertAndSend(ConfigExchangeBean.EXCHANGE_NAME, ConfigOltMessageQueue.QUEUE_NAME, converter.toJson(m));
-        return new ResponseEntity<>("Message submitted", HttpStatus.CREATED);
+        return new ResponseEntity<>("Request submitted", HttpStatus.CREATED);
     }
 }

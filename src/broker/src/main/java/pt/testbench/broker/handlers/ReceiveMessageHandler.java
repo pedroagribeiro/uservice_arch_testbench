@@ -53,19 +53,19 @@ public class ReceiveMessageHandler {
     }
 
     public void process_message_architecture_3(Message message) {
-        byte[] diggested_message = this.digester.digest(message.get_olt().getBytes(StandardCharsets.UTF_8));
+        byte[] diggested_message = this.digester.digest(message.getOlt().getBytes(StandardCharsets.UTF_8));
         int worker_to_forward = (ByteBuffer.wrap(diggested_message).getInt()) % status.getWorkers();
         if (worker_to_forward < 0 || worker_to_forward > status.getWorkers() - 1) {
             worker_to_forward = new Random().nextInt(status.getWorkers());
         }
-        message.set_worker(worker_to_forward);
+        message.setWorker(worker_to_forward);
         forward_message_to_worker(message, worker_to_forward, 3);
     }
 
     public void process_message_architecture_4(Message message) {
         int worker_to_forward = 0;
-        if(status.getOracle().containsKey(message.get_olt())) {
-            worker_to_forward = status.getOracle().get(message.get_olt());
+        if(status.getOracle().containsKey(message.getOlt())) {
+            worker_to_forward = status.getOracle().get(message.getOlt());
             log.info("Found something on oracle so chose " + worker_to_forward);
         } else {
             worker_to_forward = (status.getLastChosenWorker() + 1) % status.getWorkers();
@@ -74,13 +74,12 @@ public class ReceiveMessageHandler {
         log.info(converter.toJson(status.getOracle()));
         log.info("Chose worker " + worker_to_forward + " to forward");
         status.setLastChosenWorker(worker_to_forward);
-        message.set_worker(worker_to_forward);
+        message.setWorker(worker_to_forward);
         forward_message_to_worker(message, worker_to_forward, 4);
     }
 
     public void handleMessage(String body) {
         Message message = converter.fromJson(body, Message.class);
-        message.set_dequeued_at_broker(new Date().getTime());
         log.info("Received message: " + converter.toJson(message));
         log.info("Current architecture: " + status.getArchitecture());
         switch(status.getArchitecture()) {

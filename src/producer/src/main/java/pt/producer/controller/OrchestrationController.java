@@ -39,7 +39,7 @@ public class OrchestrationController {
         this.resultRepository.save(r);
         Orchestration o = new Orchestration(r.getRun(), orchestration);
         rabbitTemplate.convertAndSend(ConfigureOrchestrationQueue.EXCHANGE_NAME, ConfigureOrchestrationQueue.QUEUE_NAME, converter.toJson(o));
-        return new ResponseEntity<>("Orchestration submitted and has id: " + o.get_id(), HttpStatus.CREATED);
+        return new ResponseEntity<>("Orchestration submitted and has id: " + o.getId(), HttpStatus.CREATED);
     }
 
 }

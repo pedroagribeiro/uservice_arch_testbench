@@ -22,15 +22,15 @@ public class ReceiveOrchestrationHandler {
 
     public void handleOrchestration(String body) {
        Orchestration orchestration = converter.fromJson(body, Orchestration.class);
-       if(orchestration.get_algorithm() == 1 || orchestration.get_algorithm() == 2) {
+       if(orchestration.getAlgorithm() == 1 || orchestration.getAlgorithm() == 2) {
            messageContainer.stop();
        } else {
            if(!messageContainer.isActive()) messageContainer.start();
        }
        log.info("Received orchestration: " + converter.toJson(orchestration));
-       status.setArchitecture(orchestration.get_algorithm());
-       status.setWorkers(orchestration.get_workers());
-       status.setOlts(orchestration.get_olts());
+       status.setArchitecture(orchestration.getAlgorithm());
+       status.setWorkers(orchestration.getWorkers());
+       status.setOlts(orchestration.getOlts());
        log.info("Running logic " + status.getArchitecture() + " ...");
     }
 }

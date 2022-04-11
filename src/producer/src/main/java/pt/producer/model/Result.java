@@ -55,11 +55,11 @@ public class Result {
     }
 
     public Result(OrchestrationNoId orchestration, long start_instant) {
-        this.algorithm = orchestration.get_algorithm();
+        this.algorithm = orchestration.getAlgorithm();
         this.start_instant = start_instant;
-        this.olts = orchestration.get_olts();
-        this.workers = orchestration.get_workers();
-        this.requests = orchestration.get_messages();
+        this.olts = orchestration.getOlts();
+        this.workers = orchestration.getWorkers();
+        this.requests = orchestration.getMessages();
         this.status = "ON GOING";
     }
     public Result(int algorithm, int olts, int workers, int requests, String status) {

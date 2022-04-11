@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.testbench.olt.model.Message;
+import pt.testbench.olt.model.OltRequest;
 import pt.testbench.olt.model.Response;
 
 import java.util.Collections;
@@ -41,19 +42,19 @@ public class ReceiveMessageHandler {
     }
 
     public void handleMessage(String body) {
-        Message m = converter.fromJson(body, Message.class);
-        m.set_dequeued_at_olt(new Date().getTime());
-        log.info("Received message: " + converter.toJson(m));
-        log.info("Processing message " + m.get_id());
+        OltRequest m = converter.fromJson(body, OltRequest.class);
+        m.setDequeuedAtOlt(new Date().getTime());
+        log.info("Received request: " + converter.toJson(m));
+        log.info("Processing request " + m.getId());
         Response r = new Response(200, new Date().getTime(), -1, m);
         try {
-            Thread.sleep(m.get_processing_time());
+            Thread.sleep(m.getDuration());
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
-        m.set_completed(new Date().getTime());
-        log.info("Finished processing message " + m.get_id());
-        r.set_ended_handling(new Date().getTime());
-        send_response_to_worker(r, m.get_worker());
+        m.setCompleted(new Date().getTime());
+        log.info("Finished processing message " + m.getId());
+        r.setEndedHandling(new Date().getTime());
+        send_response_to_worker(r, m.getOriginMessage().getWorker());
     }
 }

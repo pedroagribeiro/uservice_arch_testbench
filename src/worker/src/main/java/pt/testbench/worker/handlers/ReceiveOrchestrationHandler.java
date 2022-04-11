@@ -13,11 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import pt.testbench.worker.model.Message;
+import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Orchestration;
 import pt.testbench.worker.model.Status;
+import pt.testbench.worker.utils.SequenceGenerator;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -80,12 +83,12 @@ public class ReceiveOrchestrationHandler {
     }
 
 
-    private void perform_olt_request(Message m, String olt) {
+    private void perform_olt_request(OltRequest m, String olt) {
         String olt_host = base_olt_host + olt;
         int olt_port = 9000 + Integer.parseInt(olt);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<Message> entity = new HttpEntity<>(m, headers);
+        HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
         ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The message could not be sent to the OLT, something went wrong!");
@@ -112,14 +115,14 @@ public class ReceiveOrchestrationHandler {
         return worker;
     }
 
-    private Callable<Boolean> request_satisfied(int request_id) {
+    private Callable<Boolean> request_satisfied(long request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
     }
 
     public void handleOrchestration(String body) {
         Orchestration orchestration = converter.fromJson(body, Orchestration.class);
         log.info("Received orchestration: " + converter.toJson(orchestration));
-        status.setArchitecture(orchestration.get_algorithm());
+        status.setArchitecture(orchestration.getAlgorithm());
         log.info("Running logic " + status.getArchitecture() + " ...");
         status.setIsOnGoingRun(true);
         boolean auto_consume = status.isOnGoingRun() && (status.getArchitecture() == 1 || status.getArchitecture() == 2);
@@ -130,11 +133,9 @@ public class ReceiveOrchestrationHandler {
                 Message m = fetch_message_from_broker();
                 if(m != null) {
                     long instant = new Date().getTime();
-                    m.set_enqueued_at_worker(instant);
-                    m.set_dequeued_at_worker(instant);
-                    m.set_worker(status.getWorkerId());
+                    m.setWorker(status.getWorkerId());
                     if(status.getArchitecture() == 2) {
-                        int worker = ask_oracle_if_anyone_is_using_olt(m.get_olt());
+                        int worker = ask_oracle_if_anyone_is_using_olt(m.getOlt());
                         log.info("Oracle search result: " + worker);
                         while(worker != -1) {
                             try {
@@ -142,19 +143,31 @@ public class ReceiveOrchestrationHandler {
                             } catch(InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            worker = ask_oracle_if_anyone_is_using_olt(m.get_olt());
+                            worker = ask_oracle_if_anyone_is_using_olt(m.getOlt());
                         }
                     }
-                    status.setCurrentActiveRequest(m.get_id());
-                    status.getRequestSatisfied().put(m.get_id(), false);
                     log.info("Message that I got: " + converter.toJson(m));
-                    inform_oracle_of_handling(m.get_olt());
-                    perform_olt_request(m, m.get_olt());
-                    try {
-                        Awaitility.await().atMost(m.get_timeout(), TimeUnit.MILLISECONDS).until(request_satisfied(m.get_id()));
-                    } catch(Exception e) {
-                        log.warn("Timeout: The request " + m.get_id() + " timedout");
-                        inform_oracle_of_handling_end(m.get_olt());
+                    List<OltRequest> generated_requests = SequenceGenerator.generate_requests_sequence(m);
+                    inform_oracle_of_handling(m.getOlt());
+                    int timedout_requests = 0;
+                    for(int i = 0; i < generated_requests.size(); i++) {
+                        OltRequest request = generated_requests.get(i);
+                        status.setCurrentActiveRequest(request.getId());
+                        status.getRequestSatisfied().put(request.getId(), false);
+                        perform_olt_request(request, m.getOlt());
+                        try {
+                           Awaitility.await().atMost(request.getTimeout(), TimeUnit.MILLISECONDS).until(request_satisfied(request.getId()));
+                        } catch(Exception e) {
+                           log.warn("Timeout: The request " + request.getId() + " timedout");
+                           if(i == 3) {
+                               inform_oracle_of_handling_end(m.getOlt());
+                           }
+                           m.setSuccessful(false);
+                           timedout_requests++;
+                        }
+                    }
+                    if(timedout_requests == 0) {
+                        m.setSuccessful(true);
                     }
                 } else {
                     try { 

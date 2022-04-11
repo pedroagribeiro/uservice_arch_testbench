@@ -31,7 +31,6 @@ public class MessageController {
 
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody Message message) {
-        message.set_enqueued_at_broker(new Date().getTime());
         rabbitTemplate.convertAndSend(ConfigureExchangeBean.EXCHANGE_NAME, ConfigureMessageQueue.QUEUE_NAME, converter.toJson(message));
         return new ResponseEntity("Message submitted", HttpStatus.CREATED);
     }
@@ -43,7 +42,6 @@ public class MessageController {
             byte[] message_content = m.getBody();
             String message_json = new String(message_content, StandardCharsets.UTF_8);
             Message message = converter.fromJson(message_json, Message.class);
-            message.set_dequeued_at_broker(new Date().getTime());
             return new ResponseEntity<>(message, HttpStatus.OK);
         } else {
             return new ResponseEntity<>("No message was found", HttpStatus.NOT_FOUND);

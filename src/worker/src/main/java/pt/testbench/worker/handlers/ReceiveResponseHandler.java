@@ -84,16 +84,16 @@ public class ReceiveResponseHandler {
 
     public void handleResponse(String body) {
         Response r = converter.fromJson(body, Response.class);
-        status.getRequestSatisfied().put(r.get_origin_message().get_id(), true);
-        if(status.getCurrentActiveRequest() == r.get_origin_message().get_id()) {
-            r.set_timedout(false);
-            inform_oracle_of_handling_end(r.get_origin_message().get_olt());
+        status.getRequestSatisfied().put(r.getOriginRequest().getId(), true);
+        if(status.getCurrentActiveRequest() == r.getOriginRequest().getId()) {
+            r.setTimedout(false);
+            inform_oracle_of_handling_end(r.getOriginRequest().getOriginMessage().getOlt());
         } else {
-            r.set_timedout(true);
+            r.setTimedout(true);
         }
         responseRepository.save(r);
-        log.info("Received response to request " + r.get_origin_message().get_id() + ": " + converter.toJson(r));
-        if(r.get_origin_message().get_id() == status.getTargetMessageRun()) {
+        log.info("Received response to request " + r.getOriginRequest().getId() + ": " + converter.toJson(r));
+        if(r.getOriginRequest().getOriginMessage().getId() == status.getTargetMessageRun()) {
             status.setIsOnGoingRun(false);
             inform_producer_run_is_over();
             inform_workers_run_is_over();
