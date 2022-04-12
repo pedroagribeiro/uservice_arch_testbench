@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @Entity
@@ -28,6 +29,12 @@ public class Message {
 
     @Column(name = "successful")
     private boolean successful;
+
+    @Column(name = "minimum_theoretical_duration", nullable = false)
+    private long minimumTheoreticalDuration;
+
+    @Column(name = "has_red_requests", nullable = false)
+    private boolean hasRedRequests;
 
 
     public Message(final int id, final String olt) {
@@ -87,6 +94,22 @@ public class Message {
 
     public boolean wasSuccessful() {
         return this.successful;
+    }
+
+    public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
+        this.minimumTheoreticalDuration = minimumTheoreticalDuration;
+    }
+
+    public long getMinimumTheoreticalDuration() {
+        return this.minimumTheoreticalDuration;
+    }
+
+    public void setHasRedRequests(final boolean hasRedRequests) {
+        this.hasRedRequests = hasRedRequests;
+    }
+
+    public boolean getHasRedRequests() {
+        return this.hasRedRequests;
     }
 
     @Override

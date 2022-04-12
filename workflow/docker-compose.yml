@@ -43,6 +43,8 @@ services:
       context: ../src/worker/
     command: "--server.port=8500 --spring.rabbitmq.host=worker-queue-0 --worker.id=0"
     container_name: worker-0
+    ports:
+      - "8500:8500"
     depends_on:
       - worker_queue_0
       - relational_database
@@ -183,6 +185,17 @@ services:
     container_name: relational-db
     ports:
       - "5432:5432"
+    networks:
+      - private_network
+  mongo_database:
+    image: mongo:latest
+    container_name: mongo-database
+    environment:
+      - MONGO_INITDB_DATABASE = "results"
+      - MONGO_INITDB_ROOT_USERNAME = "root"
+      - MONGO_INITDB_ROOT_PASSWORD = "root"
+    ports:
+      - "27017-27019:27017-27019"
     networks:
       - private_network
 networks:

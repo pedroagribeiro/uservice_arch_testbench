@@ -12,6 +12,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Orchestration;
@@ -36,6 +38,9 @@ public class ReceiveOrchestrationHandler {
 
     private String broker_host = "broker";
     private String base_olt_host = "olt-";
+
+   @Autowired
+   private OltRequestRepository oltRequestRepository; 
 
     private Message fetch_message_from_broker() {
         Message m = null;
@@ -152,6 +157,7 @@ public class ReceiveOrchestrationHandler {
                     int timedout_requests = 0;
                     for(int i = 0; i < generated_requests.size(); i++) {
                         OltRequest request = generated_requests.get(i);
+                        // this.oltRequestRepository.save(request);
                         status.setCurrentActiveRequest(request.getId());
                         status.getRequestSatisfied().put(request.getId(), false);
                         perform_olt_request(request, m.getOlt());

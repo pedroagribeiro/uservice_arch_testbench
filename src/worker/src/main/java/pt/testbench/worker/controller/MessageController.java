@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import pt.testbench.worker.config.ConfigureWorkerMessageQueue;
 import pt.testbench.worker.model.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import pt.testbench.worker.repository.MessageRepository;
 
 import java.util.Date;
 
@@ -22,6 +25,7 @@ public class MessageController {
 
     private final RabbitTemplate rabbitTemplate;
     private static final Gson converter = new Gson();
+    @Autowired private MessageRepository messagesRepository;
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -31,6 +35,7 @@ public class MessageController {
 
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody Message m) {
+        // this.messagesRepository.save(m);
         rabbitTemplate.convertAndSend(ConfigureWorkerMessageQueue.EXCHANGE_NAME, ConfigureWorkerMessageQueue.QUEUE_NAME, converter.toJson(m));
         return new ResponseEntity<>("Message submitted", HttpStatus.CREATED);
     }

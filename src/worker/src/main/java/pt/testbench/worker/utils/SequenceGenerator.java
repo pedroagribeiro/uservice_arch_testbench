@@ -37,10 +37,10 @@ public class SequenceGenerator {
 
 
     public static List<OltRequest> generate_requests_sequence(Message m) {
-        List<OltRequest> olt_requests = new ArrayList<>();
         List<Long> batch_message_durations = new ArrayList<>();
         List<OltRequest> generated_requests = new ArrayList<>();
         int batch_type = random.nextInt(3);
+        boolean has_red_request = false;
         switch(batch_type) {
             case ALL_CLEAR:
                 batch_message_durations.add(fast_message_duration);
@@ -59,12 +59,18 @@ public class SequenceGenerator {
                 batch_message_durations.add(long_message_duration);
                 batch_message_durations.add(long_message_duration);
                 batch_message_durations.add(long_message_duration);
+                has_red_request = true;
                 break;
         }
+        long minimum_theoretical_duration = 0;
         for(Long duration : batch_message_durations) {
+            minimum_theoretical_duration += duration;
             OltRequest request = new OltRequest(m, duration, olt_request_timeout);
             generated_requests.add(request);
+
         }
+        m.setMinimumTheoreticalDuration(minimum_theoretical_duration);
+        m.setHasRedRequests(has_red_request);
         return generated_requests;
     }
 }

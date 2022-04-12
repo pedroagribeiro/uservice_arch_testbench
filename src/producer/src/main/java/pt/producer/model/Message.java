@@ -7,8 +7,7 @@ import javax.persistence.Table;
 import java.util.Date;
 import java.util.Objects;
 
-@Entity
-@Table(name = "messages")
+
 public class Message {
 
     @Id
@@ -25,6 +24,15 @@ public class Message {
 
     @Column(name = "completed", nullable = false)
     private long completed;
+
+    @Column(name = "successful", nullable = false)
+    private boolean successful;
+
+    @Column(name = "minimum_theoretical_duration", nullable = false)
+    private long minimumTheoreticalDuration;
+
+    @Column(name = "has_red_requests", nullable = false)
+    private boolean hasRedRequests;
 
     public Message(final int id, final String olt) {
         this.id = id;
@@ -75,6 +83,30 @@ public class Message {
 
     public long getCompleted() {
         return this.completed;
+    }
+
+    public void setSuccessful(boolean successful) {
+        this.successful = successful;
+    }
+
+    public boolean getSuccessful() {
+        return this.successful;
+    }
+
+    public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
+        this.minimumTheoreticalDuration = minimumTheoreticalDuration;
+    }
+
+    public long getMinimumTheoreticalDuration() {
+        return this.minimumTheoreticalDuration;
+    }
+
+    public void setHasRedRequests(final boolean hasRedRequests) {
+        this.hasRedRequests = hasRedRequests;
+    }
+
+    public boolean getHasRedRequests() {
+        return this.hasRedRequests;
     }
 
     @Override

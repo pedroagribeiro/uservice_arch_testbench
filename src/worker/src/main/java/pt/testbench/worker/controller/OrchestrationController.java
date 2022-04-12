@@ -1,4 +1,4 @@
-package pt.testbench.worker_spring.controller;
+package pt.testbench.worker.controller;
 
 import com.google.gson.Gson;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

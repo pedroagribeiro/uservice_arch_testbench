@@ -29,6 +29,9 @@ public class Message {
     @Column(name = "completed", nullable = false)
     private long completed;
 
+    @Column(name = "successful", nullable = false)
+    private boolean successful;
+
     public Message(final int id, final String olt) {
         this.id = id;
         this.olt = olt;

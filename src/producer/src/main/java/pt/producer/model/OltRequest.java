@@ -1,9 +1,10 @@
-package pt.testbench.worker.model;
+package pt.producer.model;
 
 import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.List;
 
 @Data
 @Entity
@@ -15,7 +16,7 @@ public class OltRequest {
     @SequenceGenerator(name = "olt_request_id_seq", sequenceName = "olt_request_id_seq", allocationSize = 1)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
     private Message origin_message;
 

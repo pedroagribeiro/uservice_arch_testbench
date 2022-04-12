@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.producer.model.Message;
 import pt.producer.model.Orchestration;
+import pt.producer.repository.MessageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 import java.util.Collections;
 import java.util.Random;
 
-@Service
 public class Generator {
 
     private int message_id = 0;

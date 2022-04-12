@@ -11,6 +11,9 @@ public class Message {
     private int worker;
     private long completed;
     private boolean successful;
+    private long minimumTheoreticalDuration;
+    private boolean hasRedRequests;
+
 
     public Message(final int id, final String olt) {
         this.id = id;
@@ -61,6 +64,22 @@ public class Message {
 
     public long getCompleted() {
         return this.completed;
+    }
+
+    public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
+        this.minimumTheoreticalDuration = minimumTheoreticalDuration;
+    }
+
+    public long getMinimumTheoreticalDuration() {
+        return this.minimumTheoreticalDuration;
+    }
+
+    public void setHasRedRequests(final boolean hasRedRequests) {
+        this.hasRedRequests = hasRedRequests;
+    }
+
+    public boolean getHasRedRequests() {
+        return this.hasRedRequests;
     }
 
     @Override

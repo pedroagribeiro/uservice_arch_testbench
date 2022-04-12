@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.producer.model.*;
 import pt.producer.repository.ResultRepository;
+import pt.producer.repository.OltRequestRepository;
+import pt.producer.repository.MessageRepository;
 import pt.producer.utils.Generator;
+import pt.producer.model.OltRequest;
+import pt.producer.model.Result;
 
 import java.util.*;
 
@@ -17,11 +21,14 @@ import java.util.*;
 @Slf4j
 public class ReceiveOrchestrationHandler {
 
+    @Autowired private ResultRepository resultRepository;
+    @Autowired private OltRequestRepository oltRequestsRepository;
+    @Autowired private MessageRepository messagesRepository;
+
     private final Gson converter = new Gson();
     private final Generator message_generator = new Generator();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Autowired private ResultRepository resultRepository;
 
     @Autowired
     @Qualifier("currentStatus")
@@ -83,6 +90,30 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
+    private void calculate_run_results(int orchestration_id, int message_id_lower_boundary, int message_id_upper_boundary) {
+        List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
+        List<Message> generated_messages = this.messagesRepository.findMessageBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
+        long minimum_theoretical_run_duration = 0;
+        int mininum_theoretical_failed_provisions = 0;
+        long verified_run_duration = 0;
+        int verified_failed_provisions = 0;
+        for(Message m : generated_messages) {
+            minimum_theoretical_run_duration += m.getMinimumTheoreticalDuration();
+            if(m.getHasRedRequests()) mininum_theoretical_failed_provisions += 1;
+            if(m.getSuccessful() == false) verified_failed_provisions++; 
+        }
+        Optional<Result> run_result = this.resultRepository.findById(orchestration_id);
+        if(run_result.isPresent()) {
+            Result result = run_result.get();
+            result.setStatus(Result.availableStatus[1]);
+            result.setTheoreticalTotalTimeLimit(minimum_theoretical_run_duration);
+            result.setTheoreticalTimeoutRequestsLimit(mininum_theoretical_failed_provisions);
+            result.setVerifiedTotalTime(verified_run_duration);
+            result.setVerifiedTimedoutRequests(verified_failed_provisions);
+            this.resultRepository.save(result);
+        }
+    }
+
     public void handleOrchestration(String body) {
         wait_for_current_run_to_finish();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
@@ -92,7 +123,7 @@ public class ReceiveOrchestrationHandler {
         int new_current_message_id = this.message_generator.generate_messages(this.current_status.getCurrentMessageId(), orchestration);
         log.info("Waiting for run results to be ready...");
         wait_for_current_run_to_finish();
-        // calculate_run_results(orchestration.get_id(), current_status.getCurrentMessageId(), new_current_message_id - 1, new Date().getTime());
+        calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), new_current_message_id - 1);
         log.info("The run is finished and the result has been submitted to the database");
         this.current_status.setCurrentMessageId(new_current_message_id + 1);
     }

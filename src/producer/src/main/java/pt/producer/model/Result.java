@@ -6,6 +6,8 @@ import javax.persistence.*;
 @Table(name = "results")
 public class Result {
 
+    public static final String[] availableStatus = { "on_going", "finished" };
+
     @Id
     @GeneratedValue(generator="result_id_seq", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "result_id_seq", sequenceName = "result_id_seq", allocationSize = 1)
@@ -14,26 +16,23 @@ public class Result {
     @Column(name = "algorithm", nullable = false)
     private int algorithm;
 
-    @Column(name = "avg_time_total")
-    private double avg_time_total;
+    @Column(name = "theoretical_total_time_limit")
+    private long theoretical_total_time_limit;
 
-    @Column(name = "avg_time_broker_queue")
-    private double avg_time_broker_queue;
+    @Column(name = "verified_total_time")
+    private long verified_total_time;
 
-    @Column(name = "avg_time_worker_queue")
-    private double avg_time_worker_queue;
+    @Column(name = "theoretical_timedout_requests_limit")
+    private int theoretical_timedout_requests_limit;
 
-    @Column(name = "avg_time_olt_queue")
-    private double avg_time_olt_queue;
+    @Column(name = "verified_timedout_requests")
+    private int verified_timedout_requests;
 
     @Column(name = "start_instant")
     private long start_instant;
 
     @Column(name = "end_instant")
     private long end_instant;
-
-    @Column(name = "avg_time_total_2")
-    private double avg_time_total_2;
 
     @Column(name = "olts")
     private int olts;
@@ -43,9 +42,6 @@ public class Result {
 
     @Column(name = "requests", nullable = false)
     private int requests;
-
-    @Column(name = "timedout")
-    private double timedout;
 
     @Column(name = "status", nullable = false)
     private String status;
@@ -60,7 +56,7 @@ public class Result {
         this.olts = orchestration.getOlts();
         this.workers = orchestration.getWorkers();
         this.requests = orchestration.getMessages();
-        this.status = "ON GOING";
+        this.status = Result.availableStatus[0];
     }
     public Result(int algorithm, int olts, int workers, int requests, String status) {
         this.algorithm = algorithm;
@@ -86,62 +82,54 @@ public class Result {
         this.algorithm = algorithm;
     }
 
-    public double getAvg_time_total() {
-        return avg_time_total;
+    public long getTheoreticalTotalTimeLimt() {
+         return this.theoretical_total_time_limit;
     }
 
-    public void setAvg_time_total(double avg_time_total) {
-        this.avg_time_total = avg_time_total;
+    public void setTheoreticalTotalTimeLimit(long theoretical_total_time_limit) {
+        this.theoretical_total_time_limit = theoretical_total_time_limit;
     }
 
-    public double getAvg_time_broker_queue() {
-        return avg_time_broker_queue;
+    public long getVerifiedTotalTime() {
+        return this.verified_total_time;
     }
 
-    public void setAvg_time_broker_queue(double avg_time_broker_queue) {
-        this.avg_time_broker_queue = avg_time_broker_queue;
+    public void setVerifiedTotalTime(long verified_total_time) {
+        this.verified_total_time = verified_total_time;
     }
 
-    public double getAvg_time_worker_queue() {
-        return avg_time_worker_queue;
+    public double getTheoreticalTimedoutRequestsLimit() {
+        return this.theoretical_timedout_requests_limit;
     }
 
-    public void setAvg_time_worker_queue(double avg_time_worker_queue) {
-        this.avg_time_worker_queue = avg_time_worker_queue;
+    public void setTheoreticalTimeoutRequestsLimit(int theoretical_timedout_requests_limit) {
+        this.theoretical_timedout_requests_limit = theoretical_timedout_requests_limit;
     }
 
-    public double getAvg_time_olt_queue() {
-        return avg_time_olt_queue;
+    public double getVerifiedTimedoutRequests() {
+        return this.verified_timedout_requests;
     }
 
-    public void setAvg_time_olt_queue(double avg_time_olt_queue) {
-        this.avg_time_olt_queue = avg_time_olt_queue;
+    public void setVerifiedTimedoutRequests(int verified_timedout_requests) {
+        this.verified_timedout_requests = verified_timedout_requests;
     }
 
-    public long getStart_instant() {
+    public long getStartInstant() {
         return this.start_instant;
     }
 
-    public void setStart_instant(long start_instant) {
+    public void setStartInstant(long start_instant) {
         this.start_instant = start_instant;
     }
 
-    public long getEnd_instant() {
+    public long getEndInstant() {
         return this.end_instant;
     }
 
-    public void setEnd_instant(long end_instant) {
+    public void setEndInstant(long end_instant) {
         this.end_instant = end_instant;
     }
-
-    public double getAvg_time_total_2() {
-        return this.avg_time_total_2;
-    }
-
-    public void setAvg_time_total_2(double avg_time_total_2) {
-        this.avg_time_total_2 = avg_time_total_2;
-    }
-
+ 
     public int getOlts() {
         return olts;
     }
@@ -166,19 +154,12 @@ public class Result {
         this.requests = requests;
     }
 
-    public double getTimedout() {
-        return timedout;
-    }
-
-    public void setTimedout(double timedout) {
-        this.timedout = timedout;
-    }
-
     public String getStatus() {
-        return status;
+        return this.status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
+
 }
