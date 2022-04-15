@@ -1,6 +1,8 @@
 package pt.producer.model;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "results")
@@ -9,9 +11,9 @@ public class Result {
     public static final String[] availableStatus = { "on_going", "finished" };
 
     @Id
-    @GeneratedValue(generator="result_id_seq", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "result_id_seq", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "result_id_seq", sequenceName = "result_id_seq", allocationSize = 1)
-    private int run;
+    private int id;
 
     @Column(name = "algorithm", nullable = false)
     private int algorithm;
@@ -28,13 +30,13 @@ public class Result {
     @Column(name = "verified_timedout_requests")
     private int verified_timedout_requests;
 
-    @Column(name = "start_instant")
+    @Column(name = "start_instant", nullable = false)
     private long start_instant;
 
     @Column(name = "end_instant")
     private long end_instant;
 
-    @Column(name = "olts")
+    @Column(name = "olts", nullable = false)
     private int olts;
 
     @Column(name = "workers", nullable = false)
@@ -60,18 +62,19 @@ public class Result {
     }
     public Result(int algorithm, int olts, int workers, int requests, String status) {
         this.algorithm = algorithm;
+        this.start_instant = new Date().getTime();
         this.olts = olts;
         this.workers = workers;
         this.requests = requests;
         this.status = status;
     }
 
-    public int getRun() {
-        return run;
+    public int getId() {
+        return id;
     }
 
-    public void setRun(int run) {
-        this.run = run;
+    public void set(int id) {
+        this.id = id;
     }
 
     public int getAlgorithm() {
@@ -162,4 +165,34 @@ public class Result {
         this.status = status;
     }
 
+    @Override
+    public String toString() {
+        return "Result{" +
+                "id=" + id +
+                ", algorithm=" + algorithm +
+                ", theoretical_total_time_limit=" + theoretical_total_time_limit +
+                ", verified_total_time=" + verified_total_time +
+                ", theoretical_timedout_requests_limit=" + theoretical_timedout_requests_limit +
+                ", verified_timedout_requests=" + verified_timedout_requests +
+                ", start_instant=" + start_instant +
+                ", end_instant=" + end_instant +
+                ", olts=" + olts +
+                ", workers=" + workers +
+                ", requests=" + requests +
+                ", status='" + status + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Result result = (Result) o;
+        return id == result.id && algorithm == result.algorithm && theoretical_total_time_limit == result.theoretical_total_time_limit && verified_total_time == result.verified_total_time && theoretical_timedout_requests_limit == result.theoretical_timedout_requests_limit && verified_timedout_requests == result.verified_timedout_requests && start_instant == result.start_instant && end_instant == result.end_instant && olts == result.olts && workers == result.workers && requests == result.requests && Objects.equals(status, result.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, algorithm, theoretical_total_time_limit, verified_total_time, theoretical_timedout_requests_limit, verified_timedout_requests, start_instant, end_instant, olts, workers, requests, status);
+    }
 }

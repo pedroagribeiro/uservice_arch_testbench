@@ -1,25 +1,46 @@
 package pt.testbench.olt.model;
 
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Set;
 
+@Entity
+@Table(name = "messages")
 public class Message {
 
+    @Id
+    @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
     private int id;
+
+    @Column(name = "olt", nullable = false)
     private String olt;
+
+    @Column(name = "issued_at", nullable = false)
     private long issued_at;
+
+    @Column(name = "worker")
     private int worker;
+
+    @Column(name = "completed")
     private long completed;
+
+    @Column(name = "successful")
     private boolean successful;
+
+    @OneToMany(mappedBy="origin_message")
+    private Set<OltRequest> olt_requests;
+
+    @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
+
+    @Column(name = "has_red_requests")
     private boolean hasRedRequests;
 
-
-    public Message(final int id, final String olt) {
-        this.id = id;
+    public Message(final String olt) {
         this.olt = olt;
         this.issued_at = new Date().getTime();
-        this.completed = -1;
     }
 
     public Message() {
@@ -66,6 +87,18 @@ public class Message {
         return this.completed;
     }
 
+    public void setSuccessful(boolean successful) {
+        this.successful = successful;
+    }
+
+    public boolean getSuccessful() {
+        return this.successful;
+    }
+
+    public Set<OltRequest> getOltRequests() {
+        return this.olt_requests;
+    }
+
     public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
         this.minimumTheoreticalDuration = minimumTheoreticalDuration;
     }
@@ -84,13 +117,16 @@ public class Message {
 
     @Override
     public String toString() {
-        return "utils.Message{" +
+        return "Message{" +
                 "id=" + id +
                 ", olt='" + olt + '\'' +
-                ", issued_at=" + issued_at +
-                ", worker=" + worker +
-                ", completed=" + completed +
-                ", successful=" + successful +
+                ", issued_at=" + issued_at + '\'' +
+                ", worker=" + worker + '\'' +
+                ", completed=" + completed + '\'' +
+                ", successful= " + successful + '\'' +
+                ", olt_requests=" + olt_requests + '\'' +
+                ", minimumTheoreticalDuration=" + minimumTheoreticalDuration + '\'' +
+                ", hasRedRequests= " + hasRedRequests +
                 '}';
     }
 
@@ -101,12 +137,16 @@ public class Message {
         Message message = (Message) o;
         return (
                 id == message.id &&
-                Objects.equals(olt, message.olt) &&
-                Objects.equals(issued_at, message.issued_at) &&
-                worker == message.worker &&
-                completed == message.completed &&
-                successful == message.successful
+                        Objects.equals(olt, message.olt) &&
+                        Objects.equals(issued_at, message.issued_at) &&
+                        Objects.equals(worker, message.worker) &&
+                        Objects.equals(completed, message.completed) &&
+                        successful == message.successful &&
+                        Objects.equals(olt_requests, message.olt_requests) &&
+                        minimumTheoreticalDuration == message.minimumTheoreticalDuration &&
+                        hasRedRequests == message.hasRedRequests
         );
+
     }
 
     @Override
@@ -115,9 +155,11 @@ public class Message {
                 id,
                 olt,
                 issued_at,
-                worker,
                 completed,
-                successful
+                successful,
+                olt_requests,
+                minimumTheoreticalDuration,
+                hasRedRequests
         );
     }
 }

@@ -3,28 +3,24 @@ package pt.testbench.worker.handlers;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Orchestration;
 import pt.testbench.worker.model.Status;
+import pt.testbench.worker.repository.MessageRepository;
+import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.utils.SequenceGenerator;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -39,8 +35,8 @@ public class ReceiveOrchestrationHandler {
     private String broker_host = "broker";
     private String base_olt_host = "olt-";
 
-   @Autowired
-   private OltRequestRepository oltRequestRepository; 
+    @Autowired private MessageRepository messagesRepository;
+    @Autowired private OltRequestRepository oltRequestsRepository;
 
     private Message fetch_message_from_broker() {
         Message m = null;
@@ -120,7 +116,7 @@ public class ReceiveOrchestrationHandler {
         return worker;
     }
 
-    private Callable<Boolean> request_satisfied(long request_id) {
+    private Callable<Boolean> request_satisfied(String request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
     }
 
@@ -152,12 +148,13 @@ public class ReceiveOrchestrationHandler {
                         }
                     }
                     log.info("Message that I got: " + converter.toJson(m));
-                    List<OltRequest> generated_requests = SequenceGenerator.generate_requests_sequence(m);
+                    m = SequenceGenerator.generate_requests_sequence(m, status.getWorkerId(), this.messagesRepository, this.oltRequestsRepository);
                     inform_oracle_of_handling(m.getOlt());
+                    Set<OltRequest> olt_requests = m.getOltRequests();
+                    List<OltRequest> sorted_olt_requests = olt_requests.stream().sorted(Comparator.comparing(OltRequest::getId)).collect(Collectors.toList());
                     int timedout_requests = 0;
-                    for(int i = 0; i < generated_requests.size(); i++) {
-                        OltRequest request = generated_requests.get(i);
-                        // this.oltRequestRepository.save(request);
+                    for(int i = 0; i < sorted_olt_requests.size(); i++) {
+                        OltRequest request = sorted_olt_requests.get(i);
                         status.setCurrentActiveRequest(request.getId());
                         status.getRequestSatisfied().put(request.getId(), false);
                         perform_olt_request(request, m.getOlt());
@@ -169,11 +166,13 @@ public class ReceiveOrchestrationHandler {
                                inform_oracle_of_handling_end(m.getOlt());
                            }
                            m.setSuccessful(false);
+                           m = this.messagesRepository.save(m);
                            timedout_requests++;
                         }
                     }
                     if(timedout_requests == 0) {
                         m.setSuccessful(true);
+                        this.messagesRepository.save(m);
                     }
                 } else {
                     try { 

@@ -1,16 +1,15 @@
 package pt.producer.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
-import java.util.Objects;
+import javax.persistence.*;
+import java.util.*;
 
-
+@Entity
+@Table(name = "messages")
 public class Message {
 
     @Id
+    @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
     private int id;
 
     @Column(name = "olt", nullable = false)
@@ -19,26 +18,27 @@ public class Message {
     @Column(name = "issued_at", nullable = false)
     private long issued_at;
 
-    @Column(name = "worker", nullable = false)
+    @Column(name = "worker")
     private int worker;
 
-    @Column(name = "completed", nullable = false)
+    @Column(name = "completed")
     private long completed;
 
-    @Column(name = "successful", nullable = false)
+    @Column(name = "successful")
     private boolean successful;
 
-    @Column(name = "minimum_theoretical_duration", nullable = false)
+    @OneToMany(mappedBy="origin_message")
+    private Set<OltRequest> olt_requests;
+
+    @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
 
-    @Column(name = "has_red_requests", nullable = false)
+    @Column(name = "has_red_requests")
     private boolean hasRedRequests;
 
-    public Message(final int id, final String olt) {
-        this.id = id;
+    public Message(final String olt) {
         this.olt = olt;
         this.issued_at = new Date().getTime();
-        this.completed = -1;
     }
 
     public Message() {
@@ -93,6 +93,10 @@ public class Message {
         return this.successful;
     }
 
+    public Set<OltRequest> getOltRequests() {
+        return this.olt_requests;
+    }
+
     public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
         this.minimumTheoreticalDuration = minimumTheoreticalDuration;
     }
@@ -111,12 +115,16 @@ public class Message {
 
     @Override
     public String toString() {
-        return "utils.Message{" +
+        return "Message{" +
                 "id=" + id +
                 ", olt='" + olt + '\'' +
                 ", issued_at=" + issued_at + '\'' +
-                ", worker=" + worker +
-                ", completed=" + completed +
+                ", worker=" + worker + '\'' +
+                ", completed=" + completed + '\'' +
+                ", successful= " + successful + '\'' +
+                ", olt_requests=" + olt_requests + '\'' +
+                ", minimumTheoreticalDuration=" + minimumTheoreticalDuration + '\'' +
+                ", hasRedRequests= " + hasRedRequests +
                 '}';
     }
 
@@ -130,7 +138,11 @@ public class Message {
                 Objects.equals(olt, message.olt) &&
                 Objects.equals(issued_at, message.issued_at) &&
                 Objects.equals(worker, message.worker) &&
-                Objects.equals(completed, message.completed)
+                Objects.equals(completed, message.completed) &&
+                successful == message.successful &&
+                Objects.equals(olt_requests, message.olt_requests) &&
+                minimumTheoreticalDuration == message.minimumTheoreticalDuration &&
+                hasRedRequests == message.hasRedRequests
         );
 
     }
@@ -141,7 +153,11 @@ public class Message {
                 id,
                 olt,
                 issued_at,
-                completed
+                completed,
+                successful,
+                olt_requests,
+                minimumTheoreticalDuration,
+                hasRedRequests
         );
     }
 }

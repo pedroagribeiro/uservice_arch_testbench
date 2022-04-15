@@ -1,50 +1,45 @@
 package pt.producer.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.util.Objects;
 
-@Data
 @Entity
 @Table(name = "responses")
 public class Response {
 
     @Id
-    @GeneratedValue(generator="response_id_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "response_id_seq", sequenceName = "response_id_seq", allocationSize = 1)
-    private Integer id;
+    private String id;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private int status;
 
-    @Column(name = "started_handling", nullable = false)
+    @Column(name = "started_handling")
     private long started_handling;
 
-    @Column(name = "ended_handling", nullable = false)
+    @Column(name = "ended_handling")
     private long ended_handling;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Column(name = "timedout")
+    private boolean timedout;
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "origin_request_id", referencedColumnName = "id")
     private OltRequest origin_request;
 
-    @Column(name = "timedout", nullable = false)
-    private boolean timedout;
-
     public Response() {}
 
-    public Response(final int request_id, final int status, final long started_handling, final long ended_handling) {
+    public Response(final int status, final long started_handling, final long ended_handling) {
         this.status = status;
         this.started_handling = started_handling;
         this.ended_handling = ended_handling;
     }
 
-    public int getId() {
-        return id;
+    public void setId(final String id) {
+        this.id = id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getId() {
+        return this.id;
     }
 
     public void setStatus(final int status) {
@@ -71,14 +66,6 @@ public class Response {
         return this.ended_handling;
     }
 
-    public void setOriginRequest(OltRequest request) {
-        this.origin_request = request;
-    }
-
-    public OltRequest getOriginRequest() {
-        return this.origin_request;
-    }
-
     public void setTimedout(final boolean timedout) {
         this.timedout = timedout;
     }
@@ -87,15 +74,19 @@ public class Response {
         return this.timedout;
     }
 
+    public OltRequest getOriginRequest() {
+        return this.origin_request;
+    }
+
     @Override
     public String toString() {
         return "Reponse{" +
-                "id=" + id +
-                ", status=" + status +
+                "id=" + id + '\'' +
+                ", status=" + status + '\'' +
                 ", started_handling='" + started_handling + '\'' +
-                ", ended_handling=" + ended_handling +
+                ", ended_handling=" + ended_handling + '\'' +
+                ", timedout=" + timedout + '\'' +
                 ", origin_request=" + origin_request +
-                ", timedout=" + timedout +
                 '}';
     }
 
@@ -109,18 +100,20 @@ public class Response {
                 status == response.status &&
                 started_handling == response.started_handling &&
                 ended_handling == response.ended_handling &&
-                origin_request.equals(response.origin_request) &&
-                timedout == response.timedout
+                timedout == response.timedout &&
+                Objects.equals(origin_request, response.origin_request)
         );
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
+                id,
                 status,
                 started_handling,
                 ended_handling,
-                timedout
+                timedout,
+                origin_request
         );
     }
 }

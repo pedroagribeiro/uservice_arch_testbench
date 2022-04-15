@@ -2,7 +2,6 @@ package pt.producer.controller;
 
 import com.google.gson.Gson;
 import java.util.Date;
-import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -37,7 +36,8 @@ public class OrchestrationController {
     public ResponseEntity<?> sendOrchestration(@RequestBody OrchestrationNoId orchestration) {
         Result r = new Result(orchestration, new Date().getTime());
         this.resultRepository.save(r);
-        Orchestration o = new Orchestration(r.getRun(), orchestration);
+        Result result_with_attributed_id = this.resultRepository.findResultWithHighestId().get(0);
+        Orchestration o = new Orchestration(result_with_attributed_id.getId(), orchestration);
         rabbitTemplate.convertAndSend(ConfigureOrchestrationQueue.EXCHANGE_NAME, ConfigureOrchestrationQueue.QUEUE_NAME, converter.toJson(o));
         return new ResponseEntity<>("Orchestration submitted and has id: " + o.getId(), HttpStatus.CREATED);
     }

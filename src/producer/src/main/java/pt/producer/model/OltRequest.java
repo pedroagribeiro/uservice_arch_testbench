@@ -1,24 +1,15 @@
 package pt.producer.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
-import java.util.List;
 
-@Data
 @Entity
 @Table(name = "olt_requests")
 public class OltRequest {
 
     @Id
-    @GeneratedValue(generator = "olt_request_id_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "olt_request_id_seq", sequenceName = "olt_request_id_seq", allocationSize = 1)
-    private long id;
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
-    private Message origin_message;
+    private String id;
 
     @Column(name = "issued_at", nullable = false)
     private long issued_at;
@@ -38,33 +29,31 @@ public class OltRequest {
     @Column(name = "completed")
     private long completed;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
+    private Message origin_message;
+
     @OneToOne(mappedBy = "origin_request")
     private Response response;
+
 
     public OltRequest() {
 
     }
 
-    public OltRequest(final Message origin_message, final long duration, final long timeout) {
-       this.origin_message = origin_message;
+    public OltRequest(final String id, final long duration, final long timeout) {
+       this.id = id;
+       this.issued_at = new Date().getTime();
        this.duration = duration;
        this.timeout = timeout;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public Message getOriginMessage() {
-        return origin_message;
-    }
-
-    public void setOriginMessage(Message origin_message) {
-        this.origin_message = origin_message;
     }
 
     public long getIssuedAt() {
@@ -115,6 +104,29 @@ public class OltRequest {
         this.completed = completed;
     }
 
+    public Response getResponse() {
+        return this.response;
+    }
+
+    public Message getOriginMessage() {
+        return this.origin_message;
+    }
+
+    @Override
+    public String toString() {
+        return "OltRequest{" +
+                "id='" + id + '\'' +
+                ", issued_at=" + issued_at +
+                ", duration=" + duration +
+                ", timeout=" + timeout +
+                ", enqueued_at_olt=" + enqueued_at_olt +
+                ", dequeued_at_olt=" + dequeued_at_olt +
+                ", completed=" + completed +
+                ", origin_message=" + origin_message +
+                ", response=" + response +
+                '}';
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -122,18 +134,19 @@ public class OltRequest {
         OltRequest that = (OltRequest) o;
         return (
                 id == that.id &&
-                origin_message == that.origin_message &&
                 issued_at == that.issued_at &&
                 duration == that.duration &&
                 timeout == that.timeout &&
                 enqueued_at_olt == that.enqueued_at_olt &&
                 dequeued_at_olt == that.dequeued_at_olt &&
-                completed == that.completed
+                completed == that.completed &&
+                Objects.equals(origin_message, that.origin_message) &&
+                Objects.equals(response, that.response)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, origin_message, issued_at, duration, timeout, enqueued_at_olt, dequeued_at_olt, completed);
+        return Objects.hash(id, issued_at, duration, timeout, enqueued_at_olt, dequeued_at_olt, completed, origin_message, response);
     }
 }

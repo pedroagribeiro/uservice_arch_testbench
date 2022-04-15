@@ -1,4 +1,4 @@
-package pt.testbench.olt.model;
+package pt.testbench.broker.model;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -28,10 +28,10 @@ public class Response {
 
     public Response() {}
 
-    public Response(final String id, final int status, final long started_handling) {
-        this.id = id;
+    public Response(final int status, final long started_handling, final long ended_handling) {
         this.status = status;
         this.started_handling = started_handling;
+        this.ended_handling = ended_handling;
     }
 
     public void setId(final String id) {

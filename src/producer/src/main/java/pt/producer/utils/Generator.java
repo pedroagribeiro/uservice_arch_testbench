@@ -4,29 +4,33 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.producer.model.Message;
 import pt.producer.model.Orchestration;
 import pt.producer.repository.MessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-
 
 import java.util.Collections;
 import java.util.Random;
 
 public class Generator {
 
-    private int message_id = 0;
     private final RestTemplate restTemplate = new RestTemplate();
     private static final Gson converter = new Gson();
 
+    private MessageRepository messagesRepository;
+
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    private Message generate_message(final int message_id, Random random, int olt_count) {
+    public Generator(MessageRepository messagesRepository) {
+        this.messagesRepository = messagesRepository;
+    }
+
+    private Message generate_message(Random random, int olt_count) {
         int olt_identifier = random.nextInt(olt_count);
         String olt_name = String.valueOf(olt_identifier);
-        return new Message(message_id, olt_name);
+        Message m = new Message(olt_name);
+        this.messagesRepository.save(m);
+        return this.messagesRepository.findMessageWithHighestId().get(0);
     }
 
     public void send_message_to_broker(Message m) {
@@ -43,12 +47,11 @@ public class Generator {
         }
     }
 
-    public int generate_messages(int messageId, Orchestration orchestration) {
-        this.message_id = messageId;
+    public void generate_messages(Orchestration orchestration) {
         int seed = 34;
         Random r = new Random(seed);
         for(int i = 0; i < orchestration.getMessages(); i++) {
-            Message m = generate_message(message_id++, r, orchestration.getOlts());
+            Message m = generate_message(r, orchestration.getOlts());
             send_message_to_broker(m);
             int sleep_time = (r.nextInt(10) + 5) * 100;
             try {
@@ -58,6 +61,5 @@ public class Generator {
             }
         }
         log.info("Used seed: " + seed + " to generate messages");
-        return this.message_id;
     }
 }

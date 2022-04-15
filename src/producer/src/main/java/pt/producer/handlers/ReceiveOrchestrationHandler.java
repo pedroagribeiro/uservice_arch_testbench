@@ -12,8 +12,6 @@ import pt.producer.repository.ResultRepository;
 import pt.producer.repository.OltRequestRepository;
 import pt.producer.repository.MessageRepository;
 import pt.producer.utils.Generator;
-import pt.producer.model.OltRequest;
-import pt.producer.model.Result;
 
 import java.util.*;
 
@@ -26,9 +24,8 @@ public class ReceiveOrchestrationHandler {
     @Autowired private MessageRepository messagesRepository;
 
     private final Gson converter = new Gson();
-    private final Generator message_generator = new Generator();
+    private final Generator message_generator = new Generator(this.messagesRepository);
     private final RestTemplate restTemplate = new RestTemplate();
-
 
     @Autowired
     @Qualifier("currentStatus")
@@ -90,6 +87,7 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
+    /**
     private void calculate_run_results(int orchestration_id, int message_id_lower_boundary, int message_id_upper_boundary) {
         List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
         List<Message> generated_messages = this.messagesRepository.findMessageBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
@@ -113,18 +111,18 @@ public class ReceiveOrchestrationHandler {
             this.resultRepository.save(result);
         }
     }
+    **/
 
     public void handleOrchestration(String body) {
         wait_for_current_run_to_finish();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
-        inform_workers_of_target(this.current_status.getCurrentMessageId() + orchestration.getMessages() - 1, orchestration.getWorkers());
+        int current_highest_message_id = this.messagesRepository.findMessageWithHighestId().get(0).getId();
+        inform_workers_of_target(current_highest_message_id + orchestration.getMessages() - 1, orchestration.getWorkers());
         forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
         this.current_status.start_run();
-        int new_current_message_id = this.message_generator.generate_messages(this.current_status.getCurrentMessageId(), orchestration);
         log.info("Waiting for run results to be ready...");
         wait_for_current_run_to_finish();
-        calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), new_current_message_id - 1);
+        // calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), new_current_message_id - 1);
         log.info("The run is finished and the result has been submitted to the database");
-        this.current_status.setCurrentMessageId(new_current_message_id + 1);
     }
 }

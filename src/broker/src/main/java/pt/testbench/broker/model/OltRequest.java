@@ -1,4 +1,4 @@
-package pt.testbench.olt.model;
+package pt.testbench.broker.model;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -102,10 +102,6 @@ public class OltRequest {
 
     public void setCompleted(long completed) {
         this.completed = completed;
-    }
-
-    public void setResponse(Response response) {
-        this.response = response;
     }
 
     public Response getResponse() {

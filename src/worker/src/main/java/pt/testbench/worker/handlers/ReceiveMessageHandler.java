@@ -11,13 +11,14 @@ import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Status;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.awaitility.Awaitility;
+import pt.testbench.worker.repository.MessageRepository;
+import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.utils.SequenceGenerator;
 
 @Service
@@ -26,6 +27,9 @@ public class ReceiveMessageHandler {
 
     private final Gson converter = new Gson();
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired private MessageRepository messagesRepository;
+    @Autowired private OltRequestRepository oltRequestsRepository;
 
     @Autowired
     private Status status;
@@ -78,7 +82,7 @@ public class ReceiveMessageHandler {
         }
     }
 
-    private Callable<Boolean> request_satisfied(long request_id) {
+    private Callable<Boolean> request_satisfied(String request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
     }
 
@@ -86,10 +90,12 @@ public class ReceiveMessageHandler {
         Message m = converter.fromJson(body, Message.class);
         log.info("Received a message: " + converter.toJson(m));
         inform_oracle_of_handling(m.getOlt());
-        List<OltRequest> generated_requests = SequenceGenerator.generate_requests_sequence(m);
+        m = SequenceGenerator.generate_requests_sequence(m, status.getWorkerId(), this.messagesRepository, this.oltRequestsRepository);
+        Set<OltRequest> olt_requests = m.getOltRequests();
+        List<OltRequest> sorted_olt_requests = olt_requests.stream().sorted(Comparator.comparing(OltRequest::getId)).collect(Collectors.toList());
         int timedout_requests = 0;
-        for(int i = 0; i < generated_requests.size(); i++) {
-            OltRequest request = generated_requests.get(i);
+        for(int i = 0; i < sorted_olt_requests.size(); i++) {
+            OltRequest request = sorted_olt_requests.get(i);
             status.setCurrentActiveRequest(request.getId());
             status.getRequestSatisfied().put(request.getId(), false);
             perform_olt_request(request, m.getOlt());
@@ -101,11 +107,13 @@ public class ReceiveMessageHandler {
                    inform_oracle_of_handling_end(m.getOlt());
                }
                m.setSuccessful(false);
+               m = this.messagesRepository.save(m);
                timedout_requests++;
             }
         }
         if(timedout_requests == 0) {
                m.setSuccessful(true);
+               m = this.messagesRepository.save(m);
         }
     }
 }

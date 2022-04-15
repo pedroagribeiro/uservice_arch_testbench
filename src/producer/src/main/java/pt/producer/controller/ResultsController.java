@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pt.producer.model.Result;
 import pt.producer.repository.ResultRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,8 +26,10 @@ public class ResultsController {
     })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<List<Result>> retrieveAllResults() {
-        List<Result> all_results = resultsRepository.findAll();
-        return new ResponseEntity<>(all_results, HttpStatus.OK);
+        Iterable<Result> all_results = resultsRepository.findAll();
+        List<Result> all_results_returnable = new ArrayList<>();
+        for(Result r : all_results) all_results_returnable.add(r);
+        return new ResponseEntity<>(all_results_returnable, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Retrieve the result of a specified run", response = Result.class)
