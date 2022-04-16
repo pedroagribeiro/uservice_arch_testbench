@@ -1,10 +1,13 @@
 package pt.producer.model;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Table(name = "messages")
+@Proxy(lazy = false)
 public class Message {
 
     @Id

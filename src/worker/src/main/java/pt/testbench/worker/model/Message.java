@@ -1,10 +1,14 @@
 package pt.testbench.worker.model;
 
+import org.hibernate.annotations.Proxy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Table(name = "messages")
+@Proxy(lazy = false)
 public class Message {
 
     @Id
@@ -27,7 +31,8 @@ public class Message {
     @Column(name = "successful")
     private boolean successful;
 
-    @OneToMany(mappedBy="origin_message")
+    @OneToMany(mappedBy="origin_message", fetch = FetchType.EAGER)
+    // @JsonIgnore
     private Set<OltRequest> olt_requests;
 
     @Column(name = "minimum_theoretical_duration")

@@ -11,6 +11,7 @@ public class Status {
     private int architecture;
     private String current_active_request;
     private Map<String, Boolean> request_satisfied;
+    private int workers;
 
     public Status(final int worker_id) {
         this.worker_id = worker_id;
@@ -19,6 +20,7 @@ public class Status {
         this.architecture = 1;
         this.current_active_request = "";
         this.request_satisfied = new ConcurrentHashMap<>();
+        this.workers = 3;
     }
 
     public int getWorkerId() {
@@ -63,6 +65,14 @@ public class Status {
 
     public void setRequestSatisfied(Map<String, Boolean> request_satisfied) {
         this.request_satisfied = request_satisfied;
+    }
+
+    public int getWorkers() {
+        return this.workers;
+    }
+
+    public void setWorkers(int workers) {
+        this.workers = workers;
     }
 
 }

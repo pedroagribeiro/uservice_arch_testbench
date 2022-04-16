@@ -1,11 +1,14 @@
 package pt.testbench.broker.model;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "olt_requests")
+@Proxy(lazy = false)
 public class OltRequest {
 
     @Id

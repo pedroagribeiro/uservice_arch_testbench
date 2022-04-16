@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import pt.testbench.worker.model.Message;
@@ -34,6 +35,7 @@ public class ReceiveOrchestrationHandler {
 
     private String broker_host = "broker";
     private String base_olt_host = "olt-";
+    private String base_worker_host = "worker-";
 
     @Autowired private MessageRepository messagesRepository;
     @Autowired private OltRequestRepository oltRequestsRepository;
@@ -50,7 +52,9 @@ public class ReceiveOrchestrationHandler {
             m = converter.fromJson(message_json, Message.class);
             log.info("Fetched: " + converter.toJson(m) + " from the broker");
         } catch(HttpClientErrorException.NotFound e) {
-           log.info("Could not fetch message from the broker, it is empty!");
+            log.info("Could not fetch message from the broker, it is empty!");
+        } catch(HttpServerErrorException.ServiceUnavailable e) {
+            log.info("The broker cannot provide message at the moment");
         }
         return m;
     }
@@ -116,6 +120,25 @@ public class ReceiveOrchestrationHandler {
         return worker;
     }
 
+    private void inform_workers_run_is_over() {
+        String worker_base_host = base_worker_host;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        for(int i = 0; i < status.getWorkers(); i++) {
+            String host = base_worker_host + i;
+            int port = 8500 + i;
+            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + port + "/run/ended", HttpMethod.POST, entity, String.class);
+            if(response.getStatusCode().isError()) {
+                log.info("Could not inform worker " + i + " that the run is over, something went wrong!");
+            } else {
+                if(response.getStatusCode().is2xxSuccessful()) {
+                    log.info("Informed the worker " + i + " that the run is over!");
+                }
+            }
+        }
+    }
+
     private Callable<Boolean> request_satisfied(String request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
     }
@@ -126,6 +149,7 @@ public class ReceiveOrchestrationHandler {
         status.setArchitecture(orchestration.getAlgorithm());
         log.info("Running logic " + status.getArchitecture() + " ...");
         status.setIsOnGoingRun(true);
+        status.setWorkers(orchestration.getWorkers());
         boolean auto_consume = status.isOnGoingRun() && (status.getArchitecture() == 1 || status.getArchitecture() == 2);
         if(auto_consume) {
             while(status.isOnGoingRun()) {
@@ -134,6 +158,10 @@ public class ReceiveOrchestrationHandler {
                 Message m = fetch_message_from_broker();
                 if(m != null) {
                     long instant = new Date().getTime();
+                    if(m.getId() == this.status.getTargetMessageRun()) {
+                        this.status.setIsOnGoingRun(false);
+                        inform_workers_run_is_over();
+                    }
                     m.setWorker(status.getWorkerId());
                     if(status.getArchitecture() == 2) {
                         int worker = ask_oracle_if_anyone_is_using_olt(m.getOlt());
@@ -148,10 +176,14 @@ public class ReceiveOrchestrationHandler {
                         }
                     }
                     log.info("Message that I got: " + converter.toJson(m));
-                    m = SequenceGenerator.generate_requests_sequence(m, status.getWorkerId(), this.messagesRepository, this.oltRequestsRepository);
+                    List<OltRequest> generated_olt_requests = SequenceGenerator.generate_requests_sequence(m);
+                    m = this.messagesRepository.save(m);
+                    List<OltRequest> sorted_olt_requests = new ArrayList<>();
+                    for(OltRequest request : generated_olt_requests) {
+                        OltRequest r = this.oltRequestsRepository.save(request);
+                        sorted_olt_requests.add(r);
+                    }
                     inform_oracle_of_handling(m.getOlt());
-                    Set<OltRequest> olt_requests = m.getOltRequests();
-                    List<OltRequest> sorted_olt_requests = olt_requests.stream().sorted(Comparator.comparing(OltRequest::getId)).collect(Collectors.toList());
                     int timedout_requests = 0;
                     for(int i = 0; i < sorted_olt_requests.size(); i++) {
                         OltRequest request = sorted_olt_requests.get(i);

@@ -35,9 +35,8 @@ public class OrchestrationController {
     @PostMapping("")
     public ResponseEntity<?> sendOrchestration(@RequestBody OrchestrationNoId orchestration) {
         Result r = new Result(orchestration, new Date().getTime());
-        this.resultRepository.save(r);
-        Result result_with_attributed_id = this.resultRepository.findResultWithHighestId().get(0);
-        Orchestration o = new Orchestration(result_with_attributed_id.getId(), orchestration);
+        r = this.resultRepository.save(r);
+        Orchestration o = new Orchestration(r.getId(), orchestration);
         rabbitTemplate.convertAndSend(ConfigureOrchestrationQueue.EXCHANGE_NAME, ConfigureOrchestrationQueue.QUEUE_NAME, converter.toJson(o));
         return new ResponseEntity<>("Orchestration submitted and has id: " + o.getId(), HttpStatus.CREATED);
     }

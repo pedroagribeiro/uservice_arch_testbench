@@ -1,11 +1,14 @@
 package pt.producer.model;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "results")
+@Proxy(lazy = false)
 public class Result {
 
     public static final String[] availableStatus = { "on_going", "finished" };
@@ -73,7 +76,7 @@ public class Result {
         return id;
     }
 
-    public void set(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 

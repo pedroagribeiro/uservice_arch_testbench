@@ -25,7 +25,6 @@ public class SequenceGenerator {
      * Long messages: 30000 milliseconds
      */
 
-    private static int last_message_id = 0;
     private final static int olt_request_timeout = 20000;
 
     private static final long fast_message_duration = 2000;
@@ -38,8 +37,9 @@ public class SequenceGenerator {
     private static final Random random = new Random(34);
 
 
-    public static Message generate_requests_sequence(Message m, int worker, MessageRepository messagesRepository, OltRequestRepository oltRequestsRepository) {
+    public static List<OltRequest> generate_requests_sequence(Message m) {
         List<Long> batch_message_durations = new ArrayList<>();
+        List<OltRequest> requests_to_return = new ArrayList<>();
         int batch_type = random.nextInt(3);
         boolean has_red_request = false;
         switch(batch_type) {
@@ -68,11 +68,11 @@ public class SequenceGenerator {
             long duration = batch_message_durations.get(i);
             minimum_theoretical_duration += duration;
             OltRequest request = new OltRequest(m.getId() + "-" + i, duration, olt_request_timeout);
-            oltRequestsRepository.save(request);
+            request.setOriginMessage(m);
+            requests_to_return.add(request);
         }
         m.setMinimumTheoreticalDuration(minimum_theoretical_duration);
         m.setHasRedRequests(has_red_request);
-        m = messagesRepository.save(m);
-        return m;
+        return requests_to_return;
     }
 }

@@ -1,5 +1,7 @@
 package pt.testbench.olt.model;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
@@ -7,6 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "messages")
+@Proxy(lazy = false)
 public class Message {
 
     @Id

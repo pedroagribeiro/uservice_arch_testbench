@@ -1,11 +1,14 @@
 package pt.testbench.worker.model;
 
+import org.hibernate.annotations.Proxy;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "olt_requests")
+@Proxy(lazy = false)
 public class OltRequest {
 
     @Id
@@ -106,6 +109,10 @@ public class OltRequest {
 
     public Response getResponse() {
         return this.response;
+    }
+
+    public void setOriginMessage(Message origin_message) {
+        this.origin_message = origin_message;
     }
 
     public Message getOriginMessage() {

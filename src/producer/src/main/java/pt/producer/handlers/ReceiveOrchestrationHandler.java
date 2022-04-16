@@ -24,7 +24,7 @@ public class ReceiveOrchestrationHandler {
     @Autowired private MessageRepository messagesRepository;
 
     private final Gson converter = new Gson();
-    private final Generator message_generator = new Generator(this.messagesRepository);
+    private final Generator message_generator = new Generator();
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
@@ -33,6 +33,36 @@ public class ReceiveOrchestrationHandler {
 
     private final String broker_host = "broker";
     private final String worker_base_host = "worker-";
+
+    public void send_message_to_broker(Message m) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<Message> entity = new HttpEntity<>(m, headers);
+        ResponseEntity<?> response = restTemplate.exchange("http://broker:8081/message", HttpMethod.POST, entity, String.class);
+        if(response.getStatusCode().isError()) {
+            log.error("The message could not be sent to the broker, something went wrong!");
+        } else {
+            if(response.getStatusCode().is2xxSuccessful()) {
+                log.info("Sent " + converter.toJson(m) + " to the broker.");
+            }
+        }
+    }
+
+    public void generate_messages(Orchestration orchestration) {
+        int seed = 34;
+        Random r = new Random(seed);
+        List<Message> generated_messages = message_generator.generate_messages(orchestration);
+        for(Message m : generated_messages) {
+            m = this.messagesRepository.save(m);
+            send_message_to_broker(m);
+            int sleep_time = r.nextInt(10 + 5) * 100; 
+            try {
+                Thread.sleep(sleep_time);
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void forward_orchestration_to_component(Orchestration orchestration, String host, int port) {
         HttpHeaders headers = new HttpHeaders();
@@ -116,10 +146,15 @@ public class ReceiveOrchestrationHandler {
     public void handleOrchestration(String body) {
         wait_for_current_run_to_finish();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
-        int current_highest_message_id = this.messagesRepository.findMessageWithHighestId().get(0).getId();
+        int current_highest_message_id = 0;
+        List<Message> list_of_highest_id_messages = this.messagesRepository.findMessageWithHighestId();
+        if(list_of_highest_id_messages.size() != 0) {
+            current_highest_message_id = list_of_highest_id_messages.get(0).getId();
+        }
         inform_workers_of_target(current_highest_message_id + orchestration.getMessages() - 1, orchestration.getWorkers());
         forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
         this.current_status.start_run();
+        generate_messages(orchestration);
         log.info("Waiting for run results to be ready...");
         wait_for_current_run_to_finish();
         // calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), new_current_message_id - 1);

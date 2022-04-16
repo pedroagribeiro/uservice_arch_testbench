@@ -90,9 +90,13 @@ public class ReceiveMessageHandler {
         Message m = converter.fromJson(body, Message.class);
         log.info("Received a message: " + converter.toJson(m));
         inform_oracle_of_handling(m.getOlt());
-        m = SequenceGenerator.generate_requests_sequence(m, status.getWorkerId(), this.messagesRepository, this.oltRequestsRepository);
-        Set<OltRequest> olt_requests = m.getOltRequests();
-        List<OltRequest> sorted_olt_requests = olt_requests.stream().sorted(Comparator.comparing(OltRequest::getId)).collect(Collectors.toList());
+        List<OltRequest> generated_olt_requests = SequenceGenerator.generate_requests_sequence(m);
+        m = this.messagesRepository.save(m);
+        List<OltRequest> sorted_olt_requests = new ArrayList<>();
+        for(OltRequest request : generated_olt_requests) {
+            OltRequest r = this.oltRequestsRepository.save(request);
+            sorted_olt_requests.add(r);
+        }
         int timedout_requests = 0;
         for(int i = 0; i < sorted_olt_requests.size(); i++) {
             OltRequest request = sorted_olt_requests.get(i);

@@ -32,19 +32,21 @@ public class MessageController {
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody Message message) {
         rabbitTemplate.convertAndSend(ConfigureExchangeBean.EXCHANGE_NAME, ConfigureMessageQueue.QUEUE_NAME, converter.toJson(message));
+        log.info("Received " + converter.toJson(message));
         return new ResponseEntity("Message submitted", HttpStatus.CREATED);
     }
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> consumeMessage() {
         org.springframework.amqp.core.Message m = rabbitTemplate.receive(ConfigureMessageQueue.QUEUE_NAME);
+        log.info("Message: " + m);
         if (m != null) {
             byte[] message_content = m.getBody();
             String message_json = new String(message_content, StandardCharsets.UTF_8);
             Message message = converter.fromJson(message_json, Message.class);
             return new ResponseEntity<>(message, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("No message was found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("No message was found", HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 

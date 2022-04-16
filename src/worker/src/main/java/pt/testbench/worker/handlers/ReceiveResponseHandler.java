@@ -30,8 +30,6 @@ public class ReceiveResponseHandler {
     private String base_worker_host = "worker-";
     private String broker_host = "broker";
 
-    private int workers = 2;
-
     private void inform_producer_run_is_over() {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -46,26 +44,6 @@ public class ReceiveResponseHandler {
         }
     }
 
-    private void inform_workers_run_is_over() {
-        String worker_base_host = base_worker_host;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        for(int i = 0; i < workers; i++) {
-            String host = base_worker_host + i;
-            int port = 8500 + i;
-            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + port + "/run/ended", HttpMethod.POST, entity, String.class);
-            if(response.getStatusCode().isError()) {
-                log.info("Could not inform worker " + i + " that the run is over, something went wrong!");
-            } else {
-                if(response.getStatusCode().is2xxSuccessful()) {
-                    log.info("Informed the worker " + i + " that the run is over!");
-                }
-        }
-
-
-        }
-    }
 
     private void inform_oracle_of_handling_end(String olt) {
         HttpHeaders headers = new HttpHeaders();
@@ -99,10 +77,6 @@ public class ReceiveResponseHandler {
         if(Integer.parseInt(split_id[0]) == status.getTargetMessageRun()) {
             status.setIsOnGoingRun(false);
             inform_producer_run_is_over();
-            inform_workers_run_is_over();
-            // tell the other workers the run is over
-            // tell the broker it is over
-            // tell the producer it is over
         }
     }
 }
