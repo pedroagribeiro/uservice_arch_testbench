@@ -16,25 +16,27 @@ public class Response {
     @Column(name = "status")
     private int status;
 
+    @Column(name = "request_enqueued_at_olt")
+    private long requestEnqueuedAtOlt;
+
+    @Column(name = "request_dequeued_at_olt")
+    private long requestDequeuedAtOlt;
+
     @Column(name = "started_handling")
-    private long started_handling;
+    private long startedHandling;
 
     @Column(name = "ended_handling")
-    private long ended_handling;
+    private long endedHandling;
 
     @Column(name = "timedout")
     private boolean timedout;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_request_id", referencedColumnName = "id")
-    private OltRequest origin_request;
 
     public Response() {}
 
     public Response(final int status, final long started_handling, final long ended_handling) {
         this.status = status;
-        this.started_handling = started_handling;
-        this.ended_handling = ended_handling;
+        this.startedHandling = started_handling;
+        this.endedHandling = ended_handling;
     }
 
     public void setId(final String id) {
@@ -53,20 +55,36 @@ public class Response {
         return this.status;
     }
 
+    public void setRequestEnqueuedAtOlt(final long request_enqueued_at_olt) {
+        this.requestEnqueuedAtOlt = request_enqueued_at_olt;
+    }
+
+    public long getRequestEnqueuedAtOlt() {
+        return this.requestEnqueuedAtOlt;
+    }
+
+    public void setRequestDequeuedAtOlt(final long request_dequeued_at_olt) {
+        this.requestDequeuedAtOlt = request_dequeued_at_olt;
+    }
+
+    public long getRequestDequeuedAtOlt() {
+        return this.requestEnqueuedAtOlt;
+    }
+
     public void setStartedHandling(final long started_handling) {
-        this.started_handling = started_handling;
+        this.startedHandling = started_handling;
     }
 
     public long getStartedHandling() {
-        return this.started_handling;
+        return this.startedHandling;
     }
 
     public void setEndedHandling(final long ended_handling) {
-        this.ended_handling = ended_handling;
+        this.endedHandling = ended_handling;
     }
 
     public long getEndedHandling() {
-        return this.ended_handling;
+        return this.endedHandling;
     }
 
     public void setTimedout(final boolean timedout) {
@@ -77,19 +95,16 @@ public class Response {
         return this.timedout;
     }
 
-    public OltRequest getOriginRequest() {
-        return this.origin_request;
-    }
-
     @Override
     public String toString() {
         return "Reponse{" +
                 "id=" + id + '\'' +
                 ", status=" + status + '\'' +
-                ", started_handling='" + started_handling + '\'' +
-                ", ended_handling=" + ended_handling + '\'' +
+                ", request_enqueued_at_olt=" + requestEnqueuedAtOlt + '\'' +
+                ", request_dequeued_at_olt=" + requestDequeuedAtOlt + '\'' +
+                ", started_handling='" + startedHandling + '\'' +
+                ", ended_handling=" + endedHandling + '\'' +
                 ", timedout=" + timedout + '\'' +
-                ", origin_request=" + origin_request +
                 '}';
     }
 
@@ -101,10 +116,11 @@ public class Response {
         return (
                 id == response.id &&
                 status == response.status &&
-                started_handling == response.started_handling &&
-                ended_handling == response.ended_handling &&
-                timedout == response.timedout &&
-                Objects.equals(origin_request, response.origin_request)
+                requestEnqueuedAtOlt == response.requestEnqueuedAtOlt &&
+                requestDequeuedAtOlt == response.requestDequeuedAtOlt &&
+                startedHandling == response.startedHandling &&
+                endedHandling == response.endedHandling &&
+                timedout == response.timedout
         );
     }
 
@@ -113,10 +129,11 @@ public class Response {
         return Objects.hash(
                 id,
                 status,
-                started_handling,
-                ended_handling,
-                timedout,
-                origin_request
+                requestEnqueuedAtOlt,
+                requestDequeuedAtOlt,
+                startedHandling,
+                endedHandling,
+                timedout
         );
     }
 }

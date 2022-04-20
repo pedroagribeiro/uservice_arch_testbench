@@ -40,4 +40,5 @@ public class ConfigureWorkerResponseQueue {
    MessageListenerAdapter responseListenerAdapter(ReceiveResponseHandler handler) {
        return new MessageListenerAdapter(handler, "handleResponse");
    }
+
 }

@@ -11,4 +11,5 @@ public class ConfigureStatus {
     Status currentStatus() {
         return new Status();
     }
+
 }

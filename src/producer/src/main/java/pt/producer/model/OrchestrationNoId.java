@@ -10,6 +10,8 @@ public class OrchestrationNoId {
     private int workers;
     private int algorithm;
 
+    private int sequence;
+
     public OrchestrationNoId() {
 
     }
@@ -46,4 +48,7 @@ public class OrchestrationNoId {
         this.algorithm = algorithm;
     }
 
+    public int getSequence() { return this.sequence; }
+
+    public void setSequence(final int sequence) { this.sequence = sequence; }
 }

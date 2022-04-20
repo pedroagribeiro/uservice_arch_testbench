@@ -1,49 +1,66 @@
 package pt.testbench.worker.model;
 
+import com.google.gson.annotations.Expose;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.Proxy;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.*;
 
+@Data
 @Entity
 @Table(name = "messages")
 @Proxy(lazy = false)
 public class Message {
 
+    @Expose
     @Id
     @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
     private int id;
 
+    @Expose
     @Column(name = "olt", nullable = false)
     private String olt;
 
+    @Expose
     @Column(name = "issued_at", nullable = false)
-    private long issued_at;
+    private long issuedAt;
 
+    @Expose
     @Column(name = "worker")
     private int worker;
 
-    @Column(name = "completed")
-    private long completed;
+    @Expose
+    @Column(name = "started_processing")
+    private long startedProcessing;
 
+    @Expose
+    @Column(name = "completed_processing")
+    private long completedProcessing;
+
+    @Expose
     @Column(name = "successful")
     private boolean successful;
 
-    @OneToMany(mappedBy="origin_message", fetch = FetchType.EAGER)
-    // @JsonIgnore
-    private Set<OltRequest> olt_requests;
+    @Expose
+    @OneToMany(mappedBy="originMessage", fetch = FetchType.EAGER)
+    private List<OltRequest> oltRequests;
 
+    @Expose
     @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
 
+    @Expose
     @Column(name = "has_red_requests")
     private boolean hasRedRequests;
 
     public Message(final String olt) {
         this.olt = olt;
-        this.issued_at = new Date().getTime();
+        this.issuedAt = new Date().getTime();
+        this.oltRequests = new ArrayList<>();
     }
 
     public Message() {
@@ -67,11 +84,11 @@ public class Message {
     }
 
     public void setIssuedAt(final long issued_at) {
-        this.issued_at = issued_at;
+        this.issuedAt = issued_at;
     }
 
     public long getIssuedAt() {
-        return this.issued_at;
+        return this.issuedAt;
     }
 
     public void setWorker(final int worker) {
@@ -82,12 +99,20 @@ public class Message {
         return this.worker;
     }
 
-    public void setCompleted(final long completed) {
-        this.completed = completed;
+    public void setStartedProcessing(long startedProcessing) {
+        this.startedProcessing = startedProcessing;
     }
 
-    public long getCompleted() {
-        return this.completed;
+    public long getStartedProcessing() {
+        return this.startedProcessing;
+    }
+
+    public void setCompletedProcessing(final long completedProcessing) {
+        this.completedProcessing = completedProcessing;
+    }
+
+    public long getCompletedProcessing() {
+        return this.completedProcessing;
     }
 
     public void setSuccessful(boolean successful) {
@@ -98,12 +123,16 @@ public class Message {
         return this.successful;
     }
 
-    public Set<OltRequest> getOltRequests() {
-        return this.olt_requests;
+    public void setOltRequests(List<OltRequest> olt_requests) {
+        this.oltRequests = olt_requests;
     }
 
-    public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
-        this.minimumTheoreticalDuration = minimumTheoreticalDuration;
+    public List<OltRequest> getOltRequests() {
+        return this.oltRequests;
+    }
+
+    public void setMinimumTheoreticalDuration(final long minimum_theoretical_duration) {
+        this.minimumTheoreticalDuration = minimum_theoretical_duration;
     }
 
     public long getMinimumTheoreticalDuration() {
@@ -118,6 +147,7 @@ public class Message {
         return this.hasRedRequests;
     }
 
+    /**
     @Override
     public String toString() {
         return "Message{" +
@@ -165,4 +195,5 @@ public class Message {
                 hasRedRequests
         );
     }
+    **/
 }

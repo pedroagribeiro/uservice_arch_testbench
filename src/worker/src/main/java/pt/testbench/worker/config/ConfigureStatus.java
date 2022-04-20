@@ -15,4 +15,5 @@ public class ConfigureStatus {
     Status createStatus() {
         return new Status(this.worker_id);
     }
+
 }

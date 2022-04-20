@@ -21,6 +21,9 @@ public class Result {
     @Column(name = "algorithm", nullable = false)
     private int algorithm;
 
+    @Column(name = "sequence", nullable = false)
+    private int sequence;
+
     @Column(name = "theoretical_total_time_limit")
     private long theoretical_total_time_limit;
 
@@ -57,14 +60,16 @@ public class Result {
 
     public Result(OrchestrationNoId orchestration, long start_instant) {
         this.algorithm = orchestration.getAlgorithm();
+        this.sequence = orchestration.getSequence();
         this.start_instant = start_instant;
         this.olts = orchestration.getOlts();
         this.workers = orchestration.getWorkers();
         this.requests = orchestration.getMessages();
         this.status = Result.availableStatus[0];
     }
-    public Result(int algorithm, int olts, int workers, int requests, String status) {
+    public Result(int algorithm, int sequence, int olts, int workers, int requests, String status) {
         this.algorithm = algorithm;
+        this.sequence = sequence;
         this.start_instant = new Date().getTime();
         this.olts = olts;
         this.workers = workers;
@@ -88,7 +93,11 @@ public class Result {
         this.algorithm = algorithm;
     }
 
-    public long getTheoreticalTotalTimeLimt() {
+    public int getSequence() { return this.sequence; }
+
+    public void setSequence(int sequence) { this.sequence = sequence; }
+
+    public long getTheoreticalTotalTimeLimit() {
          return this.theoretical_total_time_limit;
     }
 
@@ -104,7 +113,7 @@ public class Result {
         this.verified_total_time = verified_total_time;
     }
 
-    public double getTheoreticalTimedoutRequestsLimit() {
+    public int getTheoreticalTimedoutRequestsLimit() {
         return this.theoretical_timedout_requests_limit;
     }
 
@@ -112,7 +121,7 @@ public class Result {
         this.theoretical_timedout_requests_limit = theoretical_timedout_requests_limit;
     }
 
-    public double getVerifiedTimedoutRequests() {
+    public int getVerifiedTimedoutRequests() {
         return this.verified_timedout_requests;
     }
 

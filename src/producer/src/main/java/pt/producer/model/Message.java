@@ -19,19 +19,22 @@ public class Message {
     private String olt;
 
     @Column(name = "issued_at", nullable = false)
-    private long issued_at;
+    private long issuedAt;
 
     @Column(name = "worker")
     private int worker;
 
-    @Column(name = "completed")
-    private long completed;
+    @Column(name = "started_processing")
+    private long startedProcessing;
+
+    @Column(name = "completed_processing")
+    private long completedProcessing;
 
     @Column(name = "successful")
     private boolean successful;
 
-    @OneToMany(mappedBy="origin_message")
-    private Set<OltRequest> olt_requests;
+    @OneToMany(mappedBy="originMessage", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<OltRequest> oltRequests;
 
     @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
@@ -41,7 +44,8 @@ public class Message {
 
     public Message(final String olt) {
         this.olt = olt;
-        this.issued_at = new Date().getTime();
+        this.issuedAt = new Date().getTime();
+        this.oltRequests = new ArrayList<>();
     }
 
     public Message() {
@@ -65,11 +69,11 @@ public class Message {
     }
 
     public void setIssuedAt(final long issued_at) {
-        this.issued_at = issued_at;
+        this.issuedAt = issued_at;
     }
 
     public long getIssuedAt() {
-        return this.issued_at;
+        return this.issuedAt;
     }
 
     public void setWorker(final int worker) {
@@ -80,12 +84,20 @@ public class Message {
         return this.worker;
     }
 
-    public void setCompleted(final long completed) {
-        this.completed = completed;
+    public void setStartedProcessing(long startedProcessing) {
+        this.startedProcessing = startedProcessing;
     }
 
-    public long getCompleted() {
-        return this.completed;
+    public long getStartedProcessing() {
+        return this.startedProcessing;
+    }
+
+    public void setCompletedProcessing(long completedProcessing) {
+        this.completedProcessing = completedProcessing;
+    }
+
+    public long getCompletedProcessing() {
+        return this.completedProcessing;
     }
 
     public void setSuccessful(boolean successful) {
@@ -96,8 +108,12 @@ public class Message {
         return this.successful;
     }
 
-    public Set<OltRequest> getOltRequests() {
-        return this.olt_requests;
+    public void setOltRequests(final List<OltRequest> olt_requests) {
+        this.oltRequests = olt_requests;
+    }
+
+    public List<OltRequest> getOltRequests() {
+        return this.oltRequests;
     }
 
     public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
@@ -108,8 +124,8 @@ public class Message {
         return this.minimumTheoreticalDuration;
     }
 
-    public void setHasRedRequests(final boolean hasRedRequests) {
-        this.hasRedRequests = hasRedRequests;
+    public void setHasRedRequests(final boolean has_red_requests) {
+        this.hasRedRequests = has_red_requests;
     }
 
     public boolean getHasRedRequests() {
@@ -121,13 +137,13 @@ public class Message {
         return "Message{" +
                 "id=" + id +
                 ", olt='" + olt + '\'' +
-                ", issued_at=" + issued_at + '\'' +
+                ", issued_at=" + issuedAt + '\'' +
                 ", worker=" + worker + '\'' +
-                ", completed=" + completed + '\'' +
+                ", startedProcessing= " + startedProcessing + '\'' +
+                ", completedProcessing=" + completedProcessing + '\'' +
                 ", successful= " + successful + '\'' +
-                ", olt_requests=" + olt_requests + '\'' +
-                ", minimumTheoreticalDuration=" + minimumTheoreticalDuration + '\'' +
-                ", hasRedRequests= " + hasRedRequests +
+                ", minimum_theoretical_duration=" + minimumTheoreticalDuration + '\'' +
+                ", has_red_requests= " + hasRedRequests +
                 '}';
     }
 
@@ -139,11 +155,12 @@ public class Message {
         return (
                 id == message.id &&
                 Objects.equals(olt, message.olt) &&
-                Objects.equals(issued_at, message.issued_at) &&
+                Objects.equals(issuedAt, message.issuedAt) &&
                 Objects.equals(worker, message.worker) &&
-                Objects.equals(completed, message.completed) &&
+                Objects.equals(startedProcessing, message.startedProcessing) &&
+                Objects.equals(completedProcessing, message.completedProcessing) &&
                 successful == message.successful &&
-                Objects.equals(olt_requests, message.olt_requests) &&
+                Objects.equals(oltRequests, message.oltRequests) &&
                 minimumTheoreticalDuration == message.minimumTheoreticalDuration &&
                 hasRedRequests == message.hasRedRequests
         );
@@ -155,10 +172,11 @@ public class Message {
         return Objects.hash(
                 id,
                 olt,
-                issued_at,
-                completed,
+                issuedAt,
+                startedProcessing,
+                completedProcessing,
                 successful,
-                olt_requests,
+                oltRequests,
                 minimumTheoreticalDuration,
                 hasRedRequests
         );

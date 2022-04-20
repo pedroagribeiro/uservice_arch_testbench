@@ -1,8 +1,9 @@
 package pt.testbench.broker.controller;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.GsonBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,13 @@ import pt.testbench.broker.config.ConfigureExchangeBean;
 import pt.testbench.broker.config.ConfigureOrchestrationQueue;
 import pt.testbench.broker.model.Orchestration;
 
+@Slf4j
 @RestController
 @RequestMapping("/orchestration")
 public class OrchestrationController {
 
     private final RabbitTemplate rabbitTemplate;
-    private static final Gson converter = new Gson();
-
-    private Logger log = LoggerFactory.getLogger(this.getClass().getName());
+    private static final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
 
     public OrchestrationController(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;

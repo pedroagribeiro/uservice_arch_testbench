@@ -13,4 +13,5 @@ public class ConfigureExchangeBean {
     TopicExchange exchange() {
         return new TopicExchange(EXCHANGE_NAME);
     }
+
 }

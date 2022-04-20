@@ -1,44 +1,34 @@
 package pt.testbench.olt.model;
 
-import org.hibernate.annotations.Proxy;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
-@Entity
-@Table(name = "olt_requests")
-@Proxy(lazy = false)
+@Data
 public class OltRequest {
 
-    @Id
     private String id;
-
-    @Column(name = "issued_at", nullable = false)
-    private long issued_at;
-
-    @Column(name = "duration", nullable = false)
+    private long issuedAt;
     private long duration;
-
-    @Column(name = "timeout", nullable = false)
     private long timeout;
 
-    @Column(name = "enqueued_at_olt")
-    private long enqueued_at_olt;
+    private long leftWorker;
 
-    @Column(name = "dequeued_at_olt")
-    private long dequeued_at_olt;
+    private long startedBeingProcessedAtOlt;
 
-    @Column(name = "completed")
+    private long endedBeingProcessedAtOlt;
+
+    private long returnedWorker;
     private long completed;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
-    private Message origin_message;
-
-    @OneToOne(mappedBy = "origin_request")
+    private boolean notProcessed;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Message originMessage;
     private Response response;
-
 
     public OltRequest() {
 
@@ -46,9 +36,10 @@ public class OltRequest {
 
     public OltRequest(final String id, final long duration, final long timeout) {
         this.id = id;
-        this.issued_at = new Date().getTime();
+        this.issuedAt = new Date().getTime();
         this.duration = duration;
         this.timeout = timeout;
+        this.notProcessed = true;
     }
 
     public String getId() {
@@ -60,11 +51,11 @@ public class OltRequest {
     }
 
     public long getIssuedAt() {
-        return issued_at;
+        return issuedAt;
     }
 
     public void setIssuedAt(long issued_at) {
-        this.issued_at = issued_at;
+        this.issuedAt = issued_at;
     }
 
     public long getDuration() {
@@ -83,20 +74,36 @@ public class OltRequest {
         this.timeout = timeout;
     }
 
-    public long getEnqueuedAtOlt() {
-        return enqueued_at_olt;
+    public long getLeftWorker() {
+        return this.leftWorker;
     }
 
-    public void setEnqueuedAtOlt(long enqueued_at_olt) {
-        this.enqueued_at_olt = enqueued_at_olt;
+    public void setLeftWorker(long leftWorker) {
+        this.leftWorker = leftWorker;
     }
 
-    public long getDequeuedAtOlt() {
-        return dequeued_at_olt;
+    public long getStartedBeingProcessedAtOlt() {
+        return this.startedBeingProcessedAtOlt;
     }
 
-    public void setDequeuedAtOlt(long dequeued_at_olt) {
-        this.dequeued_at_olt = dequeued_at_olt;
+    public void setStartedBeingProcessedAtOlt(long startedBeingProcessedAtOlt) {
+        this.startedBeingProcessedAtOlt = startedBeingProcessedAtOlt;
+    }
+
+    public long getEndedBeingProcessedAtOlt() {
+        return this.endedBeingProcessedAtOlt;
+    }
+
+    public void setEndedBeingProcessedAtOlt(long endedBeingProcessedAtOlt) {
+        this.endedBeingProcessedAtOlt = endedBeingProcessedAtOlt;
+    }
+
+    public long getReturnedWorker() {
+        return this.returnedWorker;
+    }
+
+    public void setReturnedWorker(long returnedWorker) {
+        this.returnedWorker = returnedWorker;
     }
 
     public long getCompleted() {
@@ -105,6 +112,14 @@ public class OltRequest {
 
     public void setCompleted(long completed) {
         this.completed = completed;
+    }
+
+    public boolean getNotProcessed() {
+        return this.notProcessed;
+    }
+
+    public void setNotProcessed(boolean not_processed) {
+        this.notProcessed = not_processed;
     }
 
     public void setResponse(Response response) {
@@ -116,9 +131,10 @@ public class OltRequest {
     }
 
     public Message getOriginMessage() {
-        return this.origin_message;
+        return this.originMessage;
     }
 
+    /**
     @Override
     public String toString() {
         return "OltRequest{" +
@@ -126,8 +142,6 @@ public class OltRequest {
                 ", issued_at=" + issued_at +
                 ", duration=" + duration +
                 ", timeout=" + timeout +
-                ", enqueued_at_olt=" + enqueued_at_olt +
-                ", dequeued_at_olt=" + dequeued_at_olt +
                 ", completed=" + completed +
                 ", origin_message=" + origin_message +
                 ", response=" + response +
@@ -144,8 +158,6 @@ public class OltRequest {
                 issued_at == that.issued_at &&
                 duration == that.duration &&
                 timeout == that.timeout &&
-                enqueued_at_olt == that.enqueued_at_olt &&
-                dequeued_at_olt == that.dequeued_at_olt &&
                 completed == that.completed &&
                 Objects.equals(origin_message, that.origin_message) &&
                 Objects.equals(response, that.response)
@@ -154,6 +166,7 @@ public class OltRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, issued_at, duration, timeout, enqueued_at_olt, dequeued_at_olt, completed, origin_message, response);
+        return Objects.hash(id, issued_at, duration, timeout, completed, origin_message, response);
     }
+    **/
 }

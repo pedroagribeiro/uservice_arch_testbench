@@ -11,6 +11,8 @@ public class Orchestration {
     private int workers;
     private int algorithm;
 
+    private int sequence;
+
     public Orchestration() {
 
     }
@@ -51,7 +53,11 @@ public class Orchestration {
         return this.algorithm;
     }
 
-    public void sAAlgorithm(final int algorithm) {
+    public void setAlgorithm(final int algorithm) {
         this.algorithm = algorithm;
     }
+
+    public int getSequence() { return this.sequence; }
+
+    public void setSequence(final int sequence) { this.sequence = sequence; }
 }

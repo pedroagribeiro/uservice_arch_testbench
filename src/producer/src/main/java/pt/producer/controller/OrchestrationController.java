@@ -2,6 +2,8 @@ package pt.producer.controller;
 
 import com.google.gson.Gson;
 import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,13 +20,13 @@ import pt.producer.model.OrchestrationNoId;
 import pt.producer.model.Result;
 import pt.producer.repository.ResultRepository;
 
+@Slf4j
 @RestController
 @RequestMapping("/orchestration")
 public class OrchestrationController {
 
     private final RabbitTemplate rabbitTemplate;
     private static final Gson converter = new Gson();
-    Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired private ResultRepository resultRepository;
 

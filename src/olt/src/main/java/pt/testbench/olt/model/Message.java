@@ -1,49 +1,39 @@
 package pt.testbench.olt.model;
 
-import org.hibernate.annotations.Proxy;
+import com.google.gson.annotations.SerializedName;
+import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(name = "messages")
-@Proxy(lazy = false)
+@Data
 public class Message {
 
-    @Id
-    @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
     private int id;
-
-    @Column(name = "olt", nullable = false)
     private String olt;
-
-    @Column(name = "issued_at", nullable = false)
-    private long issued_at;
-
-    @Column(name = "worker")
+    private long issuedAt;
     private int worker;
 
-    @Column(name = "completed")
-    private long completed;
+    private long startedProcessing;
 
-    @Column(name = "successful")
+    private long completedProcessing;
     private boolean successful;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<OltRequest> oltRequests;
 
-    @OneToMany(mappedBy="origin_message")
-    private Set<OltRequest> olt_requests;
+    private long minimum_theoretical_duration;
 
-    @Column(name = "minimum_theoretical_duration")
-    private long minimumTheoreticalDuration;
-
-    @Column(name = "has_red_requests")
-    private boolean hasRedRequests;
+    private boolean has_red_requests;
 
     public Message(final String olt) {
         this.olt = olt;
-        this.issued_at = new Date().getTime();
+        this.issuedAt = new Date().getTime();
     }
 
     public Message() {
@@ -67,11 +57,11 @@ public class Message {
     }
 
     public void setIssuedAt(final long issued_at) {
-        this.issued_at = issued_at;
+        this.issuedAt = issued_at;
     }
 
     public long getIssuedAt() {
-        return this.issued_at;
+        return this.issuedAt;
     }
 
     public void setWorker(final int worker) {
@@ -82,12 +72,20 @@ public class Message {
         return this.worker;
     }
 
-    public void setCompleted(final long completed) {
-        this.completed = completed;
+    public void setStartedProcessing(long startedProcessing) {
+        this.startedProcessing = startedProcessing;
     }
 
-    public long getCompleted() {
-        return this.completed;
+    public long getStartedProcessing() {
+        return this.startedProcessing;
+    }
+
+    public void setCompletedProcessing(final long completedProcessing) {
+        this.completedProcessing = completedProcessing;
+    }
+
+    public long getCompletedProcessing() {
+        return this.completedProcessing;
     }
 
     public void setSuccessful(boolean successful) {
@@ -98,26 +96,31 @@ public class Message {
         return this.successful;
     }
 
-    public Set<OltRequest> getOltRequests() {
-        return this.olt_requests;
+    public void setOltRequests(final List<OltRequest> olt_requests) {
+        this.oltRequests = olt_requests;
     }
 
-    public void setMinimumTheoreticalDuration(final long minimumTheoreticalDuration) {
-        this.minimumTheoreticalDuration = minimumTheoreticalDuration;
+    public List<OltRequest> getOltRequests() {
+        return this.oltRequests;
+    }
+
+    public void setMinimumTheoreticalDuration(final long minimum_theoretical_duration) {
+        this.minimum_theoretical_duration = minimum_theoretical_duration;
     }
 
     public long getMinimumTheoreticalDuration() {
-        return this.minimumTheoreticalDuration;
+        return this.minimum_theoretical_duration;
     }
 
-    public void setHasRedRequests(final boolean hasRedRequests) {
-        this.hasRedRequests = hasRedRequests;
+    public void setHasRedRequests(final boolean has_red_requests) {
+        this.has_red_requests = has_red_requests;
     }
 
     public boolean getHasRedRequests() {
-        return this.hasRedRequests;
+        return this.has_red_requests;
     }
 
+    /**
     @Override
     public String toString() {
         return "Message{" +
@@ -165,4 +168,5 @@ public class Message {
                 hasRedRequests
         );
     }
+    **/
 }

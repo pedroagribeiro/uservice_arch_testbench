@@ -46,4 +46,5 @@ public class ConfigureWorkerMessageQueue {
     MessageListenerAdapter messageListenerAdapter(ReceiveMessageHandler handler) {
         return new MessageListenerAdapter(handler, "handleMessage");
     }
+
 }

@@ -25,52 +25,38 @@ public class SequenceGenerator {
      * Long messages: 30000 milliseconds
      */
 
-    private final static int olt_request_timeout = 20000;
+    private final static int olt_request_timeout = 3000;
 
-    private static final long fast_message_duration = 2000;
-    private static final long medium_message_duration = 19000;
-    private static final long long_message_duration = 30000;
+    private static final long fast_message_duration = 50;
+    private static final long medium_message_duration = 500;
+    private static final long long_message_duration = 4000;
 
-    private static final int ALL_CLEAR = 0;
-    private static final int MIXED = 1;
-    private static final int ALL_TIMEDOUT = 2;
-    private static final Random random = new Random(34);
-
-
-    public static List<OltRequest> generate_requests_sequence(Message m) {
-        List<Long> batch_message_durations = new ArrayList<>();
+    public static List<OltRequest> generate_requests_sequence(Message m, int accessory_type, int accessory_messages) {
         List<OltRequest> requests_to_return = new ArrayList<>();
-        int batch_type = random.nextInt(3);
-        boolean has_red_request = false;
-        switch(batch_type) {
-            case ALL_CLEAR:
-                batch_message_durations.add(fast_message_duration);
-                batch_message_durations.add(fast_message_duration);
-                batch_message_durations.add(fast_message_duration);
-                batch_message_durations.add(fast_message_duration);
-                break;
-            case MIXED:
-                batch_message_durations.add(fast_message_duration);
-                batch_message_durations.add(fast_message_duration);
-                batch_message_durations.add(medium_message_duration);
-                batch_message_durations.add(medium_message_duration);
-                break;
-            case ALL_TIMEDOUT:
-                batch_message_durations.add(long_message_duration);
-                batch_message_durations.add(long_message_duration);
-                batch_message_durations.add(long_message_duration);
-                batch_message_durations.add(long_message_duration);
-                has_red_request = true;
-                break;
-        }
+        int green_messages = 4 - accessory_messages;
         long minimum_theoretical_duration = 0;
-        for(int i = 0; i < batch_message_durations.size(); i++) {
-            long duration = batch_message_durations.get(i);
-            minimum_theoretical_duration += duration;
-            OltRequest request = new OltRequest(m.getId() + "-" + i, duration, olt_request_timeout);
-            request.setOriginMessage(m);
+        boolean has_red_request = false;
+        for(int i = 0; i < green_messages; i++) {
+            minimum_theoretical_duration += fast_message_duration;
+            OltRequest request = new OltRequest(m.getId() + "-" + i, fast_message_duration, olt_request_timeout);
             requests_to_return.add(request);
         }
+        if(accessory_type == 0) {
+            for (int i = 0; i < accessory_messages; i++) {
+                minimum_theoretical_duration += medium_message_duration;
+                OltRequest request = new OltRequest(m.getId() + "-" + i, medium_message_duration, olt_request_timeout);
+                requests_to_return.add(request);
+            }
+        }
+        if(accessory_type == 1) {
+            has_red_request = true;
+            for (int i = 0; i < accessory_messages; i++) {
+                minimum_theoretical_duration += long_message_duration;
+                OltRequest request = new OltRequest(m.getId() + "-" + i, long_message_duration, olt_request_timeout);
+                requests_to_return.add(request);
+            }
+        }
+
         m.setMinimumTheoreticalDuration(minimum_theoretical_duration);
         m.setHasRedRequests(has_red_request);
         return requests_to_return;

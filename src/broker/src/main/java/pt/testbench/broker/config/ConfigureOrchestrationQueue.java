@@ -40,4 +40,5 @@ public class ConfigureOrchestrationQueue {
     MessageListenerAdapter orchestrationListenerAdapter(ReceiveOrchestrationHandler handler) {
         return new MessageListenerAdapter(handler, "handleOrchestration");
     }
+
 }

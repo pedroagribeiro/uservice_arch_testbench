@@ -12,4 +12,5 @@ public class ConfigureStatus {
     Status setStatus() {
         return new Status();
     }
+
 }

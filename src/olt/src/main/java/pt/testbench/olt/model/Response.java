@@ -1,40 +1,28 @@
 package pt.testbench.olt.model;
 
-import org.hibernate.annotations.Proxy;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.Objects;
 
-@Entity
-@Table(name = "responses")
-@Proxy(lazy = false)
+@Data
 public class Response {
 
-    @Id
     private String id;
-
-    @Column(name = "status")
     private int status;
-
-    @Column(name = "started_handling")
-    private long started_handling;
-
-    @Column(name = "ended_handling")
-    private long ended_handling;
-
-    @Column(name = "timedout")
+    private long requestEnqueuedAtOlt;
+    private long requestDequeuedAtOlt;
+    private long startedHandling;
+    private long endedHandling;
     private boolean timedout;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_request_id", referencedColumnName = "id")
-    private OltRequest origin_request;
 
     public Response() {}
 
     public Response(final String id, final int status, final long started_handling) {
         this.id = id;
         this.status = status;
-        this.started_handling = started_handling;
+        this.startedHandling = started_handling;
     }
 
     public void setId(final String id) {
@@ -53,20 +41,36 @@ public class Response {
         return this.status;
     }
 
+    public void setRequestEnqueuedAtOlt(final long enqueued_at_olt) {
+        this.requestEnqueuedAtOlt = enqueued_at_olt;
+    }
+
+    public long getRequestEnqueuedAtOlt() {
+        return this.requestEnqueuedAtOlt;
+    }
+
+    public void setRequestDequeuedAtOlt(final long dequeued_at_olt) {
+        this.requestDequeuedAtOlt = dequeued_at_olt;
+    }
+
+    public long getRequestDequeuedAtOlt() {
+        return this.requestDequeuedAtOlt;
+    }
+
     public void setStartedHandling(final long started_handling) {
-        this.started_handling = started_handling;
+        this.startedHandling = started_handling;
     }
 
     public long getStartedHandling() {
-        return this.started_handling;
+        return this.startedHandling;
     }
 
     public void setEndedHandling(final long ended_handling) {
-        this.ended_handling = ended_handling;
+        this.endedHandling = ended_handling;
     }
 
     public long getEndedHandling() {
-        return this.ended_handling;
+        return this.endedHandling;
     }
 
     public void setTimedout(final boolean timedout) {
@@ -76,20 +80,16 @@ public class Response {
     public boolean getTimedout() {
         return this.timedout;
     }
-
-    public OltRequest getOriginRequest() {
-        return this.origin_request;
-    }
-
     @Override
     public String toString() {
         return "Reponse{" +
                 "id=" + id + '\'' +
                 ", status=" + status + '\'' +
-                ", started_handling='" + started_handling + '\'' +
-                ", ended_handling=" + ended_handling + '\'' +
+                ", request_enqueued_at_olt=" + requestEnqueuedAtOlt + '\'' +
+                ", request_dequeued_at_olt" + requestDequeuedAtOlt + '\'' +
+                ", started_handling='" + startedHandling + '\'' +
+                ", ended_handling=" + endedHandling + '\'' +
                 ", timedout=" + timedout + '\'' +
-                ", origin_request=" + origin_request +
                 '}';
     }
 
@@ -101,10 +101,11 @@ public class Response {
         return (
                 Objects.equals(id, response.id) &&
                 status == response.status &&
-                started_handling == response.started_handling &&
-                ended_handling == response.ended_handling &&
-                timedout == response.timedout &&
-                Objects.equals(origin_request, response.origin_request)
+                requestEnqueuedAtOlt == response.requestEnqueuedAtOlt &&
+                requestDequeuedAtOlt == response.requestDequeuedAtOlt &&
+                startedHandling == response.startedHandling &&
+                endedHandling == response.endedHandling &&
+                timedout == response.timedout
         );
     }
 
@@ -113,10 +114,11 @@ public class Response {
         return Objects.hash(
                 id,
                 status,
-                started_handling,
-                ended_handling,
-                timedout,
-                origin_request
+                requestEnqueuedAtOlt,
+                requestDequeuedAtOlt,
+                startedHandling,
+                endedHandling,
+                timedout
         );
     }
 }

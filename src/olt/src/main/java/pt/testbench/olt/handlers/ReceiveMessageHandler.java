@@ -10,8 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import pt.testbench.olt.model.Message;
 import pt.testbench.olt.model.OltRequest;
 import pt.testbench.olt.model.Response;
-import pt.testbench.olt.repository.OltRequestRepository;
-import pt.testbench.olt.repository.ResponseRepository;
+import pt.testbench.olt.model.Status;
 
 import java.util.Collections;
 import java.util.Date;
@@ -23,8 +22,8 @@ public class ReceiveMessageHandler {
     private static final Gson converter = new Gson();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Autowired private ResponseRepository responsesRepository;
-    @Autowired private OltRequestRepository oltRequestsRepository;
+    @Autowired
+    private Status currentStatus;
 
     private String base_worker_host = "worker-";
 
@@ -47,21 +46,22 @@ public class ReceiveMessageHandler {
     }
 
     public void handleMessage(String body) {
-        OltRequest m = converter.fromJson(body, OltRequest.class);
-        m.setDequeuedAtOlt(new Date().getTime());
-        log.info("Received request: " + converter.toJson(m));
-        log.info("Processing request " + m.getId());
-        Response r = new Response(m.getId() + "-response", 200, new Date().getTime());
+        OltRequest request = converter.fromJson(body, OltRequest.class);
+        request.setStartedBeingProcessedAtOlt(new Date().getTime());
+        Response r = new Response(request.getId(), 200, new Date().getTime());
+        r.setRequestEnqueuedAtOlt(currentStatus.getEnqueuedAtWorkerTimes().get(request.getId()));
+        r.setRequestDequeuedAtOlt(new Date().getTime());
+        log.info("Received request: " + converter.toJson(request));
+        log.info("Processing request " + request.getId());
         try {
-            Thread.sleep(m.getDuration());
+            Thread.sleep(request.getDuration());
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
-        log.info("Finished processing message " + m.getId());
+        log.info("Finished processing message " + request.getId());
+        request.setEndedBeingProcessedAtOlt(new Date().getTime());
         r.setEndedHandling(new Date().getTime());
-        Response updated_response = this.responsesRepository.save(r);
-        m.setResponse(updated_response);
-        m = this.oltRequestsRepository.save(m);
-        send_response_to_worker(updated_response, m.getOriginMessage().getWorker());
+        log.info("Received message to see if it has worker: " + converter.toJson(request));
+        send_response_to_worker(r, request.getOriginMessage().getWorker());
     }
 }

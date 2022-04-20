@@ -1,40 +1,54 @@
 package pt.testbench.worker.model;
 
+import com.google.gson.annotations.Expose;
 import org.hibernate.annotations.Proxy;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import javax.persistence.*;
 import java.util.Objects;
 
+@Data
 @Entity
 @Table(name = "responses")
 @Proxy(lazy = false)
 public class Response {
 
+    @Expose
     @Id
     private String id;
 
+    @Expose
     @Column(name = "status")
     private int status;
 
+    @Expose
+    @Column(name = "request_enqueued_at_olt")
+    private long requestEnqueuedAtOlt;
+
+    @Expose
+    @Column(name = "request_dequeued_at_olt")
+    private long requestDequeuedAtOlt;
+
+    @Expose
     @Column(name = "started_handling")
-    private long started_handling;
+    private long startedHandling;
 
+    @Expose
     @Column(name = "ended_handling")
-    private long ended_handling;
+    private long endedHandling;
 
+    @Expose
     @Column(name = "timedout")
     private boolean timedout;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_request_id", referencedColumnName = "id")
-    private OltRequest origin_request;
 
     public Response() {}
 
     public Response(final int status, final long started_handling, final long ended_handling) {
         this.status = status;
-        this.started_handling = started_handling;
-        this.ended_handling = ended_handling;
+        this.startedHandling = started_handling;
+        this.endedHandling = ended_handling;
     }
 
     public void setId(final String id) {
@@ -53,20 +67,36 @@ public class Response {
         return this.status;
     }
 
+    public void setRequestEnqueuedAtOlt(final long request_enqueued_at_olt) {
+        this.requestEnqueuedAtOlt = request_enqueued_at_olt;
+    }
+
+    public long getRequestEnqueuedAtOlt() {
+        return this.requestEnqueuedAtOlt;
+    }
+
+    public void setRequestDequeuedAtOlt(final long request_dequeued_at_olt) {
+        this.requestDequeuedAtOlt = request_dequeued_at_olt;
+    }
+
+    public long getRequestDequeuedAtOlt() {
+        return this.requestDequeuedAtOlt;
+    }
+
     public void setStartedHandling(final long started_handling) {
-        this.started_handling = started_handling;
+        this.startedHandling = started_handling;
     }
 
     public long getStartedHandling() {
-        return this.started_handling;
+        return this.startedHandling;
     }
 
     public void setEndedHandling(final long ended_handling) {
-        this.ended_handling = ended_handling;
+        this.endedHandling = ended_handling;
     }
 
     public long getEndedHandling() {
-        return this.ended_handling;
+        return this.endedHandling;
     }
 
     public void setTimedout(final boolean timedout) {
@@ -77,10 +107,7 @@ public class Response {
         return this.timedout;
     }
 
-    public OltRequest getOriginRequest() {
-        return this.origin_request;
-    }
-
+    /**
     @Override
     public String toString() {
         return "Reponse{" +
@@ -119,4 +146,5 @@ public class Response {
                 origin_request
         );
     }
+    **/
 }

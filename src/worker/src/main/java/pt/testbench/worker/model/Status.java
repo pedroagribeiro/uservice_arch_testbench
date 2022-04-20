@@ -9,15 +9,23 @@ public class Status {
     private boolean on_going_run;
     private int target_message_run;
     private int architecture;
+
+    private int sequence;
     private String current_active_request;
     private Map<String, Boolean> request_satisfied;
     private int workers;
+
+    private int generated_yellow_messages = 0;
+    private int target_yellow_messages = 0;
+    private int generated_red_messages = 0;
+    private int target_red_messages = 0;
 
     public Status(final int worker_id) {
         this.worker_id = worker_id;
         this.on_going_run = false;
         this.target_message_run = 0;
         this.architecture = 1;
+        this.sequence = 1;
         this.current_active_request = "";
         this.request_satisfied = new ConcurrentHashMap<>();
         this.workers = 3;
@@ -42,6 +50,10 @@ public class Status {
     public void setArchitecture(int architecture) {
         this.architecture = architecture;
     }
+
+    public int getSequence() { return sequence; }
+
+    public void setSequence(int sequence) { this.sequence = sequence; }
 
     public String getCurrentActiveRequest() {
         return current_active_request;
@@ -73,6 +85,38 @@ public class Status {
 
     public void setWorkers(int workers) {
         this.workers = workers;
+    }
+
+    public int getGeneratedYellowMessages() {
+        return this.generated_yellow_messages;
+    }
+
+    public void setGeneratedYellowMessages(int generated_yellow_messages) {
+        this.generated_yellow_messages = generated_yellow_messages;
+    }
+
+    public int getTargetYellowMessages() {
+        return this.target_yellow_messages;
+    }
+
+    public void setTargetYellowMessages(int target_yellow_messages) {
+        this.target_yellow_messages = target_yellow_messages;
+    }
+
+    public int getGeneratedRedMessages() {
+        return this.generated_red_messages;
+    }
+
+    public void setGeneratedRedMessages(int generated_red_messages) {
+        this.generated_red_messages = generated_red_messages;
+    }
+
+    public int getTargetRedMessages() {
+        return this.target_red_messages;
+    }
+
+    public void setTargetRedMessages(int target_red_messages) {
+        this.target_red_messages = target_red_messages;
     }
 
 }

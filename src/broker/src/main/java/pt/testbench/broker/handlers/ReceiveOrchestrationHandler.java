@@ -1,6 +1,8 @@
 package pt.testbench.broker.handlers;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,7 @@ import pt.testbench.broker.model.Status;
 @Slf4j
 public class ReceiveOrchestrationHandler {
 
-    private final Gson converter = new Gson();
+    private final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
 
     @Autowired
     private SimpleMessageListenerContainer messageContainer;

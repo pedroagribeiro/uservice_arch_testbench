@@ -11,6 +11,8 @@ public class Orchestration {
     private int workers;
     private int algorithm;
 
+    private int sequence;
+
     public Orchestration() {
 
     }
@@ -21,6 +23,7 @@ public class Orchestration {
         this.messages = orchestrationNoId.getMessages();
         this.workers = orchestrationNoId.getWorkers();
         this.algorithm = orchestrationNoId.getAlgorithm();
+        this.sequence = orchestrationNoId.getSequence();
     }
 
     public int getId() {
@@ -62,5 +65,9 @@ public class Orchestration {
     public void setAlgorithm(final int algorithm) {
         this.algorithm = algorithm;
     }
+
+    public int getSequence() { return this.sequence; }
+
+    public void setSequence(final int sequence) { this.sequence = sequence; }
 
 }

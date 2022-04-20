@@ -1,15 +1,23 @@
 package pt.testbench.worker.model;
 
+import com.google.gson.annotations.Expose;
 import lombok.Data;
 
 @Data
 public class Orchestration {
 
+    @Expose
     private int id;
+    @Expose
     private int olts;
+    @Expose
     private int messages;
+    @Expose
     private int workers;
+    @Expose
     private int algorithm;
+    @Expose
+    private int sequence;
 
     public Orchestration() {
 
@@ -54,5 +62,11 @@ public class Orchestration {
     public void setAlgorithm(final int algorithm) {
         this.algorithm = algorithm;
     }
+
+    public int getSequence() {
+        return this.sequence;
+    }
+
+    public void setSequence(final int sequence) { this.sequence = sequence; }
 
 }

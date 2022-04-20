@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.producer.model.*;
+import pt.producer.repository.PerOltProcessingTimeRepository;
 import pt.producer.repository.ResultRepository;
 import pt.producer.repository.OltRequestRepository;
 import pt.producer.repository.MessageRepository;
@@ -15,13 +16,14 @@ import pt.producer.utils.Generator;
 
 import java.util.*;
 
-@Service
 @Slf4j
+@Service
 public class ReceiveOrchestrationHandler {
 
     @Autowired private ResultRepository resultRepository;
     @Autowired private OltRequestRepository oltRequestsRepository;
     @Autowired private MessageRepository messagesRepository;
+    @Autowired private PerOltProcessingTimeRepository perOltProcessingTimesRepository;
 
     private final Gson converter = new Gson();
     private final Generator message_generator = new Generator();
@@ -55,12 +57,6 @@ public class ReceiveOrchestrationHandler {
         for(Message m : generated_messages) {
             m = this.messagesRepository.save(m);
             send_message_to_broker(m);
-            int sleep_time = r.nextInt(10 + 5) * 100; 
-            try {
-                Thread.sleep(sleep_time);
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -79,9 +75,9 @@ public class ReceiveOrchestrationHandler {
     }
 
     private void forward_orchestration_to_other_components(Orchestration orchestration, int workers) {
-        // forward to the broker
+        // Forward orchestration order to the broker
         forward_orchestration_to_component(orchestration, this.broker_host, 8081);
-        // forward to the workers
+        // Forward orchestration order to the workers
         for(int i = 0; i < workers; i++) {
             int port = 8500 + i;
             String worker_host = this.worker_base_host + i;
@@ -117,31 +113,51 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
-    /**
     private void calculate_run_results(int orchestration_id, int message_id_lower_boundary, int message_id_upper_boundary) {
-        List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
-        List<Message> generated_messages = this.messagesRepository.findMessageBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
-        long minimum_theoretical_run_duration = 0;
+        long t_normal = 200;
+        long end_instant = new Date().getTime();
+        List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestsBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
+        List<Message> generated_messages = this.messagesRepository.findMessagesBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
         int mininum_theoretical_failed_provisions = 0;
-        long verified_run_duration = 0;
         int verified_failed_provisions = 0;
         for(Message m : generated_messages) {
-            minimum_theoretical_run_duration += m.getMinimumTheoreticalDuration();
             if(m.getHasRedRequests()) mininum_theoretical_failed_provisions += 1;
-            if(m.getSuccessful() == false) verified_failed_provisions++; 
+            if(!m.getSuccessful()) verified_failed_provisions++;
         }
         Optional<Result> run_result = this.resultRepository.findById(orchestration_id);
         if(run_result.isPresent()) {
+            long verified_run_duration = end_instant - run_result.get().getStartInstant();
+            long minimum_theoretical_run_duration = (run_result.get().getRequests() / run_result.get().getOlts()) * t_normal;
             Result result = run_result.get();
             result.setStatus(Result.availableStatus[1]);
+            result.setEndInstant(end_instant);
             result.setTheoreticalTotalTimeLimit(minimum_theoretical_run_duration);
             result.setTheoreticalTimeoutRequestsLimit(mininum_theoretical_failed_provisions);
             result.setVerifiedTotalTime(verified_run_duration);
             result.setVerifiedTimedoutRequests(verified_failed_provisions);
-            this.resultRepository.save(result);
+            result = this.resultRepository.save(result);
+            // Calculating olt related measures
+            Map<String, List<Long>> provisioning_times_by_olt = new HashMap<>();
+            for(Message m : generated_messages) {
+                if(m.getSuccessful()) {
+                    long provisioning_time = m.getCompletedProcessing() - m.getStartedProcessing();
+                    if (!provisioning_times_by_olt.containsKey(m.getOlt())) {
+                        provisioning_times_by_olt.put(m.getOlt(), new ArrayList<>());
+                    }
+                    provisioning_times_by_olt.get(m.getOlt()).add(provisioning_time);
+                }
+            }
+            for(String olt : provisioning_times_by_olt.keySet()) {
+                List<Long> processing_times = provisioning_times_by_olt.get(olt);
+                long minimum_processing_time = Collections.min(processing_times);
+                long maximum_processing_time = Collections.max(processing_times);
+                OptionalDouble average_processing_time_aux = processing_times.stream().mapToDouble(a -> a).average();
+                double average_processing_time = average_processing_time_aux.isPresent() ? average_processing_time_aux.getAsDouble() : 0;
+                PerOltProcessingTime save_registry = new PerOltProcessingTime(result, olt, minimum_processing_time, maximum_processing_time, average_processing_time);
+                perOltProcessingTimesRepository.save(save_registry);
+            }
         }
     }
-    **/
 
     public void handleOrchestration(String body) {
         wait_for_current_run_to_finish();
@@ -151,13 +167,14 @@ public class ReceiveOrchestrationHandler {
         if(list_of_highest_id_messages.size() != 0) {
             current_highest_message_id = list_of_highest_id_messages.get(0).getId();
         }
-        inform_workers_of_target(current_highest_message_id + orchestration.getMessages() - 1, orchestration.getWorkers());
+        inform_workers_of_target(current_highest_message_id + orchestration.getMessages(), orchestration.getWorkers());
         forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
         this.current_status.start_run();
         generate_messages(orchestration);
         log.info("Waiting for run results to be ready...");
         wait_for_current_run_to_finish();
-        // calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), new_current_message_id - 1);
+        int new_current_message_id = current_status.getCurrentMessageId() + orchestration.getMessages();
+        calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(),  new_current_message_id);
         log.info("The run is finished and the result has been submitted to the database");
     }
 }

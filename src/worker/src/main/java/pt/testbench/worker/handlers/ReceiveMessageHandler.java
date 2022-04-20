@@ -1,6 +1,7 @@
 package pt.testbench.worker.handlers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,10 @@ import pt.testbench.worker.utils.SequenceGenerator;
 @Slf4j
 public class ReceiveMessageHandler {
 
-    private final Gson converter = new Gson();
+    private final Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private Random random = new Random(34);
 
     @Autowired private MessageRepository messagesRepository;
     @Autowired private OltRequestRepository oltRequestsRepository;
@@ -43,6 +46,10 @@ public class ReceiveMessageHandler {
         int olt_port = 9000 + Integer.parseInt(olt);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        m.setLeftWorker(new Date().getTime());
+        log.info("Before saving: " + converter.toJson(m));
+        this.oltRequestsRepository.save(m);
+        log.info("After saving: " + converter.toJson(m));
         HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
         ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
@@ -89,35 +96,73 @@ public class ReceiveMessageHandler {
     public void handleMessage(String body) {
         Message m = converter.fromJson(body, Message.class);
         log.info("Received a message: " + converter.toJson(m));
-        inform_oracle_of_handling(m.getOlt());
-        List<OltRequest> generated_olt_requests = SequenceGenerator.generate_requests_sequence(m);
+        List<OltRequest> generated_olt_requests = null;
+        if(status.getSequence() == 1) {
+            generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, -1, 0);
+        }
+        if(status.getSequence() == 2) {
+            int left_yellow_messages = status.getTargetYellowMessages() - status.getGeneratedYellowMessages();
+            int random_input = Math.min(left_yellow_messages, 4);
+            int accessory_messages = random.nextInt(random_input);
+            status.setGeneratedYellowMessages(status.getGeneratedYellowMessages() + accessory_messages);
+            generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 0, accessory_messages);
+        }
+        if(status.getSequence() == 3) {
+            int acessory_type = random.nextInt(2);
+            if(acessory_type == 0) {
+                int left_yellow_messages = status.getTargetYellowMessages() - status.getGeneratedYellowMessages();
+                int random_input = Math.min(left_yellow_messages, 4);
+                int accessory_messages = random.nextInt(random_input);
+                status.setGeneratedYellowMessages(status.getGeneratedYellowMessages() + accessory_messages);
+                generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 0, accessory_messages);
+            } else {
+                int left_red_messages = status.getTargetRedMessages() - status.getGeneratedRedMessages();
+                int random_input = Math.min(left_red_messages, 4);
+                int accessory_messages = random.nextInt(random_input);
+                status.setGeneratedRedMessages(status.getGeneratedRedMessages() + accessory_messages);
+                generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 1, accessory_messages);
+            }
+        }
         m = this.messagesRepository.save(m);
         List<OltRequest> sorted_olt_requests = new ArrayList<>();
         for(OltRequest request : generated_olt_requests) {
-            OltRequest r = this.oltRequestsRepository.save(request);
-            sorted_olt_requests.add(r);
+            request.setOriginMessage(m);
+            request = this.oltRequestsRepository.save(request);
+            sorted_olt_requests.add(request);
         }
+        m.setStartedProcessing(new Date().getTime());
+        m = this.messagesRepository.save(m);
+        for(OltRequest request : sorted_olt_requests) {
+            request.setOriginMessage(m);
+        }
+        inform_oracle_of_handling(m.getOlt());
         int timedout_requests = 0;
+        boolean provision_timedout = false;
         for(int i = 0; i < sorted_olt_requests.size(); i++) {
-            OltRequest request = sorted_olt_requests.get(i);
-            status.setCurrentActiveRequest(request.getId());
-            status.getRequestSatisfied().put(request.getId(), false);
-            perform_olt_request(request, m.getOlt());
-            try {
-               Awaitility.await().atMost(request.getTimeout(), TimeUnit.MILLISECONDS).until(request_satisfied(request.getId()));
-            } catch(Exception e) {
-               log.warn("Timeout: The request " + request.getId() + " timeout");
-               if(i == 3) {
-                   inform_oracle_of_handling_end(m.getOlt());
-               }
-               m.setSuccessful(false);
-               m = this.messagesRepository.save(m);
-               timedout_requests++;
+            if (!provision_timedout) {
+                OltRequest request = sorted_olt_requests.get(i);
+                status.setCurrentActiveRequest(request.getId());
+                status.getRequestSatisfied().put(request.getId(), false);
+                request.setNotProcessed(false);
+                perform_olt_request(request, m.getOlt());
+                try {
+                    Awaitility.await().atMost(request.getTimeout(), TimeUnit.MILLISECONDS).until(request_satisfied(request.getId()));
+                } catch (Exception e) {
+                    provision_timedout = true;
+                    log.warn("Timeout: The request " + request.getId() + " timedout");
+                    m.setSuccessful(false);
+                    m = this.messagesRepository.save(m);
+                    timedout_requests++;
+                }
+                if(i == 3) {
+                    inform_oracle_of_handling_end(m.getOlt());
+                }
             }
         }
         if(timedout_requests == 0) {
-               m.setSuccessful(true);
-               m = this.messagesRepository.save(m);
+            m.setCompletedProcessing(new Date().getTime());
+            m.setSuccessful(true);
+            this.messagesRepository.save(m);
         }
     }
 }
