@@ -51,7 +51,6 @@ public class ReceiveOrchestrationHandler {
         try {
             ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/message", HttpMethod.GET, entity, String.class);
             String message_json = (String) response.getBody();
-            log.info("Fetched String: " + message_json);
             m = converter.fromJson(message_json, Message.class);
             log.info("Fetched: " + converter.toJson(m) + " from the broker");
         } catch(HttpClientErrorException.NotFound e) {
@@ -97,10 +96,7 @@ public class ReceiveOrchestrationHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         m.setLeftWorker(new Date().getTime());
-        log.info("Before saving: " + converter.toJson(m));
         this.oltRequestsRepository.save(m);
-        log.info("After saving: " + converter.toJson(m));
-        log.info("Sending: " + converter.toJson(m) + " to the olt");
         HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
         ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
@@ -143,12 +139,12 @@ public class ReceiveOrchestrationHandler {
         status.setIsOnGoingRun(true);
         status.setWorkers(orchestration.getWorkers());
         if(orchestration.getSequence() == 2) {
-            int additional_yellow_messages = (int) Math.floor(orchestration.getMessages() * 0.033);
+            int additional_yellow_messages = (int) Math.floor(orchestration.getMessages() * 4 * 0.033);
             status.setTargetYellowMessages(status.getTargetYellowMessages() + additional_yellow_messages);
         }
         if(orchestration.getSequence() == 3) {
-            int additional_yellow_messages = (int) Math.floor(orchestration.getMessages() * 0.033);
-            int additional_red_messages = (int) Math.floor(orchestration.getMessages() * 0.033);
+            int additional_yellow_messages = (int) Math.floor(orchestration.getMessages() * 4 * 0.033);
+            int additional_red_messages = (int) Math.floor(orchestration.getMessages() * 4 * 0.033);
             status.setTargetYellowMessages(status.getTargetYellowMessages() + additional_yellow_messages);
             status.setTargetRedMessages(status.getTargetRedMessages() + additional_red_messages);
         }
@@ -164,7 +160,6 @@ public class ReceiveOrchestrationHandler {
                         log.info("Oracle search result: " + worker);
                         while(worker != -1) {
                             try {
-                                log.info("Search result: " + worker);
                                 Thread.sleep(1000);
                             } catch(InterruptedException e) {
                                 e.printStackTrace();
@@ -227,6 +222,7 @@ public class ReceiveOrchestrationHandler {
                                 Awaitility.await().atMost(request.getTimeout(), TimeUnit.MILLISECONDS).until(request_satisfied(request.getId()));
                             } catch (Exception e) {
                                 provision_timedout = true;
+                                inform_oracle_of_handling_end(m.getOlt());
                                 log.warn("Timeout: The request " + request.getId() + " timedout");
                                 m.setCompletedProcessing(new Date().getTime());
                                 m.setSuccessful(false);

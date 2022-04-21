@@ -15,8 +15,8 @@ import pt.testbench.olt.model.Status;
 import java.util.Collections;
 import java.util.Date;
 
-@Service
 @Slf4j
+@Service
 public class ReceiveMessageHandler {
 
     private static final Gson converter = new Gson();

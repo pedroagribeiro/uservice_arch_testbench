@@ -112,10 +112,6 @@ public class ReceiveResponseHandler {
         origin_request.setNotProcessed(false);
         origin_request = this.oltRequestsRepository.save(origin_request);
         String[] split_id = r.getId().split("-");
-        log.info("The size of the the unanswered list is: " + status.getRequestSatisfied().size());
-        log.info("The target message is: " + status.getTargetMessageRun());
-        log.info("The response is relation to the origin message: " + Integer.parseInt(split_id[0]));
-        log.info("The order number of the message is: " + Integer.parseInt(split_id[1]));
         if(Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && Integer.parseInt(split_id[1]) == 3 && this.status.getRequestSatisfied().size() == 0) {
             log.info("Run is over!!");
             status.setIsOnGoingRun(false);
