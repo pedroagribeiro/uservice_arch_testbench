@@ -1,5 +1,6 @@
 package pt.testbench.olt.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import pt.testbench.olt.handlers.ReceiveMessageHandler;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -15,23 +16,27 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ConfigOltMessageQueue {
 
-    public static final String QUEUE_NAME = "message_queue";
+    @Value("${olt.id}")
+    private int olt_id;
 
     @Bean
     Queue createMessageQueue() {
-        return new Queue(QUEUE_NAME, true, false, false);
+        String queue_name = "olt-" + olt_id + "-message-queue";
+        return new Queue(queue_name, true, false, false);
     }
 
     @Bean
     Binding bindMessageQueue(@Qualifier("createMessageQueue") Queue q, TopicExchange exchange) {
-        return BindingBuilder.bind(q).to(exchange).with(QUEUE_NAME);
+        String queue_name = "olt-" + olt_id + "-message-queue";
+        return BindingBuilder.bind(q).to(exchange).with(queue_name);
     }
 
     @Bean
     SimpleMessageListenerContainer messageContainer(ConnectionFactory connectionFactory, MessageListenerAdapter messageListenerAdapter) {
+        String queue_name = "olt-" + olt_id + "-message-queue";
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(QUEUE_NAME);
+        container.setQueueNames(queue_name);
         container.setMessageListener(messageListenerAdapter);
         return container;
     }

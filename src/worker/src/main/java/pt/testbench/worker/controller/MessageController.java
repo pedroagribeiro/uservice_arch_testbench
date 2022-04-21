@@ -11,21 +11,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pt.testbench.worker.config.ConfigureWorkerMessageQueue;
 import pt.testbench.worker.model.Message;
 import org.springframework.beans.factory.annotation.Autowired;
-import pt.testbench.worker.repository.MessageRepository;
-
-import java.util.Date;
-
+import pt.testbench.worker.model.Status;
 
 @RestController
 @RequestMapping("/message")
 public class MessageController {
 
+    private final String EXCHANGE_NAME = "";
     private final RabbitTemplate rabbitTemplate;
     private static final Gson converter = new Gson();
-    @Autowired private MessageRepository messagesRepository;
+
+    @Autowired private Status status;
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -35,8 +33,7 @@ public class MessageController {
 
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody Message m) {
-        // this.messagesRepository.save(m);
-        rabbitTemplate.convertAndSend(ConfigureWorkerMessageQueue.EXCHANGE_NAME, ConfigureWorkerMessageQueue.QUEUE_NAME, converter.toJson(m));
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, "worker-" + status.getWorkerId() + "-message-queue", converter.toJson(m));
         return new ResponseEntity<>("Message submitted", HttpStatus.CREATED);
     }
 }
