@@ -1,0 +1,219 @@
+# Database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-database
+    spec:
+      containers:
+        - name: relational-db
+          image: {{ .Values.env.database_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+              name: results-port
+      restartPolicy: Always
+
+# Producer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-producer
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-producer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-producer
+    spec:
+      containers:
+        - name: producer
+          image: {{ .Values.env.producer_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: producer-port
+      restartPolicy: Always
+
+# Broker
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-broker
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-broker
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-broker
+    spec:
+      containers:
+        - name: broker
+          image: {{ .Values.env.broker_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+              name: broker-port
+      restartPolicy: Always
+
+# Broker Queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-broker-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-broker-queue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-broker-queue
+    spec:
+      containers:
+        - name: broker-queue
+          image: {{ .Values.env.queue_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mgt
+      restartPolicy: Always
+
+# Workers Queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-workers-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-workers-queue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-workers-queue
+    spec:
+      containers:
+        - name: workers-queue
+          image: {{ .Values.env.queue_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mgt
+      restartPolicy: Always 
+
+# Olts queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-olts-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels: 
+      app: testbench-olts-queue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-olts-queue
+    spec:
+      containers:
+        - name: olts-queue
+          image: {{ .Values.env.queue_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mgt
+      restartPolicy: Always
+
+# Worker instances
+{{- range $i, $e := until .Values.env.workers }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-worker-{{$i}}
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-worker-{{$i}}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-worker-{{$i}}  
+    spec:
+      containers:
+        - name: worker-{{$i}}
+          image: {{ .Values.env.worker_image }}
+          args: ["--worker.id={{$i}}"]
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: worker-{{$i}}-port
+      restartPolicy: Always
+{{- end }}
+
+# Olt instances
+{{- range $i, $e := until .Values.env.olts }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-olt-{{$i}}
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-olt-{{$i}}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-olt-{{$i}}
+    spec:
+      containers:
+        - name: olt-{{$i}}
+          image: {{ .Values.env.olt_image }}
+          args: ["--olt.id={{$i}}"]
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: olt-{{$i}}-port
+      restartPolicy: Always
+{{- end }}

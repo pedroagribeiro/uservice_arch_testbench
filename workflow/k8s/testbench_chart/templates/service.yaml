@@ -1,0 +1,148 @@
+# Database Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-database
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-database
+  ports:
+    - name: results-port
+      port: 5432
+      targetPort: 5432
+
+# Producer Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-producer
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-producer
+  ports:
+    - name: producer-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 32300
+  type: NodePort
+
+# Producer Queue Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-producer-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector: 
+    app: testbench-producer-queue
+  ports:
+    - name: producer-q-port  
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+
+# Broker Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-broker
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-broker
+  ports:
+    - name: broker-port
+      protocol: TCP
+      ports: 8081
+      targetPort: 8081
+
+# Broker Queue Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-broker-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-broker-queue
+  ports:
+    - name: broker-q-port
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+
+# Workers Queue Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-workers-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-workers-queue
+  ports:
+    - name: workers-q-port
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+
+# Olts Queue Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-olts-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-olts-queue
+  ports:
+    - name: olts-q-port
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+
+# Worker instances services
+{{- range $i, $e := until .Values.env.workers }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-worker-{{$i}}
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-worker-{{$i}}
+  ports:
+    - name: worker-{{$i}}-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+{{- end }}
+
+# Olts instances services
+{{- range $i, $e := until .Values.env.olts }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testbench-olt-{{$i}}
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    app: testbench-olt-{{$i}}
+  ports:
+    - name: olt-{{$i}}-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+{{- end }}

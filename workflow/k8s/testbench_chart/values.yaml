@@ -1,0 +1,13 @@
+# Default values for testbench_chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+env:
+  workers: 10
+  olts: 10
+  queue_image: "rabbitmq:3.9.13-management"
+  producer_image: "10.112.106.236:32500/ztp-onu-producer_spring:1.0"
+  broker_image: "10.112.106.236:32500/ztp-onu-broker_spring:1.0"
+  worker_image: "10.112.106.236:32500/ztp-onu-worker_spring:1.0"
+  olt_image: "10.112.106.236:32500/ztp-onu-olt_spring:1.0"
+  database_image: "10.112.106.236:32500/ztp-onu-relational-database_spring:1.0"
