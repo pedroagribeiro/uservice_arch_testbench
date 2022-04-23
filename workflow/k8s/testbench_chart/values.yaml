@@ -6,6 +6,7 @@ env:
   workers: 10
   olts: 10
   queue_image: "rabbitmq:3.9.13-management"
+  gui_image: "10.112.106.236:32500/ztp-onu-gui:1.0"
   producer_image: "10.112.106.236:32500/ztp-onu-producer_spring:1.0"
   broker_image: "10.112.106.236:32500/ztp-onu-broker_spring:1.0"
   worker_image: "10.112.106.236:32500/ztp-onu-worker_spring:1.0"

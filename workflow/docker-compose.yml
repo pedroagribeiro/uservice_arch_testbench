@@ -1,6 +1,16 @@
 version: "3"
 
 services:
+  gui:
+    build:
+      context: ../src/uservice_arch_testbench_visualizator
+    container_name: testbench-gui
+    ports:
+      - "3000:3000"
+    depends_on:
+      - producer
+    networks:
+      - private_network
   producer_queue:
     image: rabbitmq:3.9.13-management
     container_name: producer-queue

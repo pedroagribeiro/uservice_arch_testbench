@@ -24,6 +24,32 @@ spec:
               name: results-port
       restartPolicy: Always
 
+# Gui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-gui
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-gui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-gui
+    spec:
+      containers:
+        - name: gui
+          image: {{ .Values.env.gui_image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: gui-port
+      restartPolicy: Always
+
 # Producer
 ---
 apiVersion: apps/v1

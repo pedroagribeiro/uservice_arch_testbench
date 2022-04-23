@@ -11,7 +11,7 @@ import java.util.Objects;
 @Proxy(lazy = false)
 public class Result {
 
-    public static final String[] availableStatus = { "on_going", "finished" };
+    public static final String[] availableStatus = { "queued", "on_going", "finished" };
 
     @Id
     @GeneratedValue(generator = "result_id_seq", strategy = GenerationType.SEQUENCE)

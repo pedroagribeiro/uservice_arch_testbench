@@ -19,4 +19,4 @@ COPY target/olt-0.0.1-SNAPSHOT.jar /app/
 WORKDIR /app
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "olt-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "olt-0.0.1-SNAPSHOT.jar", "-XX:+UseSerialGC"]

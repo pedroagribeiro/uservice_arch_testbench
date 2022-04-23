@@ -19,4 +19,4 @@ COPY target/broker-0.0.1-SNAPSHOT.jar /app/
 WORKDIR /app
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "broker-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "broker-0.0.1-SNAPSHOT.jar", "-XX:+UseSerialGC"]

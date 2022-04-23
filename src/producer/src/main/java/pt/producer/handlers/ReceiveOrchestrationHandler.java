@@ -135,6 +135,7 @@ public class ReceiveOrchestrationHandler {
             result.setTheoreticalTimeoutRequestsLimit(mininum_theoretical_failed_provisions);
             result.setVerifiedTotalTime(verified_run_duration);
             result.setVerifiedTimedoutRequests(verified_failed_provisions);
+            result.setStatus(Result.availableStatus[2]);
             result = this.resultRepository.save(result);
             // Calculating olt related measures
             Map<String, List<Long>> provisioning_times_by_olt = new HashMap<>();
@@ -159,6 +160,12 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
+    public void update_run_state(int orchestration_id) {
+        Result r = this.resultRepository.findById(orchestration_id).get();
+        r.setStatus(Result.availableStatus[1]);
+        this.resultRepository.save(r);
+    }
+
     public void handleOrchestration(String body) {
         wait_for_current_run_to_finish();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
@@ -169,6 +176,7 @@ public class ReceiveOrchestrationHandler {
         }
         inform_workers_of_target(current_highest_message_id + orchestration.getMessages(), orchestration.getWorkers());
         forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
+        update_run_state(orchestration.getId());
         this.current_status.start_run();
         generate_messages(orchestration);
         log.info("Waiting for run results to be ready...");
