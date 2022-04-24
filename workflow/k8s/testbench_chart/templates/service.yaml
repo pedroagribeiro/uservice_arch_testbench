@@ -138,13 +138,13 @@ metadata:
   name: worker-{{ . }}
   namespace: dsr-onu-ztp
 spec:
-selector:
-  app: testbench-worker-{{ . }}
-ports:
-  - name: worker-{{ . }}-port
-    protocol: TCP
-    port: 8080
-    targetPort: 8080
+  selector:
+    app: testbench-worker-{{ . }}
+  ports:
+    - name: worker-{{ . }}-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
 {{- end }}
 
 # Olts instances services
@@ -156,11 +156,11 @@ metadata:
   name: olt-{{ . }}
   namespace: dsr-onu-ztp
 spec:
-selector:
-  app: testbench-olt-{{ . }}
-ports:
-  - name: olt-{{ . }}-port
-    protocol: TCP
-    port: 8080
-    targetPort: 8080
+  selector:
+    app: testbench-olt-{{ . }}
+  ports:
+    - name: olt-{{ . }}-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
 {{- end }}
