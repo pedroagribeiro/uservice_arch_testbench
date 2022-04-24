@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: relational-db
-          image: {{ .Values.env.database_image }}
+          image: 10.112.106.236:32500/ztp-onu-relational-database:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 5432
@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
         - name: gui
-          image: {{ .Values.env.gui_image }}
+          image: 10.112.106.236:32500/ztp-onu-gui:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -69,7 +69,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: {{ .Values.env.producer_image }}
+          image: 10.112.106.236:32500/ztp-onu-producer_spring:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -95,7 +95,7 @@ spec:
     spec:
       containers:
         - name: broker
-          image: {{ .Values.env.broker_image }}
+          image: 10.112.106.236:32500/ztp-onu-broker_spring:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
@@ -121,7 +121,7 @@ spec:
     spec:
       containers:
         - name: broker-queue
-          image: {{ .Values.env.queue_image }}
+          image: rabbitmq:3.9.13-management
           imagePullPolicy: Always
           ports:
             - containerPort: 5672
@@ -149,7 +149,7 @@ spec:
     spec:
       containers:
         - name: workers-queue
-          image: {{ .Values.env.queue_image }}
+          image: rabbitmq:3.9.13-management
           imagePullPolicy: Always
           ports:
             - containerPort: 5672
@@ -177,7 +177,7 @@ spec:
     spec:
       containers:
         - name: olts-queue
-          image: {{ .Values.env.queue_image }}
+          image: rabbitmq:3.9.13-management
           imagePullPolicy: Always
           ports:
             - containerPort: 5672
@@ -206,7 +206,7 @@ spec:
     spec:
       containers:
         - name: worker-{{$i}}
-          image: {{ .Values.env.worker_image }}
+          image: 10.112.106.236:32500/ztp-onu-worker_spring:1.0
           args: ["--worker.id={{$i}}"]
           imagePullPolicy: Always
           ports:
@@ -235,7 +235,7 @@ spec:
     spec:
       containers:
         - name: olt-{{$i}}
-          image: {{ .Values.env.olt_image }}
+          image: 10.112.106.236:32500/ztp-onu-olt_spring:1.0
           args: ["--olt.id={{$i}}"]
           imagePullPolicy: Always
           ports:
