@@ -220,26 +220,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: testbench-worker-{{$i}}
+  name: testbench-worker-{{ . }}
   namespace: dsr-onu-ztp
 spec:
   selector:
     matchLabels:
-      app: testbench-worker-{{$i}}
+      app: testbench-worker-{{ . }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: testbench-worker-{{$i}}  
+        app: testbench-worker-{{ . }}  
     spec:
       containers:
-        - name: worker-{{$i}}
+        - name: worker-{{ . }}
           image: 10.112.106.236:32500/ztp-onu-worker_spring:1.0
-          args: ["--worker.id={{$i}}"]
+          args: ["--worker.id={{ . }}"]
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-              name: worker-{{$i}}-port
+              name: worker-{{ . }}-port
       restartPolicy: Always
 {{- end }}
 
@@ -249,25 +249,25 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: testbench-olt-{{$i}}
+  name: testbench-olt-{{ . }}
   namespace: dsr-onu-ztp
 spec:
   selector:
     matchLabels:
-      app: testbench-olt-{{$i}}
+      app: testbench-olt-{{ . }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: testbench-olt-{{$i}}
+        app: testbench-olt-{{ . }}
     spec:
       containers:
-        - name: olt-{{$i}}
+        - name: olt-{{ . }}
           image: 10.112.106.236:32500/ztp-onu-olt_spring:1.0
-          args: ["--olt.id={{$i}}"]
+          args: ["--olt.id={{ . }}"]
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-              name: olt-{{$i}}-port
+              name: olt-{{ . }}-port
       restartPolicy: Always
 {{- end }}

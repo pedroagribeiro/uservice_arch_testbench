@@ -135,16 +135,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: worker-{{$i}}
-  namespace: dsr-onu-ztp
+name: worker-{{ . }}
+namespace: dsr-onu-ztp
 spec:
-  selector:
-    app: testbench-worker-{{$i}}
-  ports:
-    - name: worker-{{$i}}-port
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
+selector:
+  app: testbench-worker-{{ . }}
+ports:
+  - name: worker-{{ . }}-port
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
 {{- end }}
 
 # Olts instances services
@@ -153,14 +153,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: olt-{{$i}}
-  namespace: dsr-onu-ztp
+name: olt-{{ . }}
+namespace: dsr-onu-ztp
 spec:
-  selector:
-    app: testbench-olt-{{$i}}
-  ports:
-    - name: olt-{{$i}}-port
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
+selector:
+  app: testbench-olt-{{ . }}
+ports:
+  - name: olt-{{ . }}-port
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
 {{- end }}
