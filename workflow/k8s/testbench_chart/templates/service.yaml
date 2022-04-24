@@ -135,8 +135,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-name: worker-{{ . }}
-namespace: dsr-onu-ztp
+  name: worker-{{ . }}
+  namespace: dsr-onu-ztp
 spec:
 selector:
   app: testbench-worker-{{ . }}
@@ -153,8 +153,8 @@ ports:
 apiVersion: v1
 kind: Service
 metadata:
-name: olt-{{ . }}
-namespace: dsr-onu-ztp
+  name: olt-{{ . }}
+  namespace: dsr-onu-ztp
 spec:
 selector:
   app: testbench-olt-{{ . }}
