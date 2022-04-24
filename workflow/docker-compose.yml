@@ -1,16 +1,16 @@
 version: "3"
 
 services:
-  gui:
-    build:
-      context: ../src/gui
-    container_name: testbench-gui
-    ports:
-      - "3000:3000"
-    depends_on:
-      - producer
-    networks:
-      - private_network
+  # gui:
+  #   build:
+  #     context: ../src/gui
+  #   container_name: testbench-gui
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - producer
+  #   networks:
+  #     - private_network
   producer_queue:
     image: rabbitmq:3.9.13-management
     container_name: producer-queue
@@ -123,6 +123,51 @@ services:
       context: ../src/olt/
     command: "--olt.id=4"
     container_name: olt-4
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
+  olt_5:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=5"
+    container_name: olt-5
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
+  olt_6:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=6"
+    container_name: olt-6
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
+  olt_7:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=7"
+    container_name: olt-7
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
+  olt_8:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=8"
+    container_name: olt-8
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
+  olt_9:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=9"
+    container_name: olt-9
     depends_on:
       - olts_queue
     networks:

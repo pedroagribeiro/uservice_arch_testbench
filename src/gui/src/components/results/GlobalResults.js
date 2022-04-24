@@ -6,43 +6,56 @@ import {
   VStack,
   HStack,
   Spinner,
+  Center,
   Text,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import SequenceResults from './SequenceResults';
+import MultipleSequenceResults from './MultipleSequenceResults';
 
 const GlobalResults = () => {
   const api_host = process.env.REACT_APP_BACKEND_HOST;
   const api_port = process.env.REACT_APP_BACKEND_PORT;
 
-  const [sequenceOneData, setSequenceOneData] = useState(null);
-  const [loadingSequenceOneData, setLoadingSequenceOneData] = useState(null);
-  const [errorLoadingSequenceOneData, setErrorLoadingSequenceOneData] =
-    useState(null);
+  const [combinations, setCombinations] = useState([]);
+  const [sequences, setSequences] = useState([]);
 
-  const url =
-    'http://' +
-    api_host +
-    ':' +
-    api_port +
-    '/results/verified_time_graphic/sequence/1/workers/3/olts/5';
+  const [loadingCombinations, setLoadingCombinations] = useState(false);
+  const [loadingSequences, setLoadingSequences] = useState(false);
+
+  const url_combinations =
+    'http://' + api_host + ':' + api_port + '/results/combinations';
+
+  const url_sequences =
+    'http://' + api_host + ':' + api_port + '/results/sequences';
 
   useEffect(() => {
-    setLoadingSequenceOneData(true);
+    setLoadingSequences(true);
     axios
-      .get(url)
+      .get(url_sequences)
       .then(response => {
-        setSequenceOneData(response.data);
+        setSequences(response.data);
       })
-      .catch(err => setErrorLoadingSequenceOneData(err))
-      .finally(() => setLoadingSequenceOneData(false));
-  }, [url]);
+      .catch(err => console.log(err))
+      .finally(() => setLoadingSequences(false));
+    axios
+      .get(url_combinations)
+      .then(response => {
+        setCombinations(response.data);
+      })
+      .catch(err => console.log(err))
+      .finally(() => setLoadingCombinations(false));
+  }, [url_sequences, url_combinations]);
 
   const allDataLoaded = () => {
-    return !loadingSequenceOneData && sequenceOneData;
+    return (
+      !loadingSequences &&
+      !loadingCombinations &&
+      sequences.length !== 0 &&
+      combinations.length !== 0
+    );
   };
 
-  return sequenceOneData ? (
+  return allDataLoaded ? (
     <Box minH="86vh" borderWidth={2} rounded="md">
       <VStack mt={4} mb={6} spacing={6}>
         <VStack mx={4} alignItems="start" minW="97%">
@@ -50,17 +63,23 @@ const GlobalResults = () => {
           <Divider />
         </VStack>
       </VStack>
-      <VStack w="100%" mt={4} mb={6} spacing={6}>
-        <SequenceResults sequence={1} workers={3} olts={5} />
-        <SequenceResults sequence={2} workers={3} olts={5} />
-        <SequenceResults sequence={3} workers={3} olts={5} />
+      <VStack mt={4} mb={6} spacing={6}>
+        {sequences.map(seq => (
+          <MultipleSequenceResults
+            key={seq}
+            sequence={seq}
+            combinations={combinations.filter(elem => elem.x !== seq)}
+          />
+        ))}
       </VStack>
     </Box>
   ) : (
-    <HStack spacing={4}>
-      <Spinner size="xl" />
-      <Heading>Loading</Heading>
-    </HStack>
+    <Center>
+      <HStack spacing={4}>
+        <Spinner size="xl" />
+        <Heading>Loading</Heading>
+      </HStack>
+    </Center>
   );
 };
 

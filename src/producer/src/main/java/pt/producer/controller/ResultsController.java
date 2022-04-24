@@ -11,9 +11,8 @@ import pt.producer.model.*;
 import pt.producer.repository.PerOltProcessingTimeRepository;
 import pt.producer.repository.ResultRepository;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -131,5 +130,45 @@ public class ResultsController {
             }
             return new ResponseEntity<>(returnable_results, HttpStatus.OK);
         }
+    }
+
+    @RequestMapping("/combinations")
+    public ResponseEntity<List<Pair>> workersOltsSimulatedCombinations() {
+       Iterable<Result> results = this.resultsRepository.findAll();
+       Map<Integer, List<Integer>> combinations_helper = new HashMap<>();
+       List<Integer> keyList = new ArrayList<>();
+       List<Pair> returnable_results = new ArrayList<>();
+       for(Result r : results) {
+           if(!combinations_helper.containsKey(r.getWorkers())) {
+               combinations_helper.put(r.getWorkers(), new ArrayList<>());
+           }
+           if(!combinations_helper.get(r.getWorkers()).contains(r.getOlts())) {
+               combinations_helper.get(r.getWorkers()).add(r.getOlts());
+           }
+       }
+       for(Integer key : combinations_helper.keySet()) {
+           Collections.sort(combinations_helper.get(key));
+           keyList.add(key);
+       }
+       Collections.sort(keyList);
+       for(Integer key : keyList) {
+           List<Integer> olt_combs = combinations_helper.get(key);
+           for(Integer olt_comb : olt_combs) {
+               returnable_results.add(new Pair(key, olt_comb));
+           }
+       }
+       return new ResponseEntity<>(returnable_results, HttpStatus.OK);
+    }
+
+    @RequestMapping("/sequences")
+    public ResponseEntity<List<Integer>> simulatedSequences() {
+        Iterable<Result> results = this.resultsRepository.findAll();
+        List<Integer> used_sequences = new ArrayList<>();
+        for(Result r : results) {
+            if(!used_sequences.contains(r.getSequence())) {
+                used_sequences.add(r.getSequence());
+            }
+        }
+        return new ResponseEntity<>(used_sequences, HttpStatus.OK);
     }
 }

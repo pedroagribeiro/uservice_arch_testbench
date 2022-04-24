@@ -7,6 +7,7 @@ import {
   Divider,
   Spinner,
   Flex,
+  Text,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import LineChart from './charts/LineChart';
@@ -56,9 +57,8 @@ const SequenceResults = props => {
   return verifiedTime && verifiedTimeouts ? (
     <Flex direction="column" minW="97%">
       <VStack mb={6} alignItems="start">
-        <Heading size="md">
-          Simulation results for message sequence {props.sequence} for{' '}
-          {props.workers} workers and {props.olts} olts
+        <Heading size="md" fontWeight="bold">
+          Results for configuration: {props.workers} workers | {props.olts} olts
         </Heading>
         <Divider />
       </VStack>
