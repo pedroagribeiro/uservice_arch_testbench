@@ -40,7 +40,7 @@ public class ReceiveOrchestrationHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Message> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://broker:8081/message", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://broker:8080/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.error("The message could not be sent to the broker, something went wrong!");
         } else {
@@ -60,11 +60,11 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
-    private void forward_orchestration_to_component(Orchestration orchestration, String host, int port) {
+    private void forward_orchestration_to_component(Orchestration orchestration, String host) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Orchestration> entity = new HttpEntity<>(orchestration, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + port + "/orchestration", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":8080/orchestration", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.error("The message could not be sent to the component, something went wrong!");
         } else {
@@ -76,23 +76,21 @@ public class ReceiveOrchestrationHandler {
 
     private void forward_orchestration_to_other_components(Orchestration orchestration, int workers) {
         // Forward orchestration order to the broker
-        forward_orchestration_to_component(orchestration, this.broker_host, 8081);
+        forward_orchestration_to_component(orchestration, this.broker_host);
         // Forward orchestration order to the workers
         for(int i = 0; i < workers; i++) {
-            int port = 8500 + i;
             String worker_host = this.worker_base_host + i;
-            forward_orchestration_to_component(orchestration, worker_host, port);
+            forward_orchestration_to_component(orchestration, worker_host);
         }
     }
 
     private void inform_workers_of_target(int target, int workers) {
         for(int i = 0; i < workers; i++) {
             String worker_host = this.worker_base_host + i;
-            int port = 8500 + i;
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":" + port + "/run/target?target={target}", HttpMethod.POST, entity, String.class, target);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":8080/run/target?target={target}", HttpMethod.POST, entity, String.class, target);
             if (response.getStatusCode().isError()) {
                 log.info("Could not inform the workers of the run target, something went wrong!");
             } else {

@@ -3,7 +3,7 @@ version: "3"
 services:
   gui:
     build:
-      context: ../src/uservice_arch_testbench_visualizator
+      context: ../src/gui
     container_name: testbench-gui
     ports:
       - "3000:3000"
@@ -53,7 +53,7 @@ services:
   worker_0:
     build:
       context: ../src/worker/
-    command: "--server.port=8500 --worker.id=0"
+    command: "--worker.id=0"
     container_name: worker-0
     ports:
       - "8500:8500"
@@ -65,7 +65,7 @@ services:
   worker_1:
     build:
       context: ../src/worker/
-    command: "--server.port=8501 --worker.id=1"
+    command: "--worker.id=1"
     container_name: worker-1
     depends_on:
       - workers_queue
@@ -75,7 +75,7 @@ services:
   worker_2:
     build:
       context: ../src/worker/
-    command: "--server.port=8502 --worker.id=2"
+    command: "--worker.id=2"
     container_name: worker-2
     depends_on:
       - workers_queue
@@ -85,7 +85,7 @@ services:
   olt_0:
     build:
       context: ../src/olt/
-    command: "--server.port=9000 --olt.id=0"
+    command: "--olt.id=0"
     container_name: olt-0
     depends_on:
       - olts_queue
@@ -94,7 +94,7 @@ services:
   olt_1:
     build:
       context: ../src/olt/
-    command: "--server.port=9001 --olt.id=1"
+    command: "--olt.id=1"
     container_name: olt-1
     depends_on:
       - olts_queue
@@ -103,7 +103,7 @@ services:
   olt_2:
     build:
       context: ../src/olt/
-    command: "--server.port=9002 --olt.id=2"
+    command: "--olt.id=2"
     container_name: olt-2
     depends_on:
       - olts_queue
@@ -112,7 +112,7 @@ services:
   olt_3:
     build:
       context: ../src/olt/
-    command: "--server.port=9003 --olt.id=3"
+    command: "--olt.id=3"
     container_name: olt-3
     depends_on:
       - olts_queue
@@ -121,7 +121,7 @@ services:
   olt_4:
     build:
       context: ../src/olt/
-    command: "--server.port=9004 --olt.id=4"
+    command: "--olt.id=4"
     container_name: olt-4
     depends_on:
       - olts_queue

@@ -30,11 +30,10 @@ public class ReceiveMessageHandler {
     private void send_response_to_worker(Response r, int worker) {
         String worker_host = base_worker_host;
         if(!worker_host.equals("localhost")) worker_host = worker_host + worker;
-        int worker_port = 8500 + worker;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Response> entity = new HttpEntity<>(r, headers);
-        String cenas = "http://" + worker_host + ":" + worker_port + "/response";
+        String cenas = "http://" + worker_host + ":8080/response";
         ResponseEntity<?> response = restTemplate.exchange(cenas, HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The response could not be sent back to the worker, something went wrong!");

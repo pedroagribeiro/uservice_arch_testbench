@@ -37,11 +37,10 @@ public class ReceiveMessageHandler {
     private void forward_message_to_worker(Message m, int worker, int logic) {
         String worker_host = this.base_worker_host;
         if(!worker_host.equals("localhost")) worker_host = worker_host + worker;
-        int worker_port = 8500 + worker;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Message> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":" + worker_port + "/message", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":8080/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The message could not be forwarded to the worker, something went wrong!");
         } else {

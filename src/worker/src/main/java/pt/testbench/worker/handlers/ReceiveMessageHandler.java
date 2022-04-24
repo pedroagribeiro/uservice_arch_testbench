@@ -43,7 +43,6 @@ public class ReceiveMessageHandler {
     private void perform_olt_request(OltRequest m, String olt) {
         String olt_host = base_olt_host;
         if(!olt_host.equals("localhost")) olt_host = olt_host + olt;
-        int olt_port = 9000 + Integer.parseInt(olt);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         m.setLeftWorker(new Date().getTime());
@@ -51,7 +50,7 @@ public class ReceiveMessageHandler {
         this.oltRequestsRepository.save(m);
         log.info("After saving: " + converter.toJson(m));
         HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":8080/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The request could not be sent to the OLT, something went wrong!");
         } else {
@@ -65,7 +64,7 @@ public class ReceiveMessageHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/management?olt={olt}&worker={worker}", HttpMethod.POST, entity, String.class, olt, status.getWorkerId());
+        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}&worker={worker}", HttpMethod.POST, entity, String.class, olt, status.getWorkerId());
         if(response.getStatusCode().isError()) {
             log.info("Could not inform broker of the handling, something went wrong!");
         } else {
@@ -79,7 +78,7 @@ public class ReceiveMessageHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
         if(response.getStatusCode().isError()) {
             log.info("Could not inform broker of the handling end, something went wrong");
         } else {

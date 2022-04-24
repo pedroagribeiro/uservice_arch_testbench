@@ -56,8 +56,7 @@ public class ReceiveResponseHandler {
         HttpEntity<?> entity = new HttpEntity<>(headers);
         for(int i = 0; i < status.getWorkers(); i++) {
             String host = base_worker_host + i;
-            int port = 8500 + i;
-            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":" + port + "/run/ended", HttpMethod.POST, entity, String.class);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":8080/run/ended", HttpMethod.POST, entity, String.class);
             if(response.getStatusCode().isError()) {
                 log.info("Could not inform worker " + i + " that the run is over, something went wrong!");
             } else {
@@ -73,7 +72,7 @@ public class ReceiveResponseHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
         if(response.getStatusCode().isError()) {
             log.info("Could not inform broker of the handling end, something went wrong");
         } else {

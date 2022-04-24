@@ -98,7 +98,7 @@ spec:
           image: 10.112.106.236:32500/ztp-onu-broker_spring:1.0
           imagePullPolicy: Always
           ports:
-            - containerPort: 8081
+            - containerPort: 8080
               name: broker-port
       restartPolicy: Always
 

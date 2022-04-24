@@ -49,7 +49,7 @@ public class ReceiveOrchestrationHandler {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/message", HttpMethod.GET, entity, String.class);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/message", HttpMethod.GET, entity, String.class);
             String message_json = (String) response.getBody();
             m = converter.fromJson(message_json, Message.class);
             log.info("Fetched: " + converter.toJson(m) + " from the broker");
@@ -65,7 +65,7 @@ public class ReceiveOrchestrationHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/management?olt={olt}&worker={worker}", HttpMethod.POST, entity, String.class, olt, status.getWorkerId());
+        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}&worker={worker}", HttpMethod.POST, entity, String.class, olt, status.getWorkerId());
         if(response.getStatusCode().isError()) {
             log.info("Could not inform broker of the handling, something went wrong!");
         } else {
@@ -79,7 +79,7 @@ public class ReceiveOrchestrationHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8081/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
         if(response.getStatusCode().isError()) {
             log.info("Could not inform broker of the handling end, something went wrong");
         } else {
@@ -92,13 +92,12 @@ public class ReceiveOrchestrationHandler {
 
     private void perform_olt_request(OltRequest m, String olt) {
         String olt_host = base_olt_host + olt;
-        int olt_port = 9000 + Integer.parseInt(olt);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         m.setLeftWorker(new Date().getTime());
         this.oltRequestsRepository.save(m);
         HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":" + olt_port + "/message", HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":8080/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
             log.info("The message could not be sent to the OLT, something went wrong!");
         } else {
@@ -109,13 +108,12 @@ public class ReceiveOrchestrationHandler {
     }
 
     private int ask_oracle_if_anyone_is_using_olt(String olt) {
-        int broker_port = 8081;
         int worker = -1;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":" + broker_port + "/management?olt={olt}", HttpMethod.GET, entity, String.class, olt);
+            ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}", HttpMethod.GET, entity, String.class, olt);
             String worker_json = (String) response.getBody();
             worker = Integer.parseInt(worker_json);
         } catch(HttpClientErrorException.NotFound e) {
