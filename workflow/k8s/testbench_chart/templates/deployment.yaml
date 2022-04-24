@@ -76,6 +76,34 @@ spec:
               name: producer-port
       restartPolicy: Always
 
+# Producer Queue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testbench-producer-queue
+  namespace: dsr-onu-ztp
+spec:
+  selector:
+    matchLabels:
+      app: testbench-producer-queue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: testbench-producer-queue
+    spec:
+      containers:
+        - name: producer-queue
+          image: rabbitmq:3.9.13-management
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5672
+              name: queue-port
+            - containerPort: 15672
+              name: queue-mgt
+      restartPolicy: Always
+
 # Broker
 ---
 apiVersion: apps/v1
@@ -187,7 +215,7 @@ spec:
       restartPolicy: Always
 
 # Worker instances
-{{- range $i, $e := until .Values.env.workers }}
+{{- range (untilStep 0 (int .Values.env.workers) 1) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -216,7 +244,7 @@ spec:
 {{- end }}
 
 # Olt instances
-{{- range $i, $e := until .Values.env.olts }}
+{{- range (untilStep 0 (int .Values.env.olts) 1)}}
 ---
 apiVersion: apps/v1
 kind: Deployment
