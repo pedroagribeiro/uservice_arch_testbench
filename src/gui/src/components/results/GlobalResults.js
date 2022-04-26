@@ -40,6 +40,7 @@ const GlobalResults = () => {
     axios
       .get(url_combinations)
       .then(response => {
+        console.log(response.data);
         setCombinations(response.data);
       })
       .catch(err => console.log(err))

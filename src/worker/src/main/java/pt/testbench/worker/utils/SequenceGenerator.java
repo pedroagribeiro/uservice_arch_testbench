@@ -44,7 +44,8 @@ public class SequenceGenerator {
         if(accessory_type == 0 && accessory_messages > 0) {
             for (int i = 0; i < accessory_messages; i++) {
                 minimum_theoretical_duration += medium_message_duration;
-                OltRequest request = new OltRequest(m.getId() + "-" + i + green_messages, medium_message_duration, olt_request_timeout);
+                int order_number = i + green_messages;
+                OltRequest request = new OltRequest(m.getId() + "-" + order_number, medium_message_duration, olt_request_timeout);
                 requests_to_return.add(request);
             }
         }
@@ -52,7 +53,8 @@ public class SequenceGenerator {
             has_red_request = true;
             for (int i = 0; i < accessory_messages; i++) {
                 minimum_theoretical_duration += long_message_duration;
-                OltRequest request = new OltRequest(m.getId() + "-" + i + green_messages, long_message_duration, olt_request_timeout);
+                int order_number = i +green_messages;
+                OltRequest request = new OltRequest(m.getId() + "-" + order_number, long_message_duration, olt_request_timeout);
                 requests_to_return.add(request);
             }
         }

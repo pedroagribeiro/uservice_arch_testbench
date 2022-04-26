@@ -95,7 +95,7 @@ spec:
     spec:
       containers:
         - name: producer-queue
-          image: rabbitmq:3.9.13-management
+          image: 10.112.106.236:32500/ztp-onu-rabbitmq:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 5672
@@ -149,7 +149,7 @@ spec:
     spec:
       containers:
         - name: broker-queue
-          image: rabbitmq:3.9.13-management
+          image: 10.112.106.236:32500/ztp-onu-rabbitmq:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 5672
@@ -177,7 +177,7 @@ spec:
     spec:
       containers:
         - name: workers-queue
-          image: rabbitmq:3.9.13-management
+          image: 10.112.106.236:32500/ztp-onu-rabbitmq:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 5672
@@ -205,7 +205,7 @@ spec:
     spec:
       containers:
         - name: olts-queue
-          image: rabbitmq:3.9.13-management
+          image: 10.112.106.236:32500/ztp-onu-rabbitmq:1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 5672

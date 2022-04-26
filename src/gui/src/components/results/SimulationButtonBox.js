@@ -79,6 +79,9 @@ const SimulationButtonBox = props => {
           <Text>
             <strong>Sequence</strong>: {props.sequence}
           </Text>
+          <Text>
+            <strong>Provisions</strong>: {props.requests}
+          </Text>
         </HStack>
         <HStack spacing={4}>
           <Tag size="lg" varian="subtle" colorScheme={tagColor(props.status)}>

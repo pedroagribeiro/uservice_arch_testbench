@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pt.testbench.worker.config.ConfigureExchangeBean;
-import pt.testbench.worker.config.ConfigureWorkerResponseQueue;
 import pt.testbench.worker.model.Response;
 import pt.testbench.worker.model.Status;
 
@@ -18,6 +16,7 @@ import pt.testbench.worker.model.Status;
 @RequestMapping("/response")
 public class ResponseController {
 
+    private final String EXCHANGE_NAME = "";
     private RabbitTemplate rabbitTemplate;
     private final Gson converter = new Gson();
 
@@ -29,7 +28,7 @@ public class ResponseController {
 
     @PostMapping("")
     public ResponseEntity<?> sendResponse(@RequestBody Response r) {
-        rabbitTemplate.convertAndSend(ConfigureExchangeBean.EXCHANGE_NAME, "olt-" + status.getWorkerId() + "-response-queue", converter.toJson(r));
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, "olt-" + status.getWorkerId() + "-response-queue", converter.toJson(r));
         return new ResponseEntity("Response submitted", HttpStatus.CREATED);
     }
 }

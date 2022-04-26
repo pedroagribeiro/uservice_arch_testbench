@@ -118,6 +118,10 @@ public class ReceiveResponseHandler {
             inform_workers_run_is_over();
             log.info("Informing the producer that the run is over");
             inform_producer_run_is_over();
+        } else {
+            log.info("Message id: " + r.getId());
+            log.info("Target: " + status.getTargetMessageRun());
+            log.info("Requests to satisfy: " + this.status.getRequestSatisfied().size());
         }
     }
 }

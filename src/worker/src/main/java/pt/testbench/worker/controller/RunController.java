@@ -8,10 +8,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pt.testbench.worker.model.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/run")
 public class RunController {
+
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
     private Status status;
@@ -31,6 +35,7 @@ public class RunController {
     @PostMapping("/target")
     public ResponseEntity<?> updateRunTarget(@RequestParam int target) {
         this.status.setTargetMessageRun(target);
-        return new ResponseEntity<>("Target has been updated to: " + target, HttpStatus.OK);
+        log.info("Updated run target to: " + target);
+        return new ResponseEntity<>("Worker " + status.getWorkerId() +" has updated it's target to: " + target, HttpStatus.OK);
     }
 }

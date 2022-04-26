@@ -18,6 +18,7 @@ public class ConfigureWorkerResponseQueue {
 
    @Value("${worker.id}")
    private int worker_id;
+   private final String EXCHANGE_NAME = "";
 
    @Bean
    Queue createResponseQueue() {
@@ -26,7 +27,12 @@ public class ConfigureWorkerResponseQueue {
    }
 
    @Bean
-   Binding bindResponseQueue(@Qualifier("createResponseQueue") Queue q, TopicExchange exchange) {
+   TopicExchange responseExchange() {
+        return new TopicExchange(EXCHANGE_NAME);
+   }
+
+   @Bean
+   Binding bindResponseQueue(@Qualifier("createResponseQueue") Queue q, @Qualifier("responseExchange") TopicExchange exchange) {
       String queue_name = "olt-" + worker_id + "-response-queue";
       return BindingBuilder.bind(q).to(exchange).with(queue_name);
    }

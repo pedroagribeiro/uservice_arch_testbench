@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
   VStack,
   HStack,
   Heading,
   Divider,
   Spinner,
   Flex,
-  Text,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import LineChart from './charts/LineChart';
@@ -44,14 +42,17 @@ const SequenceResults = props => {
       .get(url_verified_time)
       .then(response => {
         setVerifiedTime(response.data);
-        axios.get(url_verified_timedout).then(response =>
-          setVerifiedTimeouts(response.data)
-            .catch(err => setErrorVerifiedTimeouts(err))
-            .finally(() => setLoadingVerifiedTimeouts(false))
-        );
       })
       .catch(err => setErrorVerifiedTime(err))
       .finally(() => setLoadingVerifiedTime(false));
+    axios
+      .get(url_verified_timedout)
+      .then(response => {
+        setVerifiedTimeouts(response.data);
+        console.log(response.data);
+      })
+      .catch(err => setErrorVerifiedTimeouts(err))
+      .finally(() => setLoadingVerifiedTimeouts(false));
   }, [url_verified_time, url_verified_timedout]);
 
   return verifiedTime && verifiedTimeouts ? (

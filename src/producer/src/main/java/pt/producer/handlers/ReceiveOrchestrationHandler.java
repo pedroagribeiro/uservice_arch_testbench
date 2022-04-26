@@ -69,7 +69,7 @@ public class ReceiveOrchestrationHandler {
             log.error("The message could not be sent to the component, something went wrong!");
         } else {
             if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Forwarded orchestration to the component!");
+                log.info("Forwarded orchestration to the component! - This was the answer: " + response.getBody());
             }
         }
     }
@@ -78,24 +78,34 @@ public class ReceiveOrchestrationHandler {
         // Forward orchestration order to the broker
         forward_orchestration_to_component(orchestration, this.broker_host);
         // Forward orchestration order to the workers
-        for(int i = 0; i < workers; i++) {
-            String worker_host = this.worker_base_host + i;
-            forward_orchestration_to_component(orchestration, worker_host);
-        }
+        // for(int i = 0; i < workers; i++) {
+        //     String worker_host = this.worker_base_host + i;
+        //     forward_orchestration_to_component(orchestration, worker_host);
+        // }
     }
 
-    private void inform_workers_of_target(int target, int workers) {
+    private void inform_workers_of_target_and_orchestration(Orchestration orchestration, int target, int workers) {
         for(int i = 0; i < workers; i++) {
             String worker_host = this.worker_base_host + i;
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            // Inform of run target
             HttpEntity<?> entity = new HttpEntity<>(headers);
             ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":8080/run/target?target={target}", HttpMethod.POST, entity, String.class, target);
             if (response.getStatusCode().isError()) {
                 log.info("Could not inform the workers of the run target, something went wrong!");
             } else {
                 if (response.getStatusCode().is2xxSuccessful()) {
-                    log.info("Informed the workers of the run target!");
+                    log.info("Informed the " + worker_host + " of the run target! - This was the answer: " + response.getBody());
+                }
+            }
+            HttpEntity<Orchestration> orchestration_entity = new HttpEntity<>(orchestration, headers);
+            ResponseEntity<?> response_orchestration = restTemplate.exchange("http://" + worker_host + ":8080/orchestration", HttpMethod.POST, orchestration_entity, String.class);
+            if(response_orchestration.getStatusCode().isError()) {
+                log.info("Could not inform " + worker_host + " of the orchestration. Something went wrong!");
+            } else {
+                if(response_orchestration.getStatusCode().is2xxSuccessful()) {
+                    log.info("Inform " + worker_host + " of the orchestration order - This was the answer: " + response_orchestration.getBody());
                 }
             }
         }
@@ -172,7 +182,7 @@ public class ReceiveOrchestrationHandler {
         if(list_of_highest_id_messages.size() != 0) {
             current_highest_message_id = list_of_highest_id_messages.get(0).getId();
         }
-        inform_workers_of_target(current_highest_message_id + orchestration.getMessages(), orchestration.getWorkers());
+        inform_workers_of_target_and_orchestration(orchestration, current_highest_message_id + orchestration.getMessages(), orchestration.getWorkers());
         forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
         update_run_state(orchestration.getId());
         this.current_status.start_run();

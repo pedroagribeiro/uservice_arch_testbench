@@ -1,18 +1,19 @@
 version: "3"
 
 services:
-  # gui:
-  #   build:
-  #     context: ../src/gui
-  #   container_name: testbench-gui
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - producer
-  #   networks:
-  #     - private_network
+  gui:
+    build:
+      context: ../src/gui
+    container_name: testbench-gui
+    ports:
+      - "3000:3000"
+    depends_on:
+      - producer
+    networks:
+      - private_network
   producer_queue:
-    image: rabbitmq:3.9.13-management
+    build:
+      context: ../src/rabbitmq
     container_name: producer-queue
     ports:
       - "5679:5672"
@@ -20,7 +21,8 @@ services:
     networks:
       - private_network
   broker_queue:
-    image: rabbitmq:3.9.13-management
+    build:
+      context: ../src/rabbitmq
     container_name: broker-queue
     hostname: broker-queue
     ports:
@@ -77,6 +79,56 @@ services:
       context: ../src/worker/
     command: "--worker.id=2"
     container_name: worker-2
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
+  worker_3:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=3"
+    container_name: worker-3
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
+  worker_4:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=4"
+    container_name: worker-4
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
+  worker_5:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=5"
+    container_name: worker-5
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
+  worker_6:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=6"
+    container_name: worker-6
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
+  worker_7:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=7"
+    container_name: worker-7
     depends_on:
       - workers_queue
       - relational_database
@@ -154,26 +206,9 @@ services:
       - olts_queue
     networks:
       - private_network
-  olt_8:
-    build:
-      context: ../src/olt/
-    command: "--olt.id=8"
-    container_name: olt-8
-    depends_on:
-      - olts_queue
-    networks:
-      - private_network
-  olt_9:
-    build:
-      context: ../src/olt/
-    command: "--olt.id=9"
-    container_name: olt-9
-    depends_on:
-      - olts_queue
-    networks:
-      - private_network
   workers_queue:
-    image: rabbitmq:3.9.13-management
+    build:
+      context: ../src/rabbitmq
     container_name: workers-queue
     ports:
       - "5672:5672"
@@ -181,7 +216,8 @@ services:
     networks:
       - private_network
   olts_queue:
-    image: rabbitmq:3.9.13-management
+    build:
+      context: ../src/rabbitmq
     container_name: olts-queue
     ports:
       - "5673:5672"

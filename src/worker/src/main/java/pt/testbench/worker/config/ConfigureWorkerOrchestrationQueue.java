@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pt.testbench.worker.handlers.ReceiveOrchestrationHandler;
@@ -15,23 +16,33 @@ import pt.testbench.worker.handlers.ReceiveOrchestrationHandler;
 @Configuration
 public class ConfigureWorkerOrchestrationQueue {
 
-    public static final String QUEUE_NAME = "orchestration_queue";
+    @Value("${worker.id}")
+    private int worker_id;
+    private final String EXCHANGE_NAME = "";
 
     @Bean
     Queue createOrchestrationQueue() {
-        return new Queue(QUEUE_NAME, true, false, false);
+        String queue_name = "worker-" + worker_id + "-orchestration-queue";
+        return new Queue(queue_name, true, false, false);
     }
 
     @Bean
-    Binding bindOrchestrationQueue(@Qualifier("createOrchestrationQueue") Queue q, TopicExchange exchange) {
-        return BindingBuilder.bind(q).to(exchange).with(QUEUE_NAME);
+    TopicExchange orchestrationExchange() {
+        return new TopicExchange(EXCHANGE_NAME);
+    }
+
+    @Bean
+    Binding bindOrchestrationQueue(@Qualifier("createOrchestrationQueue") Queue q, @Qualifier("orchestrationExchange") TopicExchange exchange) {
+        String queue_name = "worker-" + worker_id + "-orchestration-queue";
+        return BindingBuilder.bind(q).to(exchange).with(queue_name);
     }
 
     @Bean
     SimpleMessageListenerContainer orchestrationContainer(ConnectionFactory connectionFactory, MessageListenerAdapter orchestrationListenerAdapter) {
+        String queue_name = "worker-" + worker_id + "-orchestration-queue";
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(QUEUE_NAME);
+        container.setQueueNames(queue_name);
         container.setMessageListener(orchestrationListenerAdapter);
         return container;
     }
