@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Response;
 import pt.testbench.worker.model.Status;
@@ -111,7 +113,8 @@ public class ReceiveResponseHandler {
         origin_request.setNotProcessed(false);
         origin_request = this.oltRequestsRepository.save(origin_request);
         String[] split_id = r.getId().split("-");
-        if(Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && Integer.parseInt(split_id[1]) == 3 && this.status.getRequestSatisfied().size() == 0) {
+        Message origin_message = this.messageRepository.findById(origin_request.getOriginMessage().getId()).get();
+        if((Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && Integer.parseInt(split_id[1]) == 3 && this.status.getRequestSatisfied().size() == 0) || (this.status.getRequestSatisfied().size() == 0 && !origin_message.getSuccessful())) {
             log.info("Run is over!!");
             status.setIsOnGoingRun(false);
             log.info("Informing workers the run is over");
