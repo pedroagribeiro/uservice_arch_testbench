@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 
@@ -19,8 +19,8 @@ const LineChart = props => {
     }
   };
 
-  const labels_cenas = props.data[0].xx;
-  const datasets_cenas = props.data.map(element => ({
+  const labels = props.data[0].xx;
+  const datasets = props.data.map(element => ({
     label: 'Algorithm ' + element.algorithm,
     data: element.yy,
     borderColor: algorithmColor(element.algorithm),
@@ -30,8 +30,8 @@ const LineChart = props => {
     <Box w="700px">
       <Line
         data={{
-          labels: labels_cenas,
-          datasets: datasets_cenas,
+          labels: labels,
+          datasets: datasets,
         }}
         options={{
           scales: {

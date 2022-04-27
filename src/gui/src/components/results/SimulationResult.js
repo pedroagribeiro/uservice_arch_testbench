@@ -14,9 +14,11 @@ import {
   Td,
   Th,
   Flex,
+  Grid,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useParams } from 'react-router';
+import OltDistributionByHandler from './OltDistributionByHandler';
 
 const SimulationResult = props => {
   const { id } = useParams();
@@ -28,8 +30,18 @@ const SimulationResult = props => {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
+  const [oltDistribution, setOltDistribution] = useState(null);
+
   const url =
     'http://' + api_host + ':' + api_port + '/results/single?id=' + id;
+
+  const url_distribution =
+    'http://' +
+    api_host +
+    ':' +
+    api_port +
+    '/results/handler_distribution_by_olt/' +
+    id;
 
   useEffect(() => {
     setLoading(true);
@@ -38,9 +50,18 @@ const SimulationResult = props => {
       .then(response => {
         setResult(response.data);
       })
+      .catch(err => setError(err));
+    axios
+      .get(url_distribution)
+      .then(response => setOltDistribution(response.data))
       .catch(err => setError(err))
       .finally(() => setLoading(false));
-  }, [url]);
+  }, [url, url_distribution]);
+
+  const generateArrayFromOltNumber = olts => {
+    const array_number = Array.from({ length: olts }, (v, i) => i);
+    return array_number.map(elem => JSON.stringify(elem));
+  };
 
   if (loading) {
     return (
@@ -55,7 +76,7 @@ const SimulationResult = props => {
     return <Heading>{JSON.stringify(error)}</Heading>;
   }
 
-  return result ? (
+  return result && oltDistribution ? (
     <Box minH="86vh" borderWidth={2} rounded="md">
       <VStack mt={4} spacing={6} mb={6}>
         <VStack mx={4} alignItems="start" minW="97%">
@@ -171,6 +192,23 @@ const SimulationResult = props => {
               </Table>
             </TableContainer>
           </Flex>
+        </VStack>
+        <VStack mx={4} alignItems="start" minW="97%">
+          <Heading size="lg" mt={8}>
+            OLT distribution by worker:
+          </Heading>
+          <Divider />
+          <VStack w="100%" spacing={4} alignItems="center">
+            <Grid mt={6} templateColumns="repeat(3, 1fr)" gap={10}>
+              {generateArrayFromOltNumber(result.olts).map(olt => (
+                <OltDistributionByHandler
+                  key={olt}
+                  olt={olt}
+                  chartData={oltDistribution[olt]}
+                />
+              ))}
+            </Grid>
+          </VStack>
         </VStack>
       </VStack>
     </Box>

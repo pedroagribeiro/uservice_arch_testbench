@@ -181,6 +181,7 @@ public class ReceiveOrchestrationHandler {
         List<Message> list_of_highest_id_messages = this.messagesRepository.findMessageWithHighestId();
         if(list_of_highest_id_messages.size() != 0) {
             current_highest_message_id = list_of_highest_id_messages.get(0).getId();
+            current_status.setCurrentMessageId(current_highest_message_id);
         }
         inform_workers_of_target_and_orchestration(orchestration, current_highest_message_id + orchestration.getMessages(), orchestration.getWorkers());
         forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
@@ -189,8 +190,7 @@ public class ReceiveOrchestrationHandler {
         generate_messages(orchestration);
         log.info("Waiting for run results to be ready...");
         wait_for_current_run_to_finish();
-        int new_current_message_id = current_status.getCurrentMessageId() + orchestration.getMessages();
-        calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(),  new_current_message_id);
+        calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), current_status.getCurrentMessageId() + orchestration.getMessages());
         log.info("The run is finished and the result has been submitted to the database");
     }
 }

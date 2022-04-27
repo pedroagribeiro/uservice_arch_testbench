@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.producer.model.*;
+import pt.producer.repository.MessageRepository;
 import pt.producer.repository.PerOltProcessingTimeRepository;
 import pt.producer.repository.ResultRepository;
 
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Result service", description = "Service to access the result related endpoints")
 public class ResultsController {
 
+    @Autowired private MessageRepository messagesRepository;
     @Autowired private ResultRepository resultsRepository;
     @Autowired private PerOltProcessingTimeRepository perOltProcessingTimesRepository;
 
@@ -171,4 +173,44 @@ public class ResultsController {
         }
         return new ResponseEntity<>(used_sequences, HttpStatus.OK);
     }
+
+    List<Pair> construct_olt_worker_distribution(List<Message> messages, String olt) {
+        List<Pair> r = new ArrayList<>();
+        List<Message> filtered_messages = messages.stream().filter(m -> Objects.equals(m.getOlt(), olt)).collect(Collectors.toList());
+        Map<Integer, Integer> count_map = new HashMap<>();
+        for(Message m : filtered_messages) {
+            if(!count_map.containsKey(m.getWorker())) {
+                count_map.put(m.getWorker(), 0);
+            } else {
+                count_map.put(m.getWorker(), count_map.get(m.getWorker()) + 1);
+            }
+        }
+        List<Integer> workers = new ArrayList<>(count_map.keySet());
+        Collections.sort(workers);
+        for(Integer i : workers) {
+            r.add(new Pair(i, count_map.get(i)));
+        }
+        return r;
+    }
+
+    @RequestMapping("/handler_distribution_by_olt/{run_id}")
+    public ResponseEntity<?> handlerDistributionByOltByRun(@PathVariable int run_id) {
+        if(!this.resultsRepository.existsById(run_id)) {
+            return new ResponseEntity<>("There's no saved run with such id", HttpStatus.NOT_FOUND);
+        } else {
+            Map<String, List<Pair>> r = new HashMap<>();
+            int starting_id = 0;
+            for(int i = 1; i < run_id; i++) {
+                Result run = this.resultsRepository.findById(i).get();
+                starting_id += run.getRequests();
+            }
+            Result current_run = this.resultsRepository.findById(run_id).get();
+            List<Message> required_messages = this.messagesRepository.findMessagesBetweenIdRange(starting_id + 1, starting_id + current_run.getRequests() - 1);
+            for (int i = 0; i < current_run.getOlts(); i++) {
+                r.put(String.valueOf(i), construct_olt_worker_distribution(required_messages, String.valueOf(i)));
+            }
+            return new ResponseEntity<>(r, HttpStatus.OK);
+        }
+    }
+
 }
