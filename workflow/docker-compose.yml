@@ -1,16 +1,16 @@
 version: "3"
 
 services:
-  # gui:
-  #   build:
-  #     context: ../src/gui
-  #   container_name: testbench-gui
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - producer
-  #   networks:
-  #     - private_network
+  gui:
+    build:
+      context: ../src/gui
+    container_name: testbench-gui
+    ports:
+      - "3000:3000"
+    depends_on:
+      - producer
+    networks:
+      - private_network
   producer_queue:
     build:
       context: ../src/rabbitmq
