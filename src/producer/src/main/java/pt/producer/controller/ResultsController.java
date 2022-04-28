@@ -1,8 +1,5 @@
 package pt.producer.controller;
 
-import io.swagger.annotations.*;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,21 +12,14 @@ import pt.producer.repository.ResultRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RestController
 @RequestMapping("/results")
-@Api(value = "Results Controller")
-@Tag(name = "Result service", description = "Service to access the result related endpoints")
 public class ResultsController {
 
     @Autowired private MessageRepository messagesRepository;
     @Autowired private ResultRepository resultsRepository;
     @Autowired private PerOltProcessingTimeRepository perOltProcessingTimesRepository;
 
-    @ApiOperation(value = "Retrieve the results of all performed runs", response = List.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved results")
-    })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<List<ResultWithPerOltMetrics>> retrieveAllResults() {
         Iterable<Result> all_results = resultsRepository.findAll();
@@ -42,12 +32,6 @@ public class ResultsController {
         return new ResponseEntity<>(all_results_returnable, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Retrieve the result of a specified run", response = Result.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved run result"),
-            @ApiResponse(code = 400, message = "There's result for the specified run identifier")
-    })
-    @ApiParam(name = "id", type = "Integer", required = true)
     @RequestMapping(value = "/single", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> retrieveRunResult(@RequestParam int id) {
         if(resultsRepository.existsById(id)) {
@@ -94,11 +78,6 @@ public class ResultsController {
         return new AlgorithmResult(algorithm, xx, yy);
     }
 
-    @ApiOperation(value = "Get graphics data concerning verified total time", response = List.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfuly got the graphics data"),
-            @ApiResponse(code = 400, message = "Could not get graphics data")
-    })
     @RequestMapping(value = "/verified_time_graphic/sequence/{sequence}/workers/{workers}/olts/{olts}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> get_verified_time_graphic_for_sequence(@PathVariable int sequence, @PathVariable int workers, @PathVariable int olts) {
         List<Result> results = this.resultsRepository.findRequestsWithGivenSequenceWorkersOlts(sequence, workers, olts);
@@ -114,11 +93,6 @@ public class ResultsController {
         }
     }
 
-    @ApiOperation(value = "Get graphics data concerning verified total timeouts", response = List.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfuly got the graphics data"),
-            @ApiResponse(code = 400, message = "Could not get graphics data")
-    })
     @RequestMapping(value = "/verified_timeouts_graphic/sequence/{sequence}/workers/{workers}/olts/{olts}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> get_verified_timeouts_graphic_for_sequence(@PathVariable int sequence, @PathVariable int workers, @PathVariable int olts) {
         List<Result> results = this.resultsRepository.findRequestsWithGivenSequenceWorkersOlts(sequence, workers, olts);

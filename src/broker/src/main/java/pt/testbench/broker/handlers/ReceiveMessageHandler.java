@@ -3,14 +3,15 @@ package pt.testbench.broker.handlers;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pt.testbench.broker.model.Message;
 import pt.testbench.broker.model.Status;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -18,10 +19,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Random;
 
-@Slf4j
 @Service
 public class ReceiveMessageHandler {
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
     private final MessageDigest digester = MessageDigest.getInstance("SHA-256");
     private final RestTemplate restTemplate = new RestTemplate();

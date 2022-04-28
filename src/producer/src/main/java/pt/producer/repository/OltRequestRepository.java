@@ -13,6 +13,4 @@ public interface OltRequestRepository extends CrudRepository<OltRequest, String>
 
     @Query(value = "SELECT * FROM olt_requests WHERE origin_message_id >= :lower_boundary and origin_message_id <= :upper_boundary", nativeQuery = true)
     List<OltRequest> findRequestsBetweenMessagesRange(@Param("lower_boundary") int lower_boundary, @Param("upper_boundary") int upper_boundary);
-
-
 }

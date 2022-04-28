@@ -3,14 +3,11 @@ package pt.producer.communication;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import com.google.gson.Gson;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-
 import pt.producer.model.Message;
 import pt.producer.model.Orchestration;
 

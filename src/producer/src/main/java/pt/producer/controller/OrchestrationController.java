@@ -2,8 +2,10 @@ package pt.producer.controller;
 
 import com.google.gson.Gson;
 import java.util.Date;
-
 import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,6 @@ import pt.producer.model.OrchestrationNoId;
 import pt.producer.model.Result;
 import pt.producer.repository.ResultRepository;
 
-@Slf4j
 @RestController
 @RequestMapping("/orchestration")
 public class OrchestrationController {
@@ -28,12 +29,15 @@ public class OrchestrationController {
 
     @Autowired private ResultRepository resultRepository;
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
+
     public OrchestrationController(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
     @PostMapping("")
     public ResponseEntity<?> sendOrchestration(@RequestBody OrchestrationNoId orchestration) {
+        log.info("Got the following orchestration: " + converter.toJson(orchestration));
         Result r = new Result(orchestration, new Date().getTime());
         r = this.resultRepository.save(r);
         Orchestration o = new Orchestration(r.getId(), orchestration);

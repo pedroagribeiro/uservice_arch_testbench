@@ -13,5 +13,4 @@ public interface PerOltProcessingTimeRepository extends CrudRepository<PerOltPro
 
     @Query(value = "SELECT * FROM per_olt_processing_times WHERE run_id = :current_run_id", nativeQuery = true)
     List<PerOltProcessingTime> findByRunId(@Param("current_run_id") int current_run_id);
-
 }

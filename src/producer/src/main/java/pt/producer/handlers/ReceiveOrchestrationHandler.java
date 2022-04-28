@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import pt.producer.communication.Broker;
 import pt.producer.communication.Worker;
@@ -18,6 +16,7 @@ import pt.producer.repository.ResultRepository;
 import pt.producer.repository.OltRequestRepository;
 import pt.producer.repository.MessageRepository;
 import pt.producer.utils.Generator;
+import pt.producer.utils.ResultCalculator;
 
 import java.util.*;
 
@@ -31,6 +30,8 @@ public class ReceiveOrchestrationHandler {
 
     private final Gson converter = new Gson();
     private final Generator message_generator = new Generator();
+
+    private final static long average_message_processing_time = 200;
 
     @Autowired
     @Qualifier("currentStatus")
@@ -74,50 +75,13 @@ public class ReceiveOrchestrationHandler {
     }
 
     private void calculate_run_results(int orchestration_id, int message_id_lower_boundary, int message_id_upper_boundary) {
-        long t_normal = 200;
         long end_instant = new Date().getTime();
-        // List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestsBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
-        List<Message> generated_messages = this.messagesRepository.findMessagesBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
-        int mininum_theoretical_failed_provisions = 0;
-        int verified_failed_provisions = 0;
-        for(Message m : generated_messages) {
-            if(m.getHasRedRequests()) mininum_theoretical_failed_provisions += 1;
-            if(!m.getSuccessful()) verified_failed_provisions++;
-        }
-        Optional<Result> run_result = this.resultRepository.findById(orchestration_id);
-        if(run_result.isPresent()) {
-            long verified_run_duration = end_instant - run_result.get().getStartInstant();
-            long minimum_theoretical_run_duration = (run_result.get().getRequests() / run_result.get().getOlts()) * t_normal;
-            Result result = run_result.get();
-            result.setStatus(Result.availableStatus[1]);
-            result.setEndInstant(end_instant);
-            result.setTheoreticalTotalTimeLimit(minimum_theoretical_run_duration);
-            result.setTheoreticalTimeoutRequestsLimit(mininum_theoretical_failed_provisions);
-            result.setVerifiedTotalTime(verified_run_duration);
-            result.setVerifiedTimedoutRequests(verified_failed_provisions);
-            result.setStatus(Result.availableStatus[2]);
-            result = this.resultRepository.save(result);
-            // Calculating olt related measures
-            Map<String, List<Long>> provisioning_times_by_olt = new HashMap<>();
-            for(Message m : generated_messages) {
-                if(m.getSuccessful()) {
-                    long provisioning_time = m.getCompletedProcessing() - m.getStartedProcessing();
-                    if (!provisioning_times_by_olt.containsKey(m.getOlt())) {
-                        provisioning_times_by_olt.put(m.getOlt(), new ArrayList<>());
-                    }
-                    provisioning_times_by_olt.get(m.getOlt()).add(provisioning_time);
-                }
-            }
-            for(String olt : provisioning_times_by_olt.keySet()) {
-                List<Long> processing_times = provisioning_times_by_olt.get(olt);
-                long minimum_processing_time = Collections.min(processing_times);
-                long maximum_processing_time = Collections.max(processing_times);
-                OptionalDouble average_processing_time_aux = processing_times.stream().mapToDouble(a -> a).average();
-                double average_processing_time = average_processing_time_aux.isPresent() ? average_processing_time_aux.getAsDouble() : 0;
-                PerOltProcessingTime save_registry = new PerOltProcessingTime(result, olt, minimum_processing_time, maximum_processing_time, average_processing_time);
-                perOltProcessingTimesRepository.save(save_registry);
-            }
-        }
+        List<Message> run_messages = this.messagesRepository.findMessagesBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
+        Result run_result = this.resultRepository.findById(orchestration_id).get();
+        run_result = ResultCalculator.calculate_run_result(end_instant, run_messages, run_result);
+        run_result = this.resultRepository.save(run_result);
+        List<PerOltProcessingTime> registries = ResultCalculator.calculate_per_olt_metrics(run_messages, run_result);
+        for(PerOltProcessingTime registry : registries) this.perOltProcessingTimesRepository.save(registry);
         log.info("The run is finished and the result has been submitted to the database");
     }
 
