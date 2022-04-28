@@ -5,9 +5,9 @@ public class Status {
     private boolean on_going_run;
     private int current_message_id;
 
-    public Status() {
+    public Status(int current_message_id) {
         this.on_going_run = false;
-        this.current_message_id = 0;
+        this.current_message_id = current_message_id;
     }
 
     public boolean isOnGoingRun() {

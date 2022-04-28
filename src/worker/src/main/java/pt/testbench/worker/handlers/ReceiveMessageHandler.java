@@ -46,9 +46,7 @@ public class ReceiveMessageHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         m.setLeftWorker(new Date().getTime());
-        log.info("Before saving: " + converter.toJson(m));
         this.oltRequestsRepository.save(m);
-        log.info("After saving: " + converter.toJson(m));
         HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
         ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":8080/message", HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {

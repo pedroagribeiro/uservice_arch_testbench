@@ -1,12 +1,17 @@
 package pt.producer.handlers;
 
 import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import pt.producer.communication.Broker;
+import pt.producer.communication.Worker;
 import pt.producer.model.*;
 import pt.producer.repository.PerOltProcessingTimeRepository;
 import pt.producer.repository.ResultRepository;
@@ -16,7 +21,6 @@ import pt.producer.utils.Generator;
 
 import java.util.*;
 
-@Slf4j
 @Service
 public class ReceiveOrchestrationHandler {
 
@@ -27,88 +31,36 @@ public class ReceiveOrchestrationHandler {
 
     private final Gson converter = new Gson();
     private final Generator message_generator = new Generator();
-    private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
     @Qualifier("currentStatus")
     private Status current_status;
 
-    private final String broker_host = "broker";
-    private final String worker_base_host = "worker-";
+    private Logger log = LoggerFactory.getLogger(this.getClass().getName()); 
 
-    public void send_message_to_broker(Message m) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<Message> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://broker:8080/message", HttpMethod.POST, entity, String.class);
-        if(response.getStatusCode().isError()) {
-            log.error("The message could not be sent to the broker, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Sent " + converter.toJson(m) + " to the broker.");
-            }
-        }
+    private void inform_workers_of_target(int target, int workers) {
+        for(int i = 0; i < workers; i++) Worker.inform_of_target(target, i);
     }
 
-    public void generate_messages(Orchestration orchestration) {
-        int seed = 34;
-        Random r = new Random(seed);
+    private void forward_orchestration_to_workers(Orchestration orchestration, int workers) {
+        for(int i = 0; i < workers; i++) Worker.forward_orchestration(orchestration, i);
+    }
+
+    public void generate_and_send_messages(Orchestration orchestration) {
         List<Message> generated_messages = message_generator.generate_messages(orchestration);
         for(Message m : generated_messages) {
             m = this.messagesRepository.save(m);
-            send_message_to_broker(m);
+            Broker.send_message(m);
         }
     }
 
-    private void forward_orchestration_to_component(Orchestration orchestration, String host) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<Orchestration> entity = new HttpEntity<>(orchestration, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":8080/orchestration", HttpMethod.POST, entity, String.class);
-        if(response.getStatusCode().isError()) {
-            log.error("The message could not be sent to the component, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Forwarded orchestration to the component! - This was the answer: " + response.getBody());
-            }
-        }
-    }
-
-    private void forward_orchestration_to_other_components(Orchestration orchestration, int workers) {
-        // Forward orchestration order to the broker
-        forward_orchestration_to_component(orchestration, this.broker_host);
-        // Forward orchestration order to the workers
-        // for(int i = 0; i < workers; i++) {
-        //     String worker_host = this.worker_base_host + i;
-        //     forward_orchestration_to_component(orchestration, worker_host);
-        // }
-    }
-
-    private void inform_workers_of_target_and_orchestration(Orchestration orchestration, int target, int workers) {
-        for(int i = 0; i < workers; i++) {
-            String worker_host = this.worker_base_host + i;
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            // Inform of run target
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-            ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":8080/run/target?target={target}", HttpMethod.POST, entity, String.class, target);
-            if (response.getStatusCode().isError()) {
-                log.info("Could not inform the workers of the run target, something went wrong!");
-            } else {
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    log.info("Informed the " + worker_host + " of the run target! - This was the answer: " + response.getBody());
-                }
-            }
-            HttpEntity<Orchestration> orchestration_entity = new HttpEntity<>(orchestration, headers);
-            ResponseEntity<?> response_orchestration = restTemplate.exchange("http://" + worker_host + ":8080/orchestration", HttpMethod.POST, orchestration_entity, String.class);
-            if(response_orchestration.getStatusCode().isError()) {
-                log.info("Could not inform " + worker_host + " of the orchestration. Something went wrong!");
-            } else {
-                if(response_orchestration.getStatusCode().is2xxSuccessful()) {
-                    log.info("Inform " + worker_host + " of the orchestration order - This was the answer: " + response_orchestration.getBody());
-                }
-            }
-        }
+    private void start_run(Orchestration orchestration) {
+        Result r = this.resultRepository.findById(orchestration.getId()).get();
+        r.setStatus(Result.availableStatus[1]);
+        this.resultRepository.save(r);
+        this.current_status.start_run();
+        generate_and_send_messages(orchestration);
+        log.info("Waiting for run results to be ready...");
     }
 
     private void wait_for_current_run_to_finish() {
@@ -124,7 +76,7 @@ public class ReceiveOrchestrationHandler {
     private void calculate_run_results(int orchestration_id, int message_id_lower_boundary, int message_id_upper_boundary) {
         long t_normal = 200;
         long end_instant = new Date().getTime();
-        List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestsBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
+        // List<OltRequest> olt_requests = this.oltRequestsRepository.findRequestsBetweenMessagesRange(message_id_lower_boundary, message_id_upper_boundary);
         List<Message> generated_messages = this.messagesRepository.findMessagesBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
         int mininum_theoretical_failed_provisions = 0;
         int verified_failed_provisions = 0;
@@ -166,6 +118,7 @@ public class ReceiveOrchestrationHandler {
                 perOltProcessingTimesRepository.save(save_registry);
             }
         }
+        log.info("The run is finished and the result has been submitted to the database");
     }
 
     public void update_run_state(int orchestration_id) {
@@ -174,23 +127,23 @@ public class ReceiveOrchestrationHandler {
         this.resultRepository.save(r);
     }
 
-    public void handleOrchestration(String body) {
-        wait_for_current_run_to_finish();
-        Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
-        int current_highest_message_id = 0;
-        List<Message> list_of_highest_id_messages = this.messagesRepository.findMessageWithHighestId();
-        if(list_of_highest_id_messages.size() != 0) {
-            current_highest_message_id = list_of_highest_id_messages.get(0).getId();
-            current_status.setCurrentMessageId(current_highest_message_id);
+    public void update_last_message_id() {
+        int last_message_id = 0;
+        List<Message> last_message = this.messagesRepository.findMessageWithHighestId();
+        if(last_message.size() != 0) {
+            last_message_id = last_message.get(0).getId();
         }
-        inform_workers_of_target_and_orchestration(orchestration, current_highest_message_id + orchestration.getMessages(), orchestration.getWorkers());
-        forward_orchestration_to_other_components(orchestration, orchestration.getWorkers());
-        update_run_state(orchestration.getId());
-        this.current_status.start_run();
-        generate_messages(orchestration);
-        log.info("Waiting for run results to be ready...");
+        current_status.setCurrentMessageId(last_message_id);
+    }
+
+    public void handleOrchestration(String body) {
+        update_last_message_id();
+        Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
+        inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.getMessages(), orchestration.getWorkers());
+        Broker.forward_orchestration(orchestration);
+        forward_orchestration_to_workers(orchestration, orchestration.getWorkers());
+        start_run(orchestration);
         wait_for_current_run_to_finish();
         calculate_run_results(orchestration.getId(), current_status.getCurrentMessageId(), current_status.getCurrentMessageId() + orchestration.getMessages());
-        log.info("The run is finished and the result has been submitted to the database");
     }
 }

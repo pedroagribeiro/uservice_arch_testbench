@@ -16,7 +16,6 @@ import pt.producer.model.Status;
 public class RunController {
 
     @Autowired
-    @Qualifier("currentStatus")
     private Status status;
 
     @PostMapping("/ended")
