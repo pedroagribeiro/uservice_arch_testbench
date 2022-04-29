@@ -3,7 +3,8 @@ package pt.testbench.broker.controller;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,15 +14,13 @@ import org.springframework.web.server.ResponseStatusException;
 import pt.testbench.broker.config.ConfigureExchangeBean;
 import pt.testbench.broker.config.ConfigureMessageQueue;
 import pt.testbench.broker.model.Message;
-
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
-@Slf4j
 @RestController
 @RequestMapping("/message")
 public class MessageController {
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final RabbitTemplate rabbitTemplate;
     private static final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
 

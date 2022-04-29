@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import pt.testbench.broker.communication.Worker;
 import pt.testbench.broker.model.Message;
 import pt.testbench.broker.model.Status;
 import java.nio.charset.StandardCharsets;
@@ -25,31 +27,12 @@ public class ReceiveMessageHandler {
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
     private final MessageDigest digester = MessageDigest.getInstance("SHA-256");
-    private final RestTemplate restTemplate = new RestTemplate();
 
     public ReceiveMessageHandler() throws NoSuchAlgorithmException {
     }
 
     @Autowired
     private Status status;
-
-    private String base_worker_host = "worker-";
-
-    private void forward_message_to_worker(Message m, int worker, int logic) {
-        String worker_host = this.base_worker_host;
-        if(!worker_host.equals("localhost")) worker_host = worker_host + worker;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<Message> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + worker_host + ":8080/message", HttpMethod.POST, entity, String.class);
-        if(response.getStatusCode().isError()) {
-            log.info("The message could not be forwarded to the worker, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Forwarded " + converter.toJson(m) + " to worker " + worker + " using logic " + logic);
-            }
-        }
-    }
 
     public void process_message_architecture_3(Message message) {
         byte[] diggested_message = this.digester.digest(message.getOlt().getBytes(StandardCharsets.UTF_8));
@@ -58,7 +41,7 @@ public class ReceiveMessageHandler {
             worker_to_forward = new Random().nextInt(status.getWorkers());
         }
         message.setWorker(worker_to_forward);
-        forward_message_to_worker(message, worker_to_forward, 3);
+        Worker.forward_message(message, worker_to_forward, 3);
     }
 
     public void process_message_architecture_4(Message message) {
@@ -74,7 +57,7 @@ public class ReceiveMessageHandler {
         log.info("Chose worker " + worker_to_forward + " to forward");
         status.setLastChosenWorker(worker_to_forward);
         message.setWorker(worker_to_forward);
-        forward_message_to_worker(message, worker_to_forward, 4);
+        Worker.forward_message(message, worker_to_forward, 4);
     }
 
     public void handleMessage(String body) {
