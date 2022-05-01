@@ -20,23 +20,41 @@ public class Worker {
     public static final int port = 8080;
     public static final Map<String, String> endpoints = new HashMap<>() {{
         put("inform_worker_run_is_over", "http://" + Worker.host + ":" + Worker.port + "/run/ended");
+        put("inform_worker_target_has_been_reached", "http://" + Worker.host + ":" + Worker.port + "/run/target_reached");
     }};
     
-    public static void inform_workers_run_is_over(int workers) {
-       for(int i = 0; i < workers; i++) {
-           String url = String.format(Worker.endpoints.get("inform_worker_run_is_over"), i);
-           HttpHeaders headers = new HttpHeaders();
-           headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-           HttpEntity<?> entity = new HttpEntity<>(headers);
-           ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-           if(response.getStatusCode().isError()) {
-               log.info(String.format("Could not inform worker %d that the run is over. Something went wrong!", i));
-           } else {
-               if(response.getStatusCode().is2xxSuccessful()) {
-                   log.info(String.format("Informed the worker %d that the run is over!", i));
-               }
-           }
-       } 
+    // public static void inform_workers_run_is_over(int workers) {
+    //    for(int i = 0; i < workers; i++) {
+    //        String url = String.format(Worker.endpoints.get("inform_worker_run_is_over"), i);
+    //        HttpHeaders headers = new HttpHeaders();
+    //        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    //        HttpEntity<?> entity = new HttpEntity<>(headers);
+    //        ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+    //        if(response.getStatusCode().isError()) {
+    //            log.info(String.format("Could not inform worker %d that the run is over. Something went wrong!", i));
+    //        } else {
+    //            if(response.getStatusCode().is2xxSuccessful()) {
+    //                log.info(String.format("Informed the worker %d that the run is over!", i));
+    //            }
+    //        }
+    //    } 
+    // }
+
+    public static void inform_workers_target_has_been_reached(int workers) {
+        for(int i = 0; i < workers; i++) {
+            String url = String.format(Worker.endpoints.get("inform_worker_target_has_been_reached"), i);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            if(response.getStatusCode().isError()) {
+                log.info(String.format("Could not inform worker %d the target has been reached. Something went wrong!", i));
+            } else {
+                if(response.getStatusCode().is2xxSuccessful()) {
+                    log.info(String.format("Informed the worker %d that the target has been reached!", i));
+                }
+            }
+        }
     }
     
 }

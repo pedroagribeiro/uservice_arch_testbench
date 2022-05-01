@@ -1,7 +1,8 @@
 package pt.testbench.olt.controller;
 
 import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,18 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pt.testbench.olt.config.ConfigExchangeBean;
-import pt.testbench.olt.config.ConfigOltMessageQueue;
-import pt.testbench.olt.model.Message;
 import pt.testbench.olt.model.OltRequest;
 import pt.testbench.olt.model.Status;
-
 import java.util.Date;
 
-@Slf4j
 @RestController
 @RequestMapping("/message")
 public class MessageController {
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private RabbitTemplate rabbitTemplate;
     private static Gson converter = new Gson();
 

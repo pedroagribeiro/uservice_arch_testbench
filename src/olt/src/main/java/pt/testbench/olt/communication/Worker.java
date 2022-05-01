@@ -1,4 +1,4 @@
-package pt.testbench.worker.communication;
+package pt.testbench.olt.communication;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,33 +9,34 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import pt.testbench.worker.model.OltRequest;
+import pt.testbench.olt.model.Response;
 
-public class Olt {
+public class Worker {
 
-    private static final Logger log = LoggerFactory.getLogger("Olt");
+    private static final Logger log = LoggerFactory.getLogger("Worker");
     private static final Gson converter = new Gson();
     private static final RestTemplate restTemplate = new RestTemplate();
 
-    public static final String host = "olt-%s";
+    public static final String host = "worker-%d";
     public static final int port = 8080;
     public static final Map<String, String> endpoints = new HashMap<>() {{
-        put("message", "http://" + Olt.host + ":" + Olt.port + "/message");
+        put("send_response", "http://" + Worker.host + ":" + Worker.port + "/response");
     }};
    
-    public static void perform_request(OltRequest request, String olt) {
-        String url = String.format(Olt.endpoints.get("message"), olt);
+    public static void send_response(Response r, int worker) {
+        String url = String.format(Worker.endpoints.get("send_response"), worker);
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<OltRequest> entity = new HttpEntity<>(request, headers);
+        HttpEntity<Response> entity = new HttpEntity<>(r, headers);
         ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         if(response.getStatusCode().isError()) {
-            log.info(String.format("The request could not be sent to OLT %s. Something went wrong!", olt));
+            log.info(String.format("The response could not be sent to worker %d. Something went wrong!", worker));
         } else {
             if(response.getStatusCode().is2xxSuccessful()) {
-                log.info(String.format("The request " + request.getId() + " was sent to OLT %s", olt));
+                log.info(String.format("Sent the response back to worker %d!", worker));
             }
         }
     }

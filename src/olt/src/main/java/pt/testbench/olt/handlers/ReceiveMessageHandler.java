@@ -1,48 +1,25 @@
 package pt.testbench.olt.handlers;
 
 import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import pt.testbench.olt.model.Message;
+import pt.testbench.olt.communication.Worker;
 import pt.testbench.olt.model.OltRequest;
 import pt.testbench.olt.model.Response;
 import pt.testbench.olt.model.Status;
-
-import java.util.Collections;
 import java.util.Date;
 
-@Slf4j
 @Service
 public class ReceiveMessageHandler {
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private static final Gson converter = new Gson();
-    private final RestTemplate restTemplate = new RestTemplate();
 
-    @Autowired
-    private Status currentStatus;
-
-    private String base_worker_host = "worker-";
-
-    private void send_response_to_worker(Response r, int worker) {
-        String worker_host = base_worker_host;
-        if(!worker_host.equals("localhost")) worker_host = worker_host + worker;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<Response> entity = new HttpEntity<>(r, headers);
-        String cenas = "http://" + worker_host + ":8080/response";
-        ResponseEntity<?> response = restTemplate.exchange(cenas, HttpMethod.POST, entity, String.class);
-        if(response.getStatusCode().isError()) {
-            log.info("The response could not be sent back to the worker, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Sent the response back to the worker!");
-            }
-        }
-    }
+    @Qualifier("createStatus")
+    @Autowired private Status currentStatus;
 
     public void handleMessage(String body) {
         OltRequest request = converter.fromJson(body, OltRequest.class);
@@ -61,6 +38,6 @@ public class ReceiveMessageHandler {
         request.setEndedBeingProcessedAtOlt(new Date().getTime());
         r.setEndedHandling(new Date().getTime());
         log.info("Received message to see if it has worker: " + converter.toJson(request));
-        send_response_to_worker(r, request.getOriginMessage().getWorker());
+        Worker.send_response(r, request.getOriginMessage().getWorker());
     }
 }

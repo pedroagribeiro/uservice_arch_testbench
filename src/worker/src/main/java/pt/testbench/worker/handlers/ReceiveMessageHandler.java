@@ -3,21 +3,22 @@ package pt.testbench.worker.handlers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import pt.testbench.worker.communication.Broker;
+import pt.testbench.worker.communication.Olt;
 import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Status;
-
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import org.awaitility.Awaitility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pt.testbench.worker.repository.MessageRepository;
 import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.utils.SequenceGenerator;
@@ -26,74 +27,24 @@ import pt.testbench.worker.utils.SequenceGenerator;
 @Slf4j
 public class ReceiveMessageHandler {
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    private final RestTemplate restTemplate = new RestTemplate();
 
     private Random random = new Random(34);
 
     @Autowired private MessageRepository messagesRepository;
     @Autowired private OltRequestRepository oltRequestsRepository;
+    @Autowired private Status status;
+    @Autowired AmqpAdmin amqpAdmin;
 
-    @Autowired
-    private Status status;
-
-    private String base_olt_host = "olt-";
-    private String broker_host = "broker";
-
-    private void perform_olt_request(OltRequest m, String olt) {
-        String olt_host = base_olt_host;
-        if(!olt_host.equals("localhost")) olt_host = olt_host + olt;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        m.setLeftWorker(new Date().getTime());
-        this.oltRequestsRepository.save(m);
-        HttpEntity<OltRequest> entity = new HttpEntity<>(m, headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + olt_host + ":8080/message", HttpMethod.POST, entity, String.class);
-        if(response.getStatusCode().isError()) {
-            log.info("The request could not be sent to the OLT, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("The request was sent to the olt!");
-            }
-        }
-    }
-
-    private void inform_oracle_of_handling(String olt) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}&worker={worker}", HttpMethod.POST, entity, String.class, olt, status.getWorkerId());
-        if(response.getStatusCode().isError()) {
-            log.info("Could not inform broker of the handling, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Informed the broker of the handling!");
-            }
-        }
-    }
-
-    private void inform_oracle_of_handling_end(String olt) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
-        if(response.getStatusCode().isError()) {
-            log.info("Could not inform broker of the handling end, something went wrong");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Informed the broker of the handling ending!");
-            }
-        }
-    }
+    List<Integer> received_messages = new ArrayList<>();
 
     private Callable<Boolean> request_satisfied(String request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
     }
 
-    public void handleMessage(String body) {
-        Message m = converter.fromJson(body, Message.class);
-        log.info("Received a message: " + converter.toJson(m));
-        List<OltRequest> generated_olt_requests = null;
+    private List<OltRequest> generate_olt_requests(Message m) {
+        List<OltRequest> generated_olt_requests = new ArrayList<>();
         if(status.getSequence() == 1) {
             generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, -1, 0);
         }
@@ -120,6 +71,19 @@ public class ReceiveMessageHandler {
                 generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 1, accessory_messages);
             }
         }
+        return generated_olt_requests;
+    }
+
+    private int queue_size() {
+        return (Integer) amqpAdmin.getQueueProperties("worker-" + status.getWorkerId() + "-message-queue").get("QUEUE_MESSAGE_COUNT");
+    }
+
+    public void handleMessage(String body) {
+        Message m = converter.fromJson(body, Message.class);
+        received_messages.add(m.getId());
+        log.info("Received messages: " + converter.toJson(received_messages));
+        log.info("Received a message: " + converter.toJson(m));
+        List<OltRequest> generated_olt_requests = generate_olt_requests(m);
         m = this.messagesRepository.save(m);
         List<OltRequest> sorted_olt_requests = new ArrayList<>();
         for(OltRequest request : generated_olt_requests) {
@@ -132,7 +96,7 @@ public class ReceiveMessageHandler {
         for(OltRequest request : sorted_olt_requests) {
             request.setOriginMessage(m);
         }
-        inform_oracle_of_handling(m.getOlt());
+        Broker.inform_oracle_of_handling(m.getOlt(), status.getWorkerId());
         int timedout_requests = 0;
         boolean provision_timedout = false;
         for(int i = 0; i < sorted_olt_requests.size(); i++) {
@@ -141,7 +105,9 @@ public class ReceiveMessageHandler {
                 status.setCurrentActiveRequest(request.getId());
                 status.getRequestSatisfied().put(request.getId(), false);
                 request.setNotProcessed(false);
-                perform_olt_request(request, m.getOlt());
+                request.setLeftWorker(new Date().getTime());
+                // request = this.oltRequestsRepository.save(request);
+                Olt.perform_request(request, m.getOlt());
                 try {
                     Awaitility.await().atMost(request.getTimeout(), TimeUnit.MILLISECONDS).until(request_satisfied(request.getId()));
                 } catch (Exception e) {
@@ -152,7 +118,7 @@ public class ReceiveMessageHandler {
                     timedout_requests++;
                 }
                 if(i == 3) {
-                    inform_oracle_of_handling_end(m.getOlt());
+                    Broker.inform_oracle_of_handling_end(m.getOlt());
                 }
             }
         }
@@ -161,5 +127,9 @@ public class ReceiveMessageHandler {
             m.setSuccessful(true);
             this.messagesRepository.save(m);
         }
+        if(queue_size() == 0) {
+            status.setComsumptionComplete(true);
+        }
+        log.info("Queue size: " + queue_size());
     }
 }

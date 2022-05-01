@@ -100,9 +100,15 @@ public class ReceiveOrchestrationHandler {
         current_status.setCurrentMessageId(last_message_id);
     }
 
+    public void update_status_with_orchestration(Orchestration orchestration) {
+        current_status.setCurrentRunWorkers(orchestration.getWorkers());
+        current_status.setFinishedWorkers(new ArrayList<>());
+    }
+
     public void handleOrchestration(String body) {
         update_last_message_id();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
+        update_status_with_orchestration(orchestration);
         inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.getMessages(), orchestration.getWorkers());
         Broker.forward_orchestration(orchestration);
         forward_orchestration_to_workers(orchestration, orchestration.getWorkers());

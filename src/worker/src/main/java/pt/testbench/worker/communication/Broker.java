@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import pt.testbench.worker.model.Message;
 
@@ -47,7 +48,9 @@ public class Broker {
             }
         } catch(HttpClientErrorException.NotFound e) {
             log.info("Could not fetch message from the broker, it has no messages to provide!");
-        }
+        } catch(HttpServerErrorException.ServiceUnavailable e) {
+            // log.info("Could not fetch message from the broker, it has no messages to provide! - " + e.getMessage());
+        } 
         return m;
     }
 

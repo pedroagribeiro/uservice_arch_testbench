@@ -2,12 +2,15 @@ package pt.testbench.worker.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import pt.testbench.worker.communication.Broker;
+import pt.testbench.worker.communication.Producer;
+import pt.testbench.worker.communication.Worker;
 import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Response;
@@ -15,16 +18,14 @@ import pt.testbench.worker.model.Status;
 import pt.testbench.worker.repository.MessageRepository;
 import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.repository.ResponseRepository;
-
 import java.util.Collections;
 import java.util.Date;
 
 @Service
-@Slf4j
 public class ReceiveResponseHandler {
 
+    Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired private MessageRepository messageRepository;
     @Autowired private OltRequestRepository oltRequestsRepository;
@@ -32,57 +33,6 @@ public class ReceiveResponseHandler {
 
     @Autowired
     private Status status;
-
-    private String producer_host = "producer";
-    private String base_worker_host = "worker-";
-    private String broker_host = "broker";
-
-    private void inform_producer_run_is_over() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + producer_host + ":8080/run/ended", HttpMethod.POST, entity, String.class);
-        if(response.getStatusCode().isError()) {
-            log.info("Could not inform the producer that the run is over, something went wrong!");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Informed the producer that the run is over!");
-            }
-        }
-    }
-
-    private void inform_workers_run_is_over() {
-        String worker_base_host = base_worker_host;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        for(int i = 0; i < status.getWorkers(); i++) {
-            String host = base_worker_host + i;
-            ResponseEntity<?> response = restTemplate.exchange("http://" + host + ":8080/run/ended", HttpMethod.POST, entity, String.class);
-            if(response.getStatusCode().isError()) {
-                log.info("Could not inform worker " + i + " that the run is over, something went wrong!");
-            } else {
-                if(response.getStatusCode().is2xxSuccessful()) {
-                    log.info("Informed the worker " + i + " that the run is over!");
-                }
-            }
-        }
-    }
-
-
-    private void inform_oracle_of_handling_end(String olt) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange("http://" + broker_host + ":8080/management?olt={olt}", HttpMethod.DELETE, entity, String.class, olt);
-        if(response.getStatusCode().isError()) {
-            log.info("Could not inform broker of the handling end, something went wrong");
-        } else {
-            if(response.getStatusCode().is2xxSuccessful()) {
-                log.info("Informed the broker of the handling ending!");
-            }
-        }
-    }
 
     public void handleResponse(String body) {
         Response r = converter.fromJson(body, Response.class);
@@ -101,7 +51,7 @@ public class ReceiveResponseHandler {
         }
         if(status.getCurrentActiveRequest().equals(r.getId())) {
             r.setTimedout(false);
-            inform_oracle_of_handling_end(origin_request.getOriginMessage().getOlt());
+            Broker.inform_oracle_of_handling_end(origin_request.getOriginMessage().getOlt());
             r = this.responsesRepository.save(r);
             this.status.getRequestSatisfied().remove(r.getId());
         } else {
@@ -114,17 +64,28 @@ public class ReceiveResponseHandler {
         origin_request = this.oltRequestsRepository.save(origin_request);
         String[] split_id = r.getId().split("-");
         Message origin_message = this.messageRepository.findById(origin_request.getOriginMessage().getId()).get();
-        if((Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && Integer.parseInt(split_id[1]) == 3 && this.status.getRequestSatisfied().size() == 0) || (this.status.getRequestSatisfied().size() == 0 && !origin_message.getSuccessful())) {
-            log.info("Run is over!!");
+        if((Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && Integer.parseInt(split_id[1]) == 3) || (Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && !origin_message.getSuccessful())) {
+            log.info("Finished processing target message");
             status.setIsOnGoingRun(false);
-            log.info("Informing workers the run is over");
-            inform_workers_run_is_over();
+            log.info("Informing workers the target has been reached");
+            Worker.inform_workers_target_has_been_reached(status.getWorkers());
+        } 
+        log.info("Target Reached: " + status.getTargetReached());
+        log.info("Request to Satisfy size: " + status.getRequestSatisfied().size());
+        log.info("Consumption Complete: " + status.getConsumptionComplete());
+        if(status.getTargetReached() && status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
             log.info("Informing the producer that the run is over");
-            inform_producer_run_is_over();
-        } else {
+            Producer.inform_run_is_over(status.getWorkerId());
+        }
+        else {
             log.info("Message id: " + r.getId());
             log.info("Target: " + status.getTargetMessageRun());
-            log.info("Requests to satisfy: " + this.status.getRequestSatisfied().size());
+            // log.info("Requests to satisfy: " + this.status.getRequestSatisfied().size());
+            log.info("Requests to satisfy: " + converter.toJson(this.status.getRequestSatisfied()));
         }
+        log.info("Target yellow messages: " + status.getTargetYellowMessages());
+        log.info("Generated yellow messages: " + status.getGeneratedYellowMessages());
+        log.info("Target red messages: " + status.getTargetRedMessages());
+        log.info("Generated red messages: " + status.getGeneratedRedMessages());
     }
 }

@@ -8,6 +8,7 @@ public class Status {
     private int worker_id;
     private boolean on_going_run;
     private int target_message_run;
+    private boolean target_reached;
     private int architecture;
 
     private int sequence;
@@ -20,15 +21,19 @@ public class Status {
     private int generated_red_messages = 0;
     private int target_red_messages = 0;
 
+    private boolean consumption_complete;
+
     public Status(final int worker_id) {
         this.worker_id = worker_id;
         this.on_going_run = false;
         this.target_message_run = 0;
+        this.target_reached = false;
         this.architecture = 1;
         this.sequence = 1;
         this.current_active_request = "";
         this.request_satisfied = new ConcurrentHashMap<>();
         this.workers = 3;
+        this.consumption_complete = false;
     }
 
     public int getWorkerId() {
@@ -65,6 +70,14 @@ public class Status {
 
     public void setTargetMessageRun(final int target_message_run) {
         this.target_message_run = target_message_run;
+    }
+
+    public void setTargetReached(boolean target_reached) {
+        this.target_reached = target_reached;
+    }
+
+    public boolean getTargetReached() {
+        return this.target_reached;
     }
 
     public void setCurrentActiveRequest(String current_active_request) {
@@ -119,4 +132,11 @@ public class Status {
         this.target_red_messages = target_red_messages;
     }
 
+    public boolean getConsumptionComplete() {
+        return this.consumption_complete;
+    }
+
+    public void setComsumptionComplete(boolean consumption_complete) {
+        this.consumption_complete = consumption_complete;
+    }
 }

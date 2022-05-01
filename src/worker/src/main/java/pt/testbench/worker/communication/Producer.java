@@ -18,15 +18,15 @@ public class Producer {
     public static final String host = "producer";
     public static final int port = 8080;
     public static final Map<String, String> endpoints = new HashMap<>() {{
-        put("inform_producer_run_is_over", "http://" + Producer.host + ":" + Producer.port + "/run/ended");
+        put("inform_producer_run_is_over", "http://" + Producer.host + ":" + Producer.port + "/run/ended?worker={worker}");
     }};
 
-    public static void inform_producer_run_is_over() {
+    public static void inform_run_is_over(int worker) {
         String url = Producer.endpoints.get("inform_producer_run_is_over");
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class, worker);
         if(response.getStatusCode().isError()) {
             log.info("Could not inform the producer that the run is over. Something went wrong!");
         } else {

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import pt.testbench.worker.communication.Producer;
 import pt.testbench.worker.model.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,5 +39,14 @@ public class RunController {
         this.status.setTargetMessageRun(target);
         log.info("Updated run target to: " + target);
         return new ResponseEntity<>("Worker " + status.getWorkerId() +" has updated it's target to: " + target, HttpStatus.OK);
+    }
+
+    @PostMapping("/target_reached")
+    public ResponseEntity<?> targetHasBeenReached() {
+        this.status.setTargetReached(true);
+        if(status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
+            Producer.inform_run_is_over(status.getWorkerId());
+        }
+        return new ResponseEntity<>("Target has been reached!", HttpStatus.OK);
     }
 }
