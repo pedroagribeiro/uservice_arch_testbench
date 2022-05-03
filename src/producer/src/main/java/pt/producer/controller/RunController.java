@@ -1,7 +1,5 @@
 package pt.producer.controller;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,7 @@ public class RunController {
     @PostMapping("/ended")
     public ResponseEntity<?> comunicateEndRun(@RequestParam int worker) {
         status.getFinishedWorkers().add(worker);
+        log.info("Worker " + worker + " told me he's finished");
         if(status.getFinishedWorkers().size() == status.getCurrentRunWorkers()) {
             status.end_run();
             log.info("Run is completely finished");

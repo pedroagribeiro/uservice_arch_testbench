@@ -2,8 +2,6 @@ package pt.testbench.worker.model;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
@@ -54,8 +52,12 @@ public class Message {
     private long minimumTheoreticalDuration;
 
     @Expose
-    @Column(name = "has_red_requests")
-    private boolean hasRedRequests;
+    @Column(name = "yellow_requests")
+    private int yellowRequests;
+
+    @Expose
+    @Column(name = "red_requests")
+    private int redRequests;
 
     public Message(final String olt) {
         this.olt = olt;
@@ -139,12 +141,20 @@ public class Message {
         return this.minimumTheoreticalDuration;
     }
 
-    public void setHasRedRequests(final boolean hasRedRequests) {
-        this.hasRedRequests = hasRedRequests;
+    public void setYellowRequests(int yellow_requests) {
+        this.yellowRequests = yellow_requests;
     }
 
-    public boolean getHasRedRequests() {
-        return this.hasRedRequests;
+    public int getYellowRequests() {
+        return this.yellowRequests;
+    }
+
+    public void setRedRequests(int red_requests) {
+        this.redRequests = red_requests;
+    }
+
+    public int getRedRequests() {
+        return this.redRequests;
     }
 
     /**

@@ -1,5 +1,9 @@
 package pt.testbench.broker.handlers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,6 +20,7 @@ public class ReceiveOrchestrationHandler {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
+    private Random random = new Random(34);
 
     @Autowired
     private SimpleMessageListenerContainer messageContainer;
@@ -31,13 +36,17 @@ public class ReceiveOrchestrationHandler {
        }
     }
 
+    private void update_status_with_orchestration(Orchestration orchestration) {
+        status.setArchitecture(orchestration.getAlgorithm());
+        status.setWorkers(orchestration.getWorkers());
+        status.setOlts(orchestration.getOlts());
+    }
+
     public void handleOrchestration(String body) {
        Orchestration orchestration = converter.fromJson(body, Orchestration.class);
        manage_message_container_action(orchestration);
        log.info("Received orchestration: " + converter.toJson(orchestration));
-       status.setArchitecture(orchestration.getAlgorithm());
-       status.setWorkers(orchestration.getWorkers());
-       status.setOlts(orchestration.getOlts());
+       update_status_with_orchestration(orchestration);
        log.info("Running logic " + status.getArchitecture() + " ...");
     }
 }

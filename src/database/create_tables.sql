@@ -7,7 +7,8 @@ CREATE TABLE messages (
     completed_processing            double precision            ,
     successful                      boolean                     ,
     minimum_theoretical_duration    double precision            ,
-    has_red_requests                boolean            
+    yellow_requests                 integer                     ,
+    red_requests                    integer                     
 );
 
 CREATE TABLE responses (
@@ -45,7 +46,7 @@ CREATE TABLE results (
     verified_total_time                     double precision            ,
     theoretical_timedout_requests_limit     integer                     ,
     verified_timedout_requests              integer                     , 
-    start_instant                           double precision    NOT NULL,
+    start_instant                           double precision            ,
     end_instant                             double precision            ,
     olts                                    integer             NOT NULL,
     workers                                 integer             NOT NULL,

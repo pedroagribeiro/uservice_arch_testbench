@@ -38,7 +38,7 @@ public class OrchestrationController {
     @PostMapping("")
     public ResponseEntity<?> sendOrchestration(@RequestBody OrchestrationNoId orchestration) {
         log.info("Got the following orchestration: " + converter.toJson(orchestration));
-        Result r = new Result(orchestration, new Date().getTime());
+        Result r = new Result(orchestration);
         r = this.resultRepository.save(r);
         Orchestration o = new Orchestration(r.getId(), orchestration);
         rabbitTemplate.convertAndSend(ConfigureOrchestrationQueue.EXCHANGE_NAME, ConfigureOrchestrationQueue.QUEUE_NAME, converter.toJson(o));

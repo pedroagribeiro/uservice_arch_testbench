@@ -28,12 +28,6 @@ public class RunController {
         return new ResponseEntity<>("Ongoing run: " + status.isOnGoingRun(), HttpStatus.OK);
     }
 
-    @PostMapping("/ended")
-    public ResponseEntity<?> endedRun() {
-        this.status.setIsOnGoingRun(false);
-        return new ResponseEntity<>("Ongoing run: " + status.isOnGoingRun(), HttpStatus.OK);
-    }
-
     @PostMapping("/target")
     public ResponseEntity<?> updateRunTarget(@RequestParam int target) {
         this.status.setTargetMessageRun(target);
@@ -44,6 +38,7 @@ public class RunController {
     @PostMapping("/target_reached")
     public ResponseEntity<?> targetHasBeenReached() {
         this.status.setTargetReached(true);
+        log.info("Got information that the target has been reached");
         if(status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
             Producer.inform_run_is_over(status.getWorkerId());
         }

@@ -1,15 +1,10 @@
 package pt.testbench.olt.model;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 @Data
 public class Message {
@@ -29,7 +24,8 @@ public class Message {
 
     private long minimum_theoretical_duration;
 
-    private boolean has_red_requests;
+    private int yellow_requests;
+    private int red_requests;
 
     public Message(final String olt) {
         this.olt = olt;
@@ -112,12 +108,20 @@ public class Message {
         return this.minimum_theoretical_duration;
     }
 
-    public void setHasRedRequests(final boolean has_red_requests) {
-        this.has_red_requests = has_red_requests;
+    public void setYellowRequests(int yellow_requests) {
+        this.yellow_requests = yellow_requests;
     }
 
-    public boolean getHasRedRequests() {
-        return this.has_red_requests;
+    public int getYellowRequests() {
+        return this.yellow_requests;
+    }
+
+    public void setRedRequests(int red_requests) {
+        this.red_requests = red_requests;
+    }
+
+    public int getRedRequests() {
+        return this.red_requests;
     }
 
     /**

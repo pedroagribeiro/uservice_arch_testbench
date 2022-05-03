@@ -27,17 +27,15 @@ public class ReceiveMessageHandler {
         Response r = new Response(request.getId(), 200, new Date().getTime());
         r.setRequestEnqueuedAtOlt(currentStatus.getEnqueuedAtWorkerTimes().get(request.getId()));
         r.setRequestDequeuedAtOlt(new Date().getTime());
-        log.info("Received request: " + converter.toJson(request));
         log.info("Processing request " + request.getId());
         try {
             Thread.sleep(request.getDuration());
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
-        log.info("Finished processing message " + request.getId());
         request.setEndedBeingProcessedAtOlt(new Date().getTime());
+        log.info("Finished processing request: " + request.getId());
         r.setEndedHandling(new Date().getTime());
-        log.info("Received message to see if it has worker: " + converter.toJson(request));
         Worker.send_response(r, request.getOriginMessage().getWorker());
     }
 }

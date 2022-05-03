@@ -1,6 +1,6 @@
 #!/bin/bash
 
-provision_numbers=(100 200)
+provision_numbers=(100 200 300)
 algorithms=(1 2 3 4)
 worker_arragements=(3 5 7) 
 sequences=(1 2 3)

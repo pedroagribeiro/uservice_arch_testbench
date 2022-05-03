@@ -65,27 +65,20 @@ public class ReceiveResponseHandler {
         String[] split_id = r.getId().split("-");
         Message origin_message = this.messageRepository.findById(origin_request.getOriginMessage().getId()).get();
         if((Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && Integer.parseInt(split_id[1]) == 3) || (Integer.parseInt(split_id[0]) == status.getTargetMessageRun() && !origin_message.getSuccessful())) {
-            log.info("Finished processing target message");
-            status.setIsOnGoingRun(false);
-            log.info("Informing workers the target has been reached");
+            // status.setIsOnGoingRun(false);
             Worker.inform_workers_target_has_been_reached(status.getWorkers());
         } 
         log.info("Target Reached: " + status.getTargetReached());
         log.info("Request to Satisfy size: " + status.getRequestSatisfied().size());
         log.info("Consumption Complete: " + status.getConsumptionComplete());
-        if(status.getTargetReached() && status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
-            log.info("Informing the producer that the run is over");
+        if(status.getTargetReached() && status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete() && (Integer.parseInt(split_id[1]) == 3 || !origin_message.getSuccessful())) {
+            status.setIsOnGoingRun(false);
             Producer.inform_run_is_over(status.getWorkerId());
         }
         else {
             log.info("Message id: " + r.getId());
             log.info("Target: " + status.getTargetMessageRun());
-            // log.info("Requests to satisfy: " + this.status.getRequestSatisfied().size());
             log.info("Requests to satisfy: " + converter.toJson(this.status.getRequestSatisfied()));
         }
-        log.info("Target yellow messages: " + status.getTargetYellowMessages());
-        log.info("Generated yellow messages: " + status.getGeneratedYellowMessages());
-        log.info("Target red messages: " + status.getTargetRedMessages());
-        log.info("Generated red messages: " + status.getGeneratedRedMessages());
     }
 }

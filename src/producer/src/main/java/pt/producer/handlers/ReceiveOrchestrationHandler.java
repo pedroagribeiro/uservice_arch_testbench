@@ -1,37 +1,32 @@
 package pt.producer.handlers;
 
 import com.google.gson.Gson;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import pt.producer.communication.Broker;
 import pt.producer.communication.Worker;
 import pt.producer.model.*;
 import pt.producer.repository.PerOltProcessingTimeRepository;
 import pt.producer.repository.ResultRepository;
-import pt.producer.repository.OltRequestRepository;
 import pt.producer.repository.MessageRepository;
 import pt.producer.utils.Generator;
 import pt.producer.utils.ResultCalculator;
 
+import java.io.IOError;
 import java.util.*;
 
 @Service
 public class ReceiveOrchestrationHandler {
 
     @Autowired private ResultRepository resultRepository;
-    @Autowired private OltRequestRepository oltRequestsRepository;
     @Autowired private MessageRepository messagesRepository;
     @Autowired private PerOltProcessingTimeRepository perOltProcessingTimesRepository;
 
     private final Gson converter = new Gson();
     private final Generator message_generator = new Generator();
-
-    private final static long average_message_processing_time = 200;
 
     @Autowired
     @Qualifier("currentStatus")
@@ -57,6 +52,7 @@ public class ReceiveOrchestrationHandler {
 
     private void start_run(Orchestration orchestration) {
         Result r = this.resultRepository.findById(orchestration.getId()).get();
+        r.setStartInstant(new Date().getTime());
         r.setStatus(Result.availableStatus[1]);
         this.resultRepository.save(r);
         this.current_status.start_run();
@@ -92,10 +88,10 @@ public class ReceiveOrchestrationHandler {
     }
 
     public void update_last_message_id() {
-        int last_message_id = 0;
+        int last_message_id = 1;
         List<Message> last_message = this.messagesRepository.findMessageWithHighestId();
         if(last_message.size() != 0) {
-            last_message_id = last_message.get(0).getId();
+            last_message_id = last_message.get(0).getId() + 1;
         }
         current_status.setCurrentMessageId(last_message_id);
     }
@@ -109,7 +105,7 @@ public class ReceiveOrchestrationHandler {
         update_last_message_id();
         Orchestration orchestration = this.converter.fromJson(body, Orchestration.class);
         update_status_with_orchestration(orchestration);
-        inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.getMessages(), orchestration.getWorkers());
+        inform_workers_of_target(current_status.getCurrentMessageId() + orchestration.getMessages() - 1, orchestration.getWorkers());
         Broker.forward_orchestration(orchestration);
         forward_orchestration_to_workers(orchestration, orchestration.getWorkers());
         start_run(orchestration);

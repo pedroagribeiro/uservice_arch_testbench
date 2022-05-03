@@ -18,7 +18,7 @@ public class ResultCalculator {
     private static int calculate_minimum_theoretical_failed_provisions(List<Message> run_messages) {
         int minimum_theoretical_failed_provisions = 0;
         for(Message m : run_messages) {
-            if(m.getHasRedRequests()) minimum_theoretical_failed_provisions++;
+            if(m.getRedRequests() > 0) minimum_theoretical_failed_provisions++;
         }
         return minimum_theoretical_failed_provisions;
     }

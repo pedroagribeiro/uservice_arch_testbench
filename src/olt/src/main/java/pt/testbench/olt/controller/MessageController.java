@@ -34,8 +34,8 @@ public class MessageController {
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody OltRequest request) {
         currentStatus.getEnqueuedAtWorkerTimes().put(request.getId(), new Date().getTime());
-        log.info("Got this request: " + converter.toJson(request));
         rabbitTemplate.convertAndSend(ConfigExchangeBean.EXCHANGE_NAME, "olt-" + currentStatus.getOltId() + "-message-queue", converter.toJson(request));
+        log.info("Enqueued request: " + request.getId());
         return new ResponseEntity<>("Request submitted", HttpStatus.CREATED);
     }
 }

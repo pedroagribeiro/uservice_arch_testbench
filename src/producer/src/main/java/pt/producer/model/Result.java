@@ -36,7 +36,7 @@ public class Result {
     @Column(name = "verified_timedout_requests")
     private int verified_timedout_requests;
 
-    @Column(name = "start_instant", nullable = false)
+    @Column(name = "start_instant")
     private long start_instant;
 
     @Column(name = "end_instant")
@@ -58,10 +58,9 @@ public class Result {
 
     }
 
-    public Result(OrchestrationNoId orchestration, long start_instant) {
+    public Result(OrchestrationNoId orchestration) {
         this.algorithm = orchestration.getAlgorithm();
         this.sequence = orchestration.getSequence();
-        this.start_instant = start_instant;
         this.olts = orchestration.getOlts();
         this.workers = orchestration.getWorkers();
         this.requests = orchestration.getMessages();

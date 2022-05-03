@@ -33,6 +33,7 @@ public class MessageController {
 
     @PostMapping("")
     public ResponseEntity<?> sendMessage(@RequestBody Message m) {
+        log.info("Recebi esta mensagem: " + converter.toJson(m));
         rabbitTemplate.convertAndSend(EXCHANGE_NAME, "worker-" + status.getWorkerId() + "-message-queue", converter.toJson(m));
         return new ResponseEntity<>("Message submitted", HttpStatus.CREATED);
     }

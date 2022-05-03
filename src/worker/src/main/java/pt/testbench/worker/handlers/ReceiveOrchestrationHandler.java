@@ -21,19 +21,16 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+
 @Service
 public class ReceiveOrchestrationHandler {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private static final Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    private Random random = new Random(34);
-
     @Autowired private Status status;
     @Autowired private MessageRepository messagesRepository;
     @Autowired private OltRequestRepository oltRequestsRepository;
-
-    private List<Integer> received_messages = new ArrayList<>();
 
     private Callable<Boolean> request_satisfied(String request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
@@ -45,73 +42,18 @@ public class ReceiveOrchestrationHandler {
         log.info("Running logic " + status.getArchitecture() + " ...");
         status.setIsOnGoingRun(true);
         status.setWorkers(orchestration.getWorkers());
+        log.info("I resetted the target to FALSE");
         status.setTargetReached(false);
+        log.info("I resetted the consumption complete to FALSE");
         status.setComsumptionComplete(false);
-    }
-
-    private void update_yellow_and_red_target_messages(Orchestration orchestration) {
-        if(orchestration.getSequence() == 2) {
-            int additional_yellow_messages = (int) Math.floor(orchestration.getMessages() * 4 * 0.033);
-            status.setTargetYellowMessages(status.getTargetYellowMessages() + additional_yellow_messages);
-            log.info("Target yellow messages: " + status.getTargetYellowMessages());
-            log.info("Generated yellow messages: " + status.getGeneratedYellowMessages());
-            log.info("Target red messages: " + status.getTargetRedMessages());
-            log.info("Generated red messages: " + status.getGeneratedRedMessages());
-        }
-        if(orchestration.getSequence() == 3) {
-            int additional_yellow_messages = (int) Math.floor(orchestration.getMessages() * 4 * 0.033);
-            int additional_red_messages = (int) Math.floor(orchestration.getMessages() * 4 * 0.033);
-            status.setTargetYellowMessages(status.getTargetYellowMessages() + additional_yellow_messages);
-            status.setTargetRedMessages(status.getTargetRedMessages() + additional_red_messages);
-            log.info("Target yellow messages: " + status.getTargetYellowMessages());
-            log.info("Generated yellow messages: " + status.getGeneratedYellowMessages());
-            log.info("Target red messages: " + status.getTargetRedMessages());
-            log.info("Generated red messages: " + status.getGeneratedRedMessages());
-        } else {
-            log.info("Target yellow messages: " + status.getTargetYellowMessages());
-            log.info("Generated yellow messages: " + status.getGeneratedYellowMessages());
-            log.info("Target red messages: " + status.getTargetRedMessages());
-            log.info("Generated red messages: " + status.getGeneratedRedMessages());
-        }
-    }
-
-    private List<OltRequest> generate_olt_requests(Orchestration orchestration, Message m) {
-        List<OltRequest> generated_olt_requests = new ArrayList<>();
-        if(orchestration.getSequence() == 1) {
-            generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, -1, 0);
-        }
-        if(orchestration.getSequence() == 2) {
-            int left_yellow_messages = status.getTargetYellowMessages() - status.getGeneratedYellowMessages();
-            int random_input = Math.min(left_yellow_messages, 4);
-            int accessory_messages = random.nextInt(random_input);
-            status.setGeneratedYellowMessages(status.getGeneratedYellowMessages() + accessory_messages);
-            generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 0, accessory_messages);
-        }
-        if(orchestration.getSequence() == 3) {
-            int acessory_type = random.nextInt(2);
-            if(acessory_type == 0) {
-               int left_yellow_messages = status.getTargetYellowMessages() - status.getGeneratedYellowMessages();
-               int random_input = Math.min(left_yellow_messages, 4);
-               int accessory_messages = random.nextInt(random_input);
-               status.setGeneratedYellowMessages(status.getGeneratedYellowMessages() + accessory_messages);
-               generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 0, accessory_messages);
-            } else {
-               int left_red_messages = status.getTargetRedMessages() - status.getGeneratedRedMessages();
-               int random_input = Math.min(left_red_messages, 4);
-               int accessory_messages = random.nextInt(random_input);
-               status.setGeneratedRedMessages(status.getGeneratedRedMessages() + accessory_messages);
-               generated_olt_requests = SequenceGenerator.generate_requests_sequence(m, 1, accessory_messages);
-            }
-        }
-        return generated_olt_requests;
+        status.getTimedoutProvisions().set(0);
     }
 
     private void auto_consume_main_loop(Orchestration orchestration) {
         while(status.isOnGoingRun()) {
+            log.info("WHAT WORKER THINKS THE RUN STATUS IS: " + status.isOnGoingRun());
             Message m = Broker.fetch_message();
             if(m != null) {
-                received_messages.add(m.getId());
-                log.info("Received messages: " + converter.toJson(received_messages));
                 m.setWorker(status.getWorkerId());
                 if(status.getArchitecture() == 2) {
                     int worker = Broker.ask_oracle_if_anyone_is_using_olt(m.getOlt());
@@ -126,7 +68,7 @@ public class ReceiveOrchestrationHandler {
                     }
                 }
                 log.info("Message that I got: " + converter.toJson(m));
-                List<OltRequest> generated_olt_requests = generate_olt_requests(orchestration, m);
+                List<OltRequest> generated_olt_requests = SequenceGenerator.generate_requests_sequence(m);
                 m = this.messagesRepository.save(m);
                 List<OltRequest> sorted_olt_requests = new ArrayList<>();
                 assert generated_olt_requests != null;
@@ -160,13 +102,15 @@ public class ReceiveOrchestrationHandler {
                             log.warn("Timeout: The request " + request.getId() + " timedout");
                             m.setCompletedProcessing(new Date().getTime());
                             m.setSuccessful(false);
-                            m = this.messagesRepository.save(m);
+                            this.messagesRepository.save(m);
                             timedout_requests++;
+                            status.getTimedoutProvisions().set(status.getTimedoutProvisions().get() + 1);
                         }
                         if(i == 3) {
                             Broker.inform_oracle_of_handling_end(m.getOlt());
                         }
                     }
+                    log.info("Timedout provisions: " + status.getTimedoutProvisions().get());
                 }
                 if(timedout_requests == 0) {
                     m.setCompletedProcessing(new Date().getTime());
@@ -179,6 +123,7 @@ public class ReceiveOrchestrationHandler {
                 // } catch(InterruptedException e) {
                 //     e.printStackTrace();
                 // }
+                log.info("Tried to consume message but there's nothing!");
                 status.setComsumptionComplete(true);
             }
         }
@@ -188,7 +133,6 @@ public class ReceiveOrchestrationHandler {
         Orchestration orchestration = converter.fromJson(body, Orchestration.class);
         log.info("Received orchestration: " + converter.toJson(orchestration));
         update_status_with_orchestration(orchestration);
-        update_yellow_and_red_target_messages(orchestration); 
         boolean auto_consume = status.isOnGoingRun() && (status.getArchitecture() == 1 || status.getArchitecture() == 2);
         if(auto_consume) {
             auto_consume_main_loop(orchestration);

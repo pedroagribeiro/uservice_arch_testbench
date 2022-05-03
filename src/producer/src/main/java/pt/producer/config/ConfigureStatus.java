@@ -9,7 +9,7 @@ public class ConfigureStatus {
 
     @Bean
     Status currentStatus() {
-        return new Status(0);
+        return new Status(1);
     }
 
 }

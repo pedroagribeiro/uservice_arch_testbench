@@ -2,6 +2,7 @@ package pt.testbench.worker.model;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Status {
 
@@ -16,12 +17,9 @@ public class Status {
     private Map<String, Boolean> request_satisfied;
     private int workers;
 
-    private int generated_yellow_messages = 0;
-    private int target_yellow_messages = 0;
-    private int generated_red_messages = 0;
-    private int target_red_messages = 0;
-
     private boolean consumption_complete;
+
+    private AtomicInteger timedout_provisions = new AtomicInteger();
 
     public Status(final int worker_id) {
         this.worker_id = worker_id;
@@ -34,6 +32,7 @@ public class Status {
         this.request_satisfied = new ConcurrentHashMap<>();
         this.workers = 3;
         this.consumption_complete = false;
+        this.timedout_provisions.set(0);
     }
 
     public int getWorkerId() {
@@ -100,43 +99,15 @@ public class Status {
         this.workers = workers;
     }
 
-    public int getGeneratedYellowMessages() {
-        return this.generated_yellow_messages;
-    }
-
-    public void setGeneratedYellowMessages(int generated_yellow_messages) {
-        this.generated_yellow_messages = generated_yellow_messages;
-    }
-
-    public int getTargetYellowMessages() {
-        return this.target_yellow_messages;
-    }
-
-    public void setTargetYellowMessages(int target_yellow_messages) {
-        this.target_yellow_messages = target_yellow_messages;
-    }
-
-    public int getGeneratedRedMessages() {
-        return this.generated_red_messages;
-    }
-
-    public void setGeneratedRedMessages(int generated_red_messages) {
-        this.generated_red_messages = generated_red_messages;
-    }
-
-    public int getTargetRedMessages() {
-        return this.target_red_messages;
-    }
-
-    public void setTargetRedMessages(int target_red_messages) {
-        this.target_red_messages = target_red_messages;
-    }
-
     public boolean getConsumptionComplete() {
         return this.consumption_complete;
     }
 
     public void setComsumptionComplete(boolean consumption_complete) {
         this.consumption_complete = consumption_complete;
+    }
+
+    public AtomicInteger getTimedoutProvisions() {
+        return this.timedout_provisions;
     }
 }

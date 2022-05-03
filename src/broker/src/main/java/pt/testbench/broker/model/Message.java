@@ -39,8 +39,11 @@ public class Message {
     @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
 
-    @Column(name = "has_red_requests")
-    private boolean hasRedRequests;
+    @Column(name = "yellow_requests")
+    private int yellowRequests;
+
+    @Column(name = "red_requests")
+    private int redRequests;
 
     public Message(final String olt) {
         this.olt = olt;
@@ -124,12 +127,20 @@ public class Message {
         return this.minimumTheoreticalDuration;
     }
 
-    public void setHasRedRequests(final boolean has_red_requests) {
-        this.hasRedRequests = has_red_requests;
+    public void setYellowRequests(int yellow_requests) {
+        this.yellowRequests = yellow_requests;
     }
 
-    public boolean getHasRedRequests() {
-        return this.hasRedRequests;
+    public int getYellowRequests() {
+        return this.yellowRequests;
+    }
+
+    public void setRedRequests(int red_requests) {
+        this.redRequests = red_requests;
+    }
+
+    public int getRedRequests() {
+        return this.redRequests;
     }
 
     @Override
@@ -144,7 +155,8 @@ public class Message {
                 ", successful= " + successful + '\'' +
                 ", olt_requests=" + oltRequests + '\'' +
                 ", minimumTheoreticalDuration=" + minimumTheoreticalDuration + '\'' +
-                ", hasRedRequests= " + hasRedRequests +
+                ", yellowRequests=" + yellowRequests + '\'' +
+                ", redRequets=" + redRequests + 
                 '}';
     }
 
@@ -163,7 +175,8 @@ public class Message {
                 successful == message.successful &&
                 Objects.equals(oltRequests, message.oltRequests) &&
                 minimumTheoreticalDuration == message.minimumTheoreticalDuration &&
-                hasRedRequests == message.hasRedRequests
+                yellowRequests == message.yellowRequests &&
+                redRequests == message.redRequests
         );
 
     }
@@ -179,7 +192,8 @@ public class Message {
                 successful,
                 oltRequests,
                 minimumTheoreticalDuration,
-                hasRedRequests
+                yellowRequests,
+                redRequests
         );
     }
 }
