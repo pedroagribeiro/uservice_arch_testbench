@@ -16,11 +16,9 @@ const SequenceResults = props => {
 
   const [verifiedTime, setVerifiedTime] = useState(null);
   const [loadingVerifiedTime, setLoadingVerifiedTime] = useState(false);
-  const [errorVerifiedTime, setErrorVerifiedTime] = useState(null);
 
   const [verifiedTimeouts, setVerifiedTimeouts] = useState(null);
   const [loadingVerifiedTimeouts, setLoadingVerifiedTimeouts] = useState(false);
-  const [errorVerifiedTimeouts, setErrorVerifiedTimeouts] = useState(null);
 
   const url_verified_time =
     'http://' +
@@ -41,17 +39,18 @@ const SequenceResults = props => {
     axios
       .get(url_verified_time)
       .then(response => {
+        console.log('URL: ' + url_verified_time);
+        console.log('RESPOSTA: ' + response.data);
         setVerifiedTime(response.data);
       })
-      .catch(err => setErrorVerifiedTime(err))
+      .catch(err => console.log(err))
       .finally(() => setLoadingVerifiedTime(false));
     axios
       .get(url_verified_timedout)
       .then(response => {
         setVerifiedTimeouts(response.data);
-        console.log(response.data);
       })
-      .catch(err => setErrorVerifiedTimeouts(err))
+      .catch(err => console.log(err))
       .finally(() => setLoadingVerifiedTimeouts(false));
   }, [url_verified_time, url_verified_timedout]);
 

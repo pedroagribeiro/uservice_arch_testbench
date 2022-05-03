@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Formik, Form, Field, useFormik } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import {
   Box,
   VStack,
@@ -20,10 +20,7 @@ import axios from 'axios';
 
 const NewSimulation = () => {
   const [submitting, setSubmitting] = useState(false);
-  const [errorSubmitting, setErrorSubmitting] = useState(null);
-
   const [response, setResponse] = useState(null);
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
 
@@ -80,13 +77,11 @@ const NewSimulation = () => {
     setSubmitting(true);
     axios
       .post(url, values)
-      .then(
-        response => {
-          setResponse(response.data);
-          onOpen();
-        },
-        err => setErrorSubmitting(err)
-      )
+      .then(response => {
+        setResponse(response.data);
+        onOpen();
+      })
+      .catch(err => console.log(err))
       .finally(() => setSubmitting(false));
   };
 

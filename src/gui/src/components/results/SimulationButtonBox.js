@@ -7,7 +7,6 @@ import {
   Tag,
   TagLeftIcon,
   TagLabel,
-  useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
@@ -16,7 +15,6 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { GiCheckeredFlag } from 'react-icons/gi';
 
 const SimulationButtonBox = props => {
-  const { toggleColorMode } = useColorMode();
   const next_mode = useColorModeValue('light', 'dark');
 
   const tagColor = status => {

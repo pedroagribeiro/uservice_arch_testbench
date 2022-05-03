@@ -7,7 +7,6 @@ import {
   HStack,
   Spinner,
   Center,
-  Text,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import MultipleSequenceResults from './MultipleSequenceResults';
@@ -69,7 +68,7 @@ const GlobalResults = () => {
           <MultipleSequenceResults
             key={seq}
             sequence={seq}
-            combinations={combinations.filter(elem => elem.x !== seq)}
+            combinations={combinations}
           />
         ))}
       </VStack>
