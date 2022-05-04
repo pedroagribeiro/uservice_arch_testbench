@@ -60,6 +60,7 @@ public class Generator {
             generated_messages.add(m);
         }
         log.info("Used seed: 34 to generate messages");
+        log.info("Generated messages: " + converter.toJson(generated_messages));
         return generated_messages;
     }
 }

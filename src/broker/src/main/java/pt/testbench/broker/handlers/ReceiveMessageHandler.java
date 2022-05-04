@@ -31,12 +31,13 @@ public class ReceiveMessageHandler {
     private Status status;
 
     public void process_message_architecture_3(Message message) {
-        byte[] diggested_message = this.digester.digest(message.getOlt().getBytes(StandardCharsets.UTF_8));
-        int worker_to_forward = (ByteBuffer.wrap(diggested_message).getInt()) % status.getWorkers();
-        if (worker_to_forward < 0 || worker_to_forward > status.getWorkers() - 1) {
-            // worker_to_forward = new Random().nextInt(status.getWorkers());
-            worker_to_forward = 0;
-        }
+        // byte[] diggested_message = this.digester.digest(message.getOlt().getBytes(StandardCharsets.UTF_8));
+        // int worker_to_forward = (ByteBuffer.wrap(diggested_message).getInt()) % status.getWorkers();
+        // if (worker_to_forward < 0 || worker_to_forward > status.getWorkers() - 1) {
+        //     // worker_to_forward = new Random().nextInt(status.getWorkers());
+        //     worker_to_forward = 0;
+        // }
+        int worker_to_forward = Integer.parseInt(message.getOlt()) % status.getWorkers();
         message.setWorker(worker_to_forward);
         Worker.forward_message(message, worker_to_forward, 3);
     }
