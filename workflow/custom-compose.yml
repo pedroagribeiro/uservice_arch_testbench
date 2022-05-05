@@ -57,24 +57,58 @@ services:
       context: ../src/worker/
     command: "--worker.id=0"
     container_name: worker-0
-    ports:
-      - "8500:8500"
     depends_on:
       - workers_queue
       - relational_database
     networks:
       - private_network
-  <workers_block> 
+  worker_1:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=1"
+    container_name: worker-1
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
+  worker_2:
+    build:
+      context: ../src/worker/
+    command: "--worker.id=2"
+    container_name: worker-2
+    depends_on:
+      - workers_queue
+      - relational_database
+    networks:
+      - private_network
   olt_0:
     build:
       context: ../src/olt/
-    command: "--olt.id=0"
+    command: "--olt.id=0" 
     container_name: olt-0
     depends_on:
       - olts_queue
     networks:
       - private_network
-  <olts_block> 
+  olt_1:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=1" 
+    container_name: olt-1
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
+  olt_2:
+    build:
+      context: ../src/olt/
+    command: "--olt.id=2" 
+    container_name: olt-2
+    depends_on:
+      - olts_queue
+    networks:
+      - private_network
   workers_queue:
     build:
       context: ../src/rabbitmq
