@@ -154,7 +154,7 @@ public class ResultsController {
         Map<Integer, Integer> count_map = new HashMap<>();
         for(Message m : filtered_messages) {
             if(!count_map.containsKey(m.getWorker())) {
-                count_map.put(m.getWorker(), 0);
+                count_map.put(m.getWorker(), 1);
             } else {
                 count_map.put(m.getWorker(), count_map.get(m.getWorker()) + 1);
             }

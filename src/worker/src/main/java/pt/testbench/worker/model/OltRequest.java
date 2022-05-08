@@ -1,72 +1,23 @@
 package pt.testbench.worker.model;
 
-import com.google.gson.annotations.Expose;
-import org.hibernate.annotations.Proxy;
-
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import javax.persistence.*;
 import java.util.Date;
-import java.util.Objects;
 
 @Data
-@Entity
-@Table(name = "olt_requests")
-@Proxy(lazy = false)
 public class OltRequest {
 
-    @Expose
-    @Id
     private String id;
-
-    @Expose
-    @Column(name = "issued_at", nullable = false)
     private long issuedAt;
-
-    @Expose
-    @Column(name = "duration", nullable = false)
     private long duration;
-
-    @Expose
-    @Column(name = "timeout", nullable = false)
     private long timeout;
-
-    @Expose
-    @Column(name = "left_worker")
     private long leftWorker;
-
-    @Expose
-    @Column(name = "started_being_processed_at_olt")
     private long startedBeingProcessedAtOlt;
-
-    @Expose
-    @Column(name = "ended_being_processed_at_olt")
     private long endedBeingProcessedAtOlt;
-
-    @Expose
-    @Column(name = "returned_worker")
     private long returnedWorker;
-
-    @Expose
-    @Column(name = "completed")
     private long completed;
-
-    @Expose
-    @Column(name = "not_processed")
     private boolean notProcessed;
-
-    @Expose
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Message originMessage;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "response_id", referencedColumnName = "id")
     private Response response;
-
 
     public OltRequest() {
 

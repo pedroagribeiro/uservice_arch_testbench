@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pt.testbench.worker.repository.MessageRepository;
-import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.utils.SequenceGenerator;
 
 @Service
@@ -27,10 +25,8 @@ import pt.testbench.worker.utils.SequenceGenerator;
 public class ReceiveMessageHandler {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
-    private final Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private final Gson converter = new Gson();
 
-    @Autowired private MessageRepository messagesRepository;
-    @Autowired private OltRequestRepository oltRequestsRepository;
     @Autowired private Status status;
     @Autowired AmqpAdmin amqpAdmin;
 
@@ -47,15 +43,15 @@ public class ReceiveMessageHandler {
         Message m = converter.fromJson(body, Message.class);
         log.info("Received a message: " + converter.toJson(m));
         List<OltRequest> generated_olt_requests = SequenceGenerator.generate_requests_sequence(m);
-        m = this.messagesRepository.save(m);
+        status.getCurrentRunMessages().put(m.getId(), m);
         List<OltRequest> sorted_olt_requests = new ArrayList<>();
         for(OltRequest request : generated_olt_requests) {
             request.setOriginMessage(m);
-            request = this.oltRequestsRepository.save(request);
+            status.getCurrentRunRequests().put(request.getId(), request);
             sorted_olt_requests.add(request);
         }
         m.setStartedProcessing(new Date().getTime());
-        m = this.messagesRepository.save(m);
+        status.getCurrentRunMessages().put(m.getId(), m);
         for(OltRequest request : sorted_olt_requests) {
             request.setOriginMessage(m);
         }
@@ -78,7 +74,7 @@ public class ReceiveMessageHandler {
                     log.warn("Timeout: The request " + request.getId() + " timedout");
                     m.setCompletedProcessing(new Date().getTime());
                     m.setSuccessful(false);
-                    m = this.messagesRepository.save(m);
+                    status.getCurrentRunMessages().put(m.getId(), m);
                     timedout_requests++;
                     status.getTimedoutProvisions().set(status.getTimedoutProvisions().get() + 1);
                 }
@@ -91,7 +87,7 @@ public class ReceiveMessageHandler {
         if(timedout_requests == 0) {
             m.setCompletedProcessing(new Date().getTime());
             m.setSuccessful(true);
-            this.messagesRepository.save(m);
+            status.getCurrentRunMessages().put(m.getId(), m);
         }
         log.info("Queue size: " + queue_size());
         if(queue_size() == 0) {

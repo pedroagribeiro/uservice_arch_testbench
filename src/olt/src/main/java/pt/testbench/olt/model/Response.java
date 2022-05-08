@@ -1,8 +1,6 @@
 package pt.testbench.olt.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.util.Objects;
 

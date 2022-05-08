@@ -1,52 +1,20 @@
 package pt.testbench.broker.model;
-
-import org.hibernate.annotations.Proxy;
-
-import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
-@Entity
-@Table(name = "olt_requests")
-@Proxy(lazy = false)
 public class OltRequest {
 
-    @Id
     private String id;
-
-    @Column(name = "issued_at", nullable = false)
     private long issuedAt;
-
-    @Column(name = "duration", nullable = false)
     private long duration;
-
-    @Column(name = "timeout", nullable = false)
     private long timeout;
-
-    @Column(name = "left_worker")
     private long leftWorker;
-
-    @Column(name = "started_being_processed_at_olt")
     private long startedBeingProcessedAtOlt;
-
-    @Column(name = "ended_being_processed_at_olt")
     private long endedBeingProcessedAtOlt;
-
-    @Column(name = "returned_worker")
     private long returnedWorker;
-
-    @Column(name = "completed")
     private long completed;
-
-    @Column(name = "not_processed")
     private boolean notProcessed;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "origin_message_id", referencedColumnName = "id")
     private Message originMessage;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "response_id", referencedColumnName = "id")
     private Response response;
 
     public OltRequest() {

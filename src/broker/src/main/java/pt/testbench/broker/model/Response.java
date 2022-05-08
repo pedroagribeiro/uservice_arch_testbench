@@ -1,34 +1,16 @@
 package pt.testbench.broker.model;
-
-import org.hibernate.annotations.Proxy;
-
-import javax.persistence.*;
 import java.util.Objects;
+import lombok.Data;
 
-@Entity
-@Table(name = "responses")
-@Proxy(lazy = false)
+@Data
 public class Response {
 
-    @Id
     private String id;
-
-    @Column(name = "status")
     private int status;
-
-    @Column(name = "request_enqueued_at_olt")
     private long requestEnqueuedAtOlt;
-
-    @Column(name = "request_dequeued_at_olt")
     private long requestDequeuedAtOlt;
-
-    @Column(name = "started_handling")
     private long startedHandling;
-
-    @Column(name = "ended_handling")
     private long endedHandling;
-
-    @Column(name = "timedout")
     private boolean timedout;
 
     public Response() {}

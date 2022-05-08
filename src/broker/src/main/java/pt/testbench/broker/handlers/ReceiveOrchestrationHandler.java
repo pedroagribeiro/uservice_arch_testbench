@@ -1,9 +1,6 @@
 package pt.testbench.broker.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,7 +17,6 @@ public class ReceiveOrchestrationHandler {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final Gson converter = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.IDENTITY).create();
-    private Random random = new Random(34);
 
     @Autowired
     private SimpleMessageListenerContainer messageContainer;

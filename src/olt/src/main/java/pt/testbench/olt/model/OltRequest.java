@@ -1,11 +1,7 @@
 package pt.testbench.olt.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import java.util.Date;
-import java.util.Objects;
 
 @Data
 public class OltRequest {
@@ -14,19 +10,12 @@ public class OltRequest {
     private long issuedAt;
     private long duration;
     private long timeout;
-
     private long leftWorker;
-
     private long startedBeingProcessedAtOlt;
-
     private long endedBeingProcessedAtOlt;
-
     private long returnedWorker;
     private long completed;
-
     private boolean notProcessed;
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Message originMessage;
     private Response response;
 

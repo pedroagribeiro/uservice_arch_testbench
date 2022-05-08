@@ -26,7 +26,7 @@ public class ResultCalculator {
     private static int calculate_verified_failed_provisions(List<Message> run_messages) {
         int verified_failed_provisions = 0;
         for(Message m : run_messages) {
-            if(!m.getSuccessful()) verified_failed_provisions++;
+            if(m.getSuccessful() == false) verified_failed_provisions++;
         }
         return verified_failed_provisions;
     }
@@ -52,7 +52,7 @@ public class ResultCalculator {
     public static List<PerOltProcessingTime> calculate_per_olt_metrics(List<Message> run_messages, Result result) {
         Map<String, List<Long>> provisioning_times_by_olt = new HashMap<>();
         for(Message m : run_messages) {
-            if(m.getSuccessful()) {
+            if(m.getSuccessful() == true) {
                 long provisioning_time = m.getCompletedProcessing() - m.getStartedProcessing();
                 if (!provisioning_times_by_olt.containsKey(m.getOlt())) {
                     provisioning_times_by_olt.put(m.getOlt(), new ArrayList<>());

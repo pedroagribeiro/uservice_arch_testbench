@@ -1,62 +1,21 @@
 package pt.testbench.worker.model;
 
-import com.google.gson.annotations.Expose;
 import lombok.Data;
-import org.hibernate.annotations.Proxy;
-
-import javax.persistence.*;
 import java.util.*;
 
 @Data
-@Entity
-@Table(name = "messages")
-@Proxy(lazy = false)
 public class Message {
 
-    @Expose
-    @Id
-    @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
     private int id;
-
-    @Expose
-    @Column(name = "olt", nullable = false)
     private String olt;
-
-    @Expose
-    @Column(name = "issued_at", nullable = false)
     private long issuedAt;
-
-    @Expose
-    @Column(name = "worker")
     private int worker;
-
-    @Expose
-    @Column(name = "started_processing")
     private long startedProcessing;
-
-    @Expose
-    @Column(name = "completed_processing")
     private long completedProcessing;
-
-    @Expose
-    @Column(name = "successful")
     private boolean successful;
-
-    @Expose
-    @OneToMany(mappedBy="originMessage", fetch = FetchType.EAGER)
     private List<OltRequest> oltRequests;
-
-    @Expose
-    @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
-
-    @Expose
-    @Column(name = "yellow_requests")
     private int yellowRequests;
-
-    @Expose
-    @Column(name = "red_requests")
     private int redRequests;
 
     public Message(final String olt) {

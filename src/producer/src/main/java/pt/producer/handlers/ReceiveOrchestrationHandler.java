@@ -14,8 +14,6 @@ import pt.producer.repository.ResultRepository;
 import pt.producer.repository.MessageRepository;
 import pt.producer.utils.Generator;
 import pt.producer.utils.ResultCalculator;
-
-import java.io.IOError;
 import java.util.*;
 
 @Service
@@ -70,9 +68,29 @@ public class ReceiveOrchestrationHandler {
         }
     }
 
+    private boolean check_obtained_message_results(List<Message> obtained_messages) {
+        boolean all_finished = true;
+        for(Message m : obtained_messages) {
+            if(m.getCompletedProcessing() == 0) {
+                all_finished = false;
+            }
+        }
+        return all_finished;
+    }
+
     private void calculate_run_results(int orchestration_id, int message_id_lower_boundary, int message_id_upper_boundary) {
         long end_instant = new Date().getTime();
         List<Message> run_messages = this.messagesRepository.findMessagesBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
+        boolean valid = check_obtained_message_results(run_messages);
+        while(!valid) {
+            try {
+                Thread.sleep(5000);
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+            run_messages = this.messagesRepository.findMessagesBetweenIdRange(message_id_lower_boundary, message_id_upper_boundary);
+            valid = check_obtained_message_results(run_messages);
+        }
         Result run_result = this.resultRepository.findById(orchestration_id).get();
         run_result = ResultCalculator.calculate_run_result(end_instant, run_messages, run_result);
         run_result = this.resultRepository.save(run_result);
@@ -99,6 +117,9 @@ public class ReceiveOrchestrationHandler {
     public void update_status_with_orchestration(Orchestration orchestration) {
         current_status.setCurrentRunWorkers(orchestration.getWorkers());
         current_status.setFinishedWorkers(new ArrayList<>());
+        current_status.setSentMessagesWorkers(new ArrayList<>());
+        current_status.setSentRequestsWorkers(new ArrayList<>());
+        current_status.setSentResponsesWorkers(new ArrayList<>());
     }
 
     public void handleOrchestration(String body) {

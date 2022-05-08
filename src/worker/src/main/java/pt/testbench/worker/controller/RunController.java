@@ -9,7 +9,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import pt.testbench.worker.communication.Producer;
+import pt.testbench.worker.model.Message;
+import pt.testbench.worker.model.OltRequest;
+import pt.testbench.worker.model.Response;
 import pt.testbench.worker.model.Status;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import com.google.gson.Gson;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +29,50 @@ import org.slf4j.LoggerFactory;
 public class RunController {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
+    private Gson converter = new Gson();
 
     @Autowired
     private Status status;
+
+    private List<Message> convertCurrentRunMessagesToList() {
+        List<Message> run_messages = new ArrayList<>();
+        Set<Integer> message_ids = status.getCurrentRunMessages().keySet();
+        List<Integer> ordered_message_ids = new ArrayList<>(new TreeSet<>(message_ids));
+        for(Integer i : ordered_message_ids) {
+            run_messages.add(status.getCurrentRunMessages().get(i));
+        }
+        return run_messages;
+    }
+
+    private List<OltRequest> convertCurrentRunRequestsToList() {
+        List<OltRequest> run_requests = new ArrayList<>();
+        Set<String> request_ids = status.getCurrentRunRequests().keySet();
+        List<String> ordered_request_ids = new ArrayList<>(new TreeSet<>(request_ids));
+        for(String i : ordered_request_ids) {
+            run_requests.add(status.getCurrentRunRequests().get(i));
+        }
+        return run_requests;
+    }
+
+    private List<Response> convertCurrentRunResponseToList() {
+        List<Response> run_responses = new ArrayList<>();
+        Set<String> response_ids = status.getCurrentRunResponses().keySet();
+        List<String> ordered_response_ids = new ArrayList<>(new TreeSet<>(response_ids));
+        for(String i : ordered_response_ids) {
+            run_responses.add(status.getCurrentRunResponses().get(i));
+        }
+        return run_responses;
+    }
+
+    private void is_run_finished() {
+        if(status.getTargetReached() && status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
+            status.setIsOnGoingRun(false);
+            Producer.inform_run_is_over(status.getWorkerId());
+            Producer.sendRunResponses(convertCurrentRunResponseToList(), status.getWorkerId());
+            Producer.sendRunMessages(convertCurrentRunMessagesToList(), status.getWorkerId());
+            Producer.sendRunRequests(convertCurrentRunRequestsToList(), status.getWorkerId());
+        }
+    }
 
     @PostMapping("/started")
     public ResponseEntity<?> startedRun() {
@@ -39,9 +91,8 @@ public class RunController {
     public ResponseEntity<?> targetHasBeenReached() {
         this.status.setTargetReached(true);
         log.info("Got information that the target has been reached");
-        if(status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
-            Producer.inform_run_is_over(status.getWorkerId());
-        }
+        log.info("Status: {on_going_run: " + this.status.isOnGoingRun() + ", target_reached: " + this.status.getTargetReached() + ", consumption_complete: " + this.status.getConsumptionComplete() + ", requests__size: " + this.status.getRequestSatisfied().size() + "}");
+        is_run_finished();
         return new ResponseEntity<>("Target has been reached!", HttpStatus.OK);
     }
 }

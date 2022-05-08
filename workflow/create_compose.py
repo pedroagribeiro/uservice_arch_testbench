@@ -17,7 +17,7 @@ services:
     image: 10.112.106.236:32500/ztp-onu-gui:1.0
     container_name: testbench-gui
     ports:
-      - \"8080:3000\"
+      - \"55555:3000\"
     depends_on:
       - producer
     networks:
@@ -43,7 +43,7 @@ services:
     image: 10.112.106.236:32500/ztp-onu-producer_spring:1.0
     container_name: producer
     ports:
-      - "8080:8080"
+      - "55556:8080"
     depends_on:
       - producer_queue
       - relational_database

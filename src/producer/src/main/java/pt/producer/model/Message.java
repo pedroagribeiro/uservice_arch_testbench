@@ -50,10 +50,12 @@ public class Message {
 
     public Message(final String olt) {
         this.olt = olt;
+        this.worker = -1;
         this.issuedAt = new Date().getTime();
         this.oltRequests = new ArrayList<>();
         this.yellowRequests = 0;
         this.redRequests = 0;
+        this.successful = true;
     }
 
     public Message() {

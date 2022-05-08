@@ -9,11 +9,17 @@ public class Status {
     private int current_message_id;
     private int current_run_workers;
     private List<Integer> finished_workers;
+    private List<Integer> sent_messages_workers;
+    private List<Integer> sent_requests_workers;
+    private List<Integer> sent_responses_workers;
 
     public Status(int current_message_id) {
         this.on_going_run = false;
         this.current_message_id = current_message_id;
         this.finished_workers = new ArrayList<>();
+        this.sent_messages_workers = new ArrayList<>();
+        this.sent_requests_workers = new ArrayList<>();
+        this.sent_responses_workers = new ArrayList<>();
     }
 
     public boolean isOnGoingRun() {
@@ -50,6 +56,30 @@ public class Status {
 
     public void setFinishedWorkers(List<Integer> finished_workers) {
         this.finished_workers = finished_workers;
+    }
+
+    public List<Integer> getSentMessagesWorkers() {
+        return this.sent_messages_workers;
+    }
+
+    public void setSentMessagesWorkers(List<Integer> sent_messages_workers) {
+        this.sent_messages_workers = sent_messages_workers;
+    }
+
+    public List<Integer> getSentRequestsWorkers() {
+        return this.sent_requests_workers;
+    }
+
+    public void setSentRequestsWorkers(List<Integer> sent_requests_workers) {
+        this.sent_requests_workers = sent_requests_workers;
+    }
+
+    public List<Integer> getSentResponsesWorkers() {
+        return this.sent_responses_workers;
+    }
+
+    public void setSentResponsesWorkers(List<Integer> sent_responses_workers) {
+        this.sent_responses_workers = sent_responses_workers;
     }
 
 }

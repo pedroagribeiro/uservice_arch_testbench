@@ -1,46 +1,16 @@
 package pt.testbench.worker.model;
 
-import com.google.gson.annotations.Expose;
-import org.hibernate.annotations.Proxy;
-
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import javax.persistence.*;
-import java.util.Objects;
 
 @Data
-@Entity
-@Table(name = "responses")
-@Proxy(lazy = false)
 public class Response {
 
-    @Expose
-    @Id
     private String id;
-
-    @Expose
-    @Column(name = "status")
     private int status;
-
-    @Expose
-    @Column(name = "request_enqueued_at_olt")
     private long requestEnqueuedAtOlt;
-
-    @Expose
-    @Column(name = "request_dequeued_at_olt")
     private long requestDequeuedAtOlt;
-
-    @Expose
-    @Column(name = "started_handling")
     private long startedHandling;
-
-    @Expose
-    @Column(name = "ended_handling")
     private long endedHandling;
-
-    @Expose
-    @Column(name = "timedout")
     private boolean timedout;
 
     public Response() {}

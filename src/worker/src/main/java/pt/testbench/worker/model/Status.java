@@ -1,5 +1,6 @@
 package pt.testbench.worker.model;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,11 +12,14 @@ public class Status {
     private int target_message_run;
     private boolean target_reached;
     private int architecture;
-
     private int sequence;
     private String current_active_request;
     private Map<String, Boolean> request_satisfied;
     private int workers;
+
+    private Map<Integer, Message> current_run_messages;
+    private Map<String, OltRequest> current_run_requests;
+    private Map<String, Response> current_run_responses;
 
     private boolean consumption_complete;
 
@@ -33,7 +37,10 @@ public class Status {
         this.workers = 3;
         this.consumption_complete = false;
         this.timedout_provisions.set(0);
-    }
+        this.current_run_messages = new HashMap<>();
+        this.current_run_requests = new HashMap<>(); 
+        this.current_run_responses = new HashMap<>();
+    };
 
     public int getWorkerId() {
         return this.worker_id;
@@ -109,5 +116,29 @@ public class Status {
 
     public AtomicInteger getTimedoutProvisions() {
         return this.timedout_provisions;
+    }
+
+    public void setCurrentRunMessages(Map<Integer, Message> current_run_messages) {
+        this.current_run_messages = current_run_messages;
+    }
+
+    public Map<Integer, Message> getCurrentRunMessages() {
+        return this.current_run_messages;
+    }
+
+    public void setCurrentRunRequests(Map<String, OltRequest> current_run_requests) {
+        this.current_run_requests = current_run_requests;
+    }
+
+    public Map<String, OltRequest> getCurrentRunRequests() {
+        return this.current_run_requests;
+    }
+
+    public void setCurrentRunResponses(Map<String, Response> current_run_responses) {
+        this.current_run_responses = current_run_responses;
+    }
+
+    public Map<String, Response> getCurrentRunResponses() {
+        return this.current_run_responses;
     }
 }

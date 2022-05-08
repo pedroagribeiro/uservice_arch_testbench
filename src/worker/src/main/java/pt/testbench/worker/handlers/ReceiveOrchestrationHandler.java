@@ -1,8 +1,6 @@
 package pt.testbench.worker.handlers;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +12,6 @@ import pt.testbench.worker.model.Message;
 import pt.testbench.worker.model.OltRequest;
 import pt.testbench.worker.model.Orchestration;
 import pt.testbench.worker.model.Status;
-import pt.testbench.worker.repository.MessageRepository;
-import pt.testbench.worker.repository.OltRequestRepository;
 import pt.testbench.worker.utils.SequenceGenerator;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -26,11 +22,9 @@ import java.util.concurrent.TimeUnit;
 public class ReceiveOrchestrationHandler {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
-    private static final Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private static final Gson converter = new Gson();
 
     @Autowired private Status status;
-    @Autowired private MessageRepository messagesRepository;
-    @Autowired private OltRequestRepository oltRequestsRepository;
 
     private Callable<Boolean> request_satisfied(String request_id) {
         return () -> status.getRequestSatisfied().get(request_id);
@@ -42,16 +36,18 @@ public class ReceiveOrchestrationHandler {
         log.info("Running logic " + status.getArchitecture() + " ...");
         status.setIsOnGoingRun(true);
         status.setWorkers(orchestration.getWorkers());
-        log.info("I resetted the target to FALSE");
         status.setTargetReached(false);
-        log.info("I resetted the consumption complete to FALSE");
         status.setComsumptionComplete(false);
         status.getTimedoutProvisions().set(0);
+        status.setCurrentRunMessages(new HashMap<>());
+        status.setCurrentRunRequests(new HashMap<>());
+        status.setCurrentRunResponses(new HashMap<>());
+        status.setRequestSatisfied(new HashMap<>());
     }
 
     private void auto_consume_main_loop(Orchestration orchestration) {
         while(status.isOnGoingRun()) {
-            log.info("WHAT WORKER THINKS THE RUN STATUS IS: " + status.isOnGoingRun());
+            // log.info("WHAT WORKER THINKS THE RUN STATUS IS: " + status.isOnGoingRun());
             Message m = Broker.fetch_message();
             if(m != null) {
                 m.setWorker(status.getWorkerId());
@@ -69,16 +65,16 @@ public class ReceiveOrchestrationHandler {
                 }
                 log.info("Message that I got: " + converter.toJson(m));
                 List<OltRequest> generated_olt_requests = SequenceGenerator.generate_requests_sequence(m);
-                m = this.messagesRepository.save(m);
+                status.getCurrentRunMessages().put(m.getId(), m);
                 List<OltRequest> sorted_olt_requests = new ArrayList<>();
                 assert generated_olt_requests != null;
                 for(OltRequest request : generated_olt_requests) {
                     request.setOriginMessage(m);
-                    request = this.oltRequestsRepository.save(request);
+                    status.getCurrentRunRequests().put(request.getId(), request);
                     sorted_olt_requests.add(request);
                 }
                 m.setStartedProcessing(new Date().getTime());
-                m = this.messagesRepository.save(m);
+                status.getCurrentRunMessages().put(m.getId(), m);
                 for(OltRequest request : sorted_olt_requests) {
                     request.setOriginMessage(m);
                 }
@@ -102,7 +98,7 @@ public class ReceiveOrchestrationHandler {
                             log.warn("Timeout: The request " + request.getId() + " timedout");
                             m.setCompletedProcessing(new Date().getTime());
                             m.setSuccessful(false);
-                            this.messagesRepository.save(m);
+                            status.getCurrentRunMessages().put(m.getId(), m);
                             timedout_requests++;
                             status.getTimedoutProvisions().set(status.getTimedoutProvisions().get() + 1);
                         }
@@ -115,7 +111,7 @@ public class ReceiveOrchestrationHandler {
                 if(timedout_requests == 0) {
                     m.setCompletedProcessing(new Date().getTime());
                     m.setSuccessful(true);
-                    this.messagesRepository.save(m);
+                    status.getCurrentRunMessages().put(m.getId(), m);
                 }
             } else {
                 // try { 
@@ -123,7 +119,7 @@ public class ReceiveOrchestrationHandler {
                 // } catch(InterruptedException e) {
                 //     e.printStackTrace();
                 // }
-                log.info("Tried to consume message but there's nothing!");
+                // log.info("Tried to consume message but there's nothing!");
                 status.setComsumptionComplete(true);
             }
         }

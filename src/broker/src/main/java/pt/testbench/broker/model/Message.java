@@ -1,48 +1,20 @@
 package pt.testbench.broker.model;
-
-import org.hibernate.annotations.Proxy;
-
-import javax.persistence.*;
 import java.util.*;
+import lombok.Data;
 
-@Entity
-@Table(name = "messages")
-@Proxy(lazy = false)
+@Data
 public class Message {
 
-    @Id
-    @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "message_id_seq", sequenceName = "message_id_seq", allocationSize = 1)
     private int id;
-
-    @Column(name = "olt", nullable = false)
     private String olt;
-
-    @Column(name = "issued_at", nullable = false)
     private long issuedAt;
-
-    @Column(name = "worker")
     private int worker;
-
-    @Column(name = "started_processing")
     private long startedProcessing;
-
-    @Column(name = "completed_processing")
     private long completedProcessing;
-
-    @Column(name = "successful")
     private boolean successful;
-
-    @OneToMany(mappedBy="originMessage")
     private List<OltRequest> oltRequests;
-
-    @Column(name = "minimum_theoretical_duration")
     private long minimumTheoreticalDuration;
-
-    @Column(name = "yellow_requests")
     private int yellowRequests;
-
-    @Column(name = "red_requests")
     private int redRequests;
 
     public Message(final String olt) {

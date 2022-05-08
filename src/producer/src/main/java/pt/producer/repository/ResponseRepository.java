@@ -1,8 +1,9 @@
-package pt.testbench.worker.repository;
+package pt.producer.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import pt.testbench.worker.model.Response;
+
+import pt.producer.model.Response;
 
 @Repository
 public interface ResponseRepository extends CrudRepository<Response, String> {}

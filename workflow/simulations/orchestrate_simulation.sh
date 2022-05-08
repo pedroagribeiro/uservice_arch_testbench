@@ -1,8 +1,8 @@
 #!/bin/bash
 
-provision_numbers=(100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500)
+provision_numbers=(100 200 300 400 500)
 algorithms=(1 2 3 4)
-worker_arragements=(50 100 150) 
+worker_arragements=(3) 
 sequences=(1 2 3)
 
 perform_request () {

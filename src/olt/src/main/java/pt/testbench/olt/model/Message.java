@@ -1,8 +1,6 @@
 package pt.testbench.olt.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import java.util.Date;
 import java.util.List;
 
@@ -13,19 +11,13 @@ public class Message {
     private String olt;
     private long issuedAt;
     private int worker;
-
     private long startedProcessing;
-
     private long completedProcessing;
     private boolean successful;
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private List<OltRequest> oltRequests;
-
-    private long minimum_theoretical_duration;
-
-    private int yellow_requests;
-    private int red_requests;
+    private long minimumTheoreticalDuration;
+    private int yellowRequests;
+    private int redRequests;
 
     public Message(final String olt) {
         this.olt = olt;
@@ -101,27 +93,27 @@ public class Message {
     }
 
     public void setMinimumTheoreticalDuration(final long minimum_theoretical_duration) {
-        this.minimum_theoretical_duration = minimum_theoretical_duration;
+        this.minimumTheoreticalDuration = minimum_theoretical_duration;
     }
 
     public long getMinimumTheoreticalDuration() {
-        return this.minimum_theoretical_duration;
+        return this.minimumTheoreticalDuration;
     }
 
     public void setYellowRequests(int yellow_requests) {
-        this.yellow_requests = yellow_requests;
+        this.yellowRequests = yellow_requests;
     }
 
     public int getYellowRequests() {
-        return this.yellow_requests;
+        return this.yellowRequests;
     }
 
     public void setRedRequests(int red_requests) {
-        this.red_requests = red_requests;
+        this.redRequests = red_requests;
     }
 
     public int getRedRequests() {
-        return this.red_requests;
+        return this.redRequests;
     }
 
     /**
