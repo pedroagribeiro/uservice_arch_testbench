@@ -1,5 +1,6 @@
 package pt.testbench.worker.controller;
 
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,14 @@ public class RunController {
     @Autowired
     private Status status;
 
+    @Autowired
+    AmqpAdmin amqpAdmin;
+
+    private int queue_size() {
+        log.info(converter.toJson(amqpAdmin.getQueueProperties("worker-" + status.getWorkerId() + "-message-queue")));
+        return (Integer) amqpAdmin.getQueueProperties("worker-" + status.getWorkerId() + "-message-queue").get("QUEUE_MESSAGE_COUNT");
+    }
+
     private List<Message> convertCurrentRunMessagesToList() {
         List<Message> run_messages = new ArrayList<>();
         Set<Integer> message_ids = status.getCurrentRunMessages().keySet();
@@ -65,6 +74,9 @@ public class RunController {
     }
 
     private void is_run_finished() {
+        if(queue_size() == 0) {
+            status.setComsumptionComplete(true);
+        }
         if(status.getTargetReached() && status.getRequestSatisfied().size() == 0 && status.getConsumptionComplete()) {
             status.setIsOnGoingRun(false);
             Producer.inform_run_is_over(status.getWorkerId());
