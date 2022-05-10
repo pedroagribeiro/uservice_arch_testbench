@@ -5,6 +5,7 @@ import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import pt.testbench.worker.communication.Broker;
 import pt.testbench.worker.communication.Olt;
@@ -17,7 +18,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-
+@DependsOn("createStatus")
 @Service
 public class ReceiveOrchestrationHandler {
 

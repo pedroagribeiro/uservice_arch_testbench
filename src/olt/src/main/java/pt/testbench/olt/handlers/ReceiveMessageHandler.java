@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import pt.testbench.olt.communication.Worker;
 import pt.testbench.olt.model.OltRequest;
@@ -13,9 +12,8 @@ import pt.testbench.olt.model.Response;
 import pt.testbench.olt.model.Status;
 import java.util.Date;
 
-@Component
+@DependsOn("createStatus")
 @Service
-@Configurable
 public class ReceiveMessageHandler {
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
