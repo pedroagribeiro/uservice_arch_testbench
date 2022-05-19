@@ -19,6 +19,8 @@ public class ConfigOltMessageQueue {
     @Value("${olt.id}")
     private int olt_id;
 
+    private final String EXCHANGE_NAME = "";
+
     @Bean
     Queue createMessageQueue() {
         String queue_name = "olt-" + olt_id + "-message-queue";
@@ -26,14 +28,19 @@ public class ConfigOltMessageQueue {
     }
 
     @Bean
-    Binding bindMessageQueue(@Qualifier("createMessageQueue") Queue q, TopicExchange exchange) {
-        String queue_name = "olt-" + olt_id + "-message-queue";
+    TopicExchange messageExchange() {
+        return new TopicExchange(EXCHANGE_NAME);
+    }
+
+    @Bean
+    Binding bindMessageQueue(@Qualifier("createMessageQueue") Queue q, @Qualifier("messageExchange") TopicExchange exchange) {
+        String queue_name = "olt-" + this.olt_id + "-message-queue";
         return BindingBuilder.bind(q).to(exchange).with(queue_name);
     }
 
     @Bean
     SimpleMessageListenerContainer messageContainer(ConnectionFactory connectionFactory, MessageListenerAdapter messageListenerAdapter) {
-        String queue_name = "olt-" + olt_id + "-message-queue";
+        String queue_name = "olt-" + this.olt_id + "-message-queue";
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.setQueueNames(queue_name);

@@ -3,8 +3,6 @@ package pt.testbench.worker.communication;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -13,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 public class Worker {
 
     private static final Logger log = LoggerFactory.getLogger("Worker");
-    private static final Gson converter = new Gson();
     private static final RestTemplate restTemplate = new RestTemplate();
 
     public static final String host = "worker-%d";

@@ -18,6 +18,7 @@ public class ConfigureWorkerMessageQueue {
 
     @Value("${worker.id}")
     private int worker_id;
+
     private final String EXCHANGE_NAME = "";
 
     @Bean
