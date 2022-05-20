@@ -2,13 +2,13 @@
 
 provision_numbers=(100 200 300 400 500)
 algorithms=(1 2 3 4)
-worker_arragements=(3) 
+worker_arragements=(10 12 14 16 18 20) 
 sequences=(1 2 3)
 
 perform_request () {
     curl -X POST -H "Content-Type: application/json" \
-        -d "{\"workers\": $1, \"olts\": 5, \"algorithm\": $2, \"sequence\": $3, \"messages\": $4}" \
-        http://localhost:8080/orchestration
+        -d "{\"workers\": $1, \"olts\": 20, \"algorithm\": $2, \"sequence\": $3, \"messages\": $4}" \
+        http://localhost:55556/orchestration
 }
 
 for w in ${worker_arragements[@]}; do
