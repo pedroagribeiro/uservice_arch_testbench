@@ -1,11 +1,7 @@
 package pt.producer.controller;
 
-import static org.mockito.ArgumentMatchers.contains;
-
 import java.util.List;
-
 import com.google.gson.Gson;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
