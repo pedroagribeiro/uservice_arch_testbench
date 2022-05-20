@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import MultipleSequenceResults from './MultipleSequenceResults';
+import LineChart from './charts/LineChart';
 
 const GlobalResults = () => {
   const api_host = process.env.REACT_APP_BACKEND_HOST;
@@ -101,6 +102,22 @@ const GlobalResults = () => {
     );
   };
 
+  const transform_total_data = data => {
+    const r = [
+      { algorithm: 1, xx: [], yy: [] },
+      { algorithm: 2, xx: [], yy: [] },
+      { algorithm: 3, xx: [], yy: [] },
+      { algorithm: 4, xx: [], yy: [] },
+    ];
+    for (const [key, value] of Object.entries(data)) {
+      value.forEach((v, i) => {
+        r[i].xx.push(parseInt(key));
+        r[i].yy.push(value[i].y);
+      });
+    }
+    return r;
+  };
+
   return allDataLoaded ? (
     <Box minH="86vh" borderWidth={2} rounded="md">
       <VStack mt={4} mb={6} spacing={6}>
@@ -115,6 +132,20 @@ const GlobalResults = () => {
             Total time & timeouts comparison by workers
           </Heading>
           <Divider />
+          <HStack w="100%" justifyContent="space-around">
+            <VStack justifyContent="center" spacing={4}>
+              <Heading size="sm">Verified total time</Heading>
+              <LineChart
+                data={transform_total_data(verifiedTimesWorkersComparison)}
+              />
+            </VStack>
+            <VStack>
+              <Heading size="sm">Verified timedout provisions</Heading>
+              <LineChart
+                data={transform_total_data(verifiedTimeoutsWorkersComparison)}
+              />
+            </VStack>
+          </HStack>
         </VStack>
       </VStack>
       <VStack mt={4} mb={6} spacing={6}>
