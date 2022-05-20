@@ -5,8 +5,8 @@ if os.path.exists("custom-compose.yml"):
 else:
     print("The file does not exist")
 
-workers = 150
-olts = 100
+workers = 20 
+olts = 20 
 
 f = open("custom-compose.yml", "w+")
 
