@@ -191,7 +191,7 @@ public class ResultsController {
         Map<Integer, List<Pair>> results_by_worker_number = new HashMap<>();
         Map<Integer, List<Pair>> sorted_map_results = new HashMap<>();
         for(Result result : results) {
-            if(result.getAlgorithm() == 4) {
+            if(result.getSequence() == 3) {
                 if(!results_by_worker_number.containsKey(result.getWorkers())) {
                     results_by_worker_number.put(result.getWorkers(), new ArrayList<>());
                 } 
@@ -210,7 +210,7 @@ public class ResultsController {
         Map<Integer, List<Pair>> results_by_worker_number = new HashMap<>();
         Map<Integer, List<Pair>> sorted_map_results = new HashMap<>();
         for(Result result : results) {
-            if(result.getAlgorithm() == 4) {
+            if(result.getSequence() == 3) {
                 if(!results_by_worker_number.containsKey(result.getWorkers())) {
                     results_by_worker_number.put(result.getWorkers(), new ArrayList<>());
                 } 
