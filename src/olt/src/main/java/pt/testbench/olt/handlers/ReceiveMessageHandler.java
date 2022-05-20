@@ -3,8 +3,8 @@ package pt.testbench.olt.handlers;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import pt.testbench.olt.communication.Worker;
 import pt.testbench.olt.model.OltRequest;
@@ -12,7 +12,6 @@ import pt.testbench.olt.model.Response;
 import pt.testbench.olt.model.Status;
 import java.util.Date;
 
-@DependsOn("createStatus")
 @Service
 public class ReceiveMessageHandler {
 
@@ -21,6 +20,7 @@ public class ReceiveMessageHandler {
 
     @Autowired private Status currentStatus;
 
+    @RabbitHandler
     public void handleMessage(String body) {
         OltRequest request = converter.fromJson(body, OltRequest.class);
         request.setStartedBeingProcessedAtOlt(new Date().getTime());
