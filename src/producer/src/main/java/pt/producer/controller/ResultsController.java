@@ -187,15 +187,15 @@ public class ResultsController {
         }
     }
 
-    Map<Integer, List<Pair>> construct_data_total_verified_time_workers_comparison(Iterable<Result> results) {
-        Map<Integer, List<Pair>> results_by_worker_number = new HashMap<>();
-        Map<Integer, List<Pair>> sorted_map_results = new HashMap<>();
+    Map<Integer, Pair[]> construct_data_total_verified_time_workers_comparison(Iterable<Result> results) {
+        Map<Integer, Pair[]> results_by_worker_number = new HashMap<>();
+        Map<Integer, Pair[]> sorted_map_results = new HashMap<>();
         for(Result result : results) {
             if(result.getSequence() == 3) {
                 if(!results_by_worker_number.containsKey(result.getWorkers())) {
-                    results_by_worker_number.put(result.getWorkers(), new ArrayList<>());
+                    results_by_worker_number.put(result.getWorkers(), new Pair[4]);
                 } 
-                results_by_worker_number.get(result.getWorkers()).add(new Pair(result.getRequests(), result.getVerifiedTotalTime()));
+                results_by_worker_number.get(result.getWorkers())[result.getAlgorithm() - 1] = new Pair(result.getRequests(), result.getVerifiedTotalTime());
             }
         }
         List<Integer> workers = new ArrayList<>(results_by_worker_number.keySet());
@@ -206,15 +206,15 @@ public class ResultsController {
         return sorted_map_results;
     }
 
-    Map<Integer, List<Pair>> construct_data_total_verified_timeouts_workers_comparison(Iterable<Result> results) {
-        Map<Integer, List<Pair>> results_by_worker_number = new HashMap<>();
-        Map<Integer, List<Pair>> sorted_map_results = new HashMap<>();
+    Map<Integer, Pair[]> construct_data_total_verified_timeouts_workers_comparison(Iterable<Result> results) {
+        Map<Integer, Pair[]> results_by_worker_number = new HashMap<>();
+        Map<Integer, Pair[]> sorted_map_results = new HashMap<>();
         for(Result result : results) {
             if(result.getSequence() == 3) {
                 if(!results_by_worker_number.containsKey(result.getWorkers())) {
-                    results_by_worker_number.put(result.getWorkers(), new ArrayList<>());
+                    results_by_worker_number.put(result.getWorkers(), new Pair[4]);
                 } 
-                results_by_worker_number.get(result.getWorkers()).add(new Pair(result.getRequests(), result.getVerifiedTimedoutRequests()));
+                results_by_worker_number.get(result.getWorkers())[result.getAlgorithm() - 1] = new Pair(result.getRequests(), result.getVerifiedTimedoutRequests());
             }
         }
         List<Integer> workers = new ArrayList<>(results_by_worker_number.keySet());
@@ -228,14 +228,14 @@ public class ResultsController {
     @RequestMapping("/total_verified_time_workers_comparison")
     public ResponseEntity<?> totalVerifiedTimeWorkersComparison() {
         Iterable<Result> all_results = this.resultsRepository.findAll();
-        Map<Integer, List<Pair>> verified_total_time_by_workers_results = construct_data_total_verified_time_workers_comparison(all_results);
+        Map<Integer, Pair[]> verified_total_time_by_workers_results = construct_data_total_verified_time_workers_comparison(all_results);
         return new ResponseEntity<>(verified_total_time_by_workers_results, HttpStatus.OK);
     }
 
     @RequestMapping("/total_verified_timeouts_workers_comparison")
     public ResponseEntity<?> totalVerifiedTimeoutsWorkersComparison() {
         Iterable<Result> all_results = this.resultsRepository.findAll();
-        Map<Integer, List<Pair>> verified_total_timeouts_by_workers_results = construct_data_total_verified_timeouts_workers_comparison(all_results);
+        Map<Integer, Pair[]> verified_total_timeouts_by_workers_results = construct_data_total_verified_timeouts_workers_comparison(all_results);
         return new ResponseEntity<>(verified_total_timeouts_by_workers_results, HttpStatus.OK);
     }
 
