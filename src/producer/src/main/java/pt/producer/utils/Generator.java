@@ -1,9 +1,7 @@
 package pt.producer.utils;
 
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
 import pt.producer.model.Message;
 import pt.producer.model.Orchestration;
 import java.util.ArrayList;
@@ -12,11 +10,21 @@ import java.util.List;
 
 public class Generator {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private static final Gson converter = new Gson();
     private Random random = new Random(34);
+    private String last_olt = null;
+    private int left_messages_to_generate = 0;
+
 
     Logger log = LoggerFactory.getLogger(this.getClass().getName());
+
+    private boolean generate_boolean_based_on_percentage(int percentage_true) {
+        int generated_number = this.random.nextInt(100);
+        if(generated_number <= percentage_true) {
+            this.left_messages_to_generate = 3;
+            return true;
+        }
+        return false;
+    }
 
     private List<Integer> generate_message_indexes(List<Integer> other_indexes, int messages) {
         List<Integer> message_indexes = new ArrayList<>();
@@ -55,12 +63,23 @@ public class Generator {
         }
         for(int i = 0; i < orchestration.getMessages(); i++) {
             Message m = generate_message(orchestration.getOlts());
+            if(this.left_messages_to_generate > 0) {
+                if(this.last_olt == null) {
+                    m.setOlt(this.last_olt);
+                } else {
+                    int olt = this.random.nextInt(orchestration.getOlts());
+                    this.last_olt = String.valueOf(olt);
+                }
+                this.left_messages_to_generate--;
+            } else {
+                boolean new_same_worker_sequence = generate_boolean_based_on_percentage(20);
+                if(new_same_worker_sequence) this.left_messages_to_generate = 3;
+                this.last_olt = m.getOlt();
+            }
             if(yellow_indexes.contains(i)) m.setYellowRequests(3);
             if(red_indexes.contains(i)) m.setRedRequests(3);
             generated_messages.add(m);
         }
-        log.info("Used seed: 34 to generate messages");
-        log.info("Generated messages: " + converter.toJson(generated_messages));
         return generated_messages;
     }
 }
