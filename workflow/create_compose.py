@@ -79,7 +79,7 @@ olts_block = ""
 for i in range(olts):
     olts_block += """
   olt_%d:
-    image: 10.112.106.236:32500/ztp-onu-producer_spring:1.0
+    image: 10.112.106.236:32500/ztp-onu-olt_spring:1.0
     command: \"--olt.id=%d\" 
     container_name: olt-%d
     depends_on:
